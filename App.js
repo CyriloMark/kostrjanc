@@ -1,20 +1,31 @@
+import React, { useEffect, useState } from "react";
+
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export default function App() {
+import { useFonts } from 'expo-font';
+
+import Loading from './componets/Loading';
+
+import AuthPage from './componets/auth/AuthPage'; 
+
+export default function App () {
+
+  const [fontsLoaded, fontsError] = useFonts({
+    Inconsolata_Light: require("./assets/fonts/Inconsolata-ExtraLight.ttf"),
+    Inconsolata_Regular: require("./assets/fonts/Inconsolata-Regular.ttf"),
+    Inconsolata_Black: require("./assets/fonts/Inconsolata-Black.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <Loading />
+    )
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Fuck on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    <SafeAreaProvider>
+      <AuthPage /> 
+    </SafeAreaProvider>
+  )
+} 
