@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
-import { View, StyleSheet, Text, Pressable, Modal } from 'react-native';
+import { View, StyleSheet, Text, Pressable, Modal, ScrollView, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AuthPage() {
+
+    const loginScrollViewRef = useRef();
 
     const [loginScreenVisibility, setLoginScreenVisibility] = useState(false);
 
@@ -11,8 +13,30 @@ export default function AuthPage() {
 
         <SafeAreaView style={ styles.container }>
 
-            <Modal style={ styles.modalScreenContainer } animationType="slide" transparent={true} visible={loginScreenVisibility} >
+                {/* Login */}
+            <Modal presentationStyle='formSheet' onRequestClose={ () => setLoginScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={loginScreenVisibility} >
+                <View style={ styles.modalScreenContainer } >
+                
+                        {/* DragHandle */}
+                    <View style={ styles.modalDragHandleContainer }>
+                        <Pressable style={ styles.modalDragHandle } onPress={ () => setLoginScreenVisibility(false) } />
+                    </View>
+                    
+                    <View style={ styles.modalBodyContainer }>
+                        <ScrollView ref={loginScrollViewRef} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={false} >
+                            
+                                {/* Email */}
+                            <View>
+                                <TextInput style={ stylemodalInput } keyboardType="email-address" autoCapitalize='none' maxLength={64}
+                                    placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark'
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#143C63"}
+                                />
+                            </View>
 
+                        </ScrollView>
+                    </View>
+
+                </View>
             </Modal>  
 
                 {/* Header */}
@@ -20,6 +44,7 @@ export default function AuthPage() {
                 
                     {/* Icon */}
                 <View style={ styles.headerIconContainer }>
+                    <View style={ styles.headerIcon } />
                 </View>
                 <Text style={ styles.headerTitleText }>Kostrjanc</Text>
 
@@ -60,7 +85,7 @@ const styles = StyleSheet.create({
         width: "100%",
         backgroundColor: "#5884B0",
         alignItems: "center",
-        paddingHorizontal: 10
+        padding: 10
     },
 
     headerContainer: {
@@ -85,14 +110,19 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     headerIconContainer: {
-        flex: .15,
-        maxHeight: "100%",
+        height: "100%",
+        flex: .2,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    headerIcon: {
+        aspectRatio: 1,
+        height: "100%",
         backgroundColor: "#B06E6A",
         borderRadius: 50,
-        aspectRatio: 1,
     },
     headerTitleText: {
-        flex: .8,
+        flex: .75,
         color: "#5884B0",
         marginLeft: "5%",
         fontFamily: "Inconsolata_Black",
@@ -171,8 +201,30 @@ const styles = StyleSheet.create({
         fontSize: 10
     },
 
-
     modalScreenContainer: {
-        position: "absolute",
+        width: "100%",
+        flex: 1,
+        backgroundColor: "#5884B0",
+    },
+    modalDragHandleContainer: {
+        flex: .05,
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalDragHandle: {
+        flex: .2,
+        width: "40%",
+        borderRadius: 25,
+        backgroundColor: "#143C63"
+    },
+
+    modalBodyContainer: {
+        width: "100%",
+        flex: .9,
+        paddingHorizontal: 10
+    },
+    modalScrollViewContainer: {
+        width: "100%"
     }
 });
