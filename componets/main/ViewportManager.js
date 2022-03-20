@@ -7,6 +7,11 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 import Landing from './Landing';
 
+import SVG_Recent from '../../assets/svg/Recent';
+import SVG_Search from '../../assets/svg/Search';
+import SVG_Add from '../../assets/svg/Add';
+import SVG_Profile from '../../assets/svg/Profile';
+
 const Navbar = createMaterialTopTabNavigator();
 
 export default function ViewportManager() {
@@ -20,6 +25,9 @@ export default function ViewportManager() {
                 tabBarShowLabel: false,
                 tabBarShowIcon: true,
                 tabBarIndicatorStyle: styles.navbarIndicator,
+                tabBarItemStyle: styles.navbarItem,
+                tabBarIconStyle: styles.navbarIcon,
+                tabBarLabelStyle: styles.navbarLabel,
                 lazy: true,
                 lazyPreloadDistance: 4,
                 tabBarStyle: styles.navbarStyle,
@@ -29,22 +37,22 @@ export default function ViewportManager() {
             >
             <Navbar.Screen name='Landing' component={Landing} options={{
                 tabBarIcon: ({ focused }) => (
-                    <Text>Lan</Text>
+                    <SVG_Recent fill={focused ? "#B06E6A" : "#5884B0"} />
                 )
             }} />
             <Navbar.Screen name='Search' component={Landing} options={{
                 tabBarIcon: ({ focused }) => (
-                    <Text>Sea</Text>
+                    <SVG_Search fill={focused ? "#B06E6A" : "#5884B0"} />
                 )
             }} />
             <Navbar.Screen name='Add' component={Landing} options={{
                 tabBarIcon: ({ focused }) => (
-                    <Text>Add</Text>
+                    <SVG_Add fill={focused ? "#B06E6A" : "#5884B0"} />
                 )
             }} />
             <Navbar.Screen name='Profile' component={Landing} options={{
                 tabBarIcon: ({ focused }) => (
-                    <Text>Pro</Text>
+                    <SVG_Profile fill={focused ? "#B06E6A" : "#5884B0"} />
                 )
             }} />
         </Navbar.Navigator>
@@ -80,6 +88,28 @@ const styles = StyleSheet.create({
         elevation: 5,
 
         justifyContent: "center"
+    },
+    navbarItem: {
+        height: "100%",
+        aspectRatio: 1,
+        marginHorizontal: 10,
+        padding: "10%",
+        justifyContent: "center",
+        alignItems: "center",
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 5,
+    },
+    navbarIcon: {
+        aspectRatio: 1,
+        width: "100%",
+        height: "100%",
     },
     navbarIndicator: {
         opacity: 0,
