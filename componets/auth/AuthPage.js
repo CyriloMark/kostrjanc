@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import { View, StyleSheet, Text, Pressable, Modal, ScrollView, TextInput } from 'react-native';
+import { View, StyleSheet, Text, Pressable, Modal, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AuthPage() {
 
     const loginScrollViewRef = useRef();
+    const registerScrollViewRef = useRef();
 
     const [loginScreenVisibility, setLoginScreenVisibility] = useState(false);
+    const [registerScreenVisibility, setRegisterScreenVisibility] = useState(false);
 
     return (
 
@@ -15,7 +17,7 @@ export default function AuthPage() {
 
                 {/* Login */}
             <Modal presentationStyle='formSheet' onRequestClose={ () => setLoginScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={loginScreenVisibility} >
-                <View style={ styles.modalScreenContainer } >
+                <KeyboardAvoidingView behavior='padding' enabled style={ styles.modalScreenContainer }>
                 
                         {/* DragHandle */}
                     <View style={ styles.modalDragHandleContainer }>
@@ -26,18 +28,89 @@ export default function AuthPage() {
                         <ScrollView ref={loginScrollViewRef} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={false} >
                             
                                 {/* Email */}
-                            <View>
-                                <TextInput style={ stylemodalInput } keyboardType="email-address" autoCapitalize='none' maxLength={64}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } keyboardType="email-address" autoCapitalize='none' maxLength={64}
                                     placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark'
-                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#143C63"}
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"}
                                 />
+                            </View>
+
+                                {/* Password */}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={64}
+                                    placeholder="Hesło" autoComplete={ false } textContentType="password" keyboardAppearance='dark'
+                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"}
+                                />
+                            </View>
+
+                                {/* Submit */}
+                            <View style={ styles.modalSubmitBtnContainer }>
+                                <View style={ styles.modalSubmitBtn }>
+                                    <Text style={ styles.modalSubmitBtnText }>Zalogować</Text>
+                                </View>
                             </View>
 
                         </ScrollView>
                     </View>
 
-                </View>
-            </Modal>  
+                </KeyboardAvoidingView>
+            </Modal>
+
+            <Modal presentationStyle='formSheet' onRequestClose={ () => setRegisterScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={registerScreenVisibility} >
+                <KeyboardAvoidingView behavior='padding' enabled style={ styles.modalScreenContainer }>
+                
+                        {/* DragHandle */}
+                    <View style={ styles.modalDragHandleContainer }>
+                        <Pressable style={ styles.modalDragHandle } onPress={ () => setRegisterScreenVisibility(false) } />
+                    </View>
+
+                    <View style={ styles.modalBodyContainer }>
+                        <ScrollView ref={registerScrollViewRef} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={false} >
+
+                                {/* Email */}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } keyboardType="default" autoCapitalize='none' maxLength={32}
+                                    placeholder="Mjeno" autoComplete={ false } textContentType="name" keyboardAppearance='dark'
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"}
+                                />
+                            </View>
+
+                                {/* Email */}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } keyboardType="email-address" autoCapitalize='none' maxLength={64}
+                                    placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark'
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"}
+                                />
+                            </View>
+
+                                {/* Password */}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={128}
+                                    placeholder="Hesło" autoComplete={ false } textContentType="password" keyboardAppearance='dark'
+                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"}
+                                />
+                            </View>
+
+                                {/* Confirm password */}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={128}
+                                    placeholder="Hesło wospjetować" autoComplete={ false } textContentType="password" keyboardAppearance='dark'
+                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"}
+                                />
+                            </View>
+
+                                {/* Submit */}
+                            <View style={ styles.modalSubmitBtnContainer }>
+                                <View style={ styles.modalSubmitBtn }>
+                                    <Text style={ styles.modalSubmitBtnText }>Registrować</Text>
+                                </View>
+                            </View>
+
+                        </ScrollView>
+                    </View>
+
+                </KeyboardAvoidingView>
+            </Modal>
 
                 {/* Header */}
             <View style={ styles.headerContainer }>
@@ -63,7 +136,7 @@ export default function AuthPage() {
                     <Pressable style={ styles.btnContainer } onPress={ () => setLoginScreenVisibility(true) }>
                         <Text style={ styles.btnText } >Zalogować</Text>
                     </Pressable>
-                    <Pressable style={ styles.btnContainer }>
+                    <Pressable style={ styles.btnContainer } onPress={ () => setRegisterScreenVisibility(true) } >
                         <Text style={ styles.btnText } >Registrować</Text>
                     </Pressable>
                 </View>
@@ -104,8 +177,7 @@ const styles = StyleSheet.create({
         elevation: 10,
 
         zIndex: 99,
-        paddingHorizontal: 25,
-        paddingVertical: 10,
+        padding: 10,
         flexDirection: "row",
         alignItems: "center"
     },
@@ -225,6 +297,67 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10
     },
     modalScrollViewContainer: {
-        width: "100%"
+        width: "100%",
+        paddingVertical: "10%",
+    },
+
+    modalInputContainer: {
+        width: "100%",
+        marginVertical: "2%",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    modalInput: {
+        width: "80%",
+        color: "#5884B0",
+
+        padding: 25,
+
+        fontFamily: "Inconsolata_Regular",
+        fontSize: 25,
+
+        backgroundColor: "#143C63",
+        borderRadius: 15,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 5,
+    },
+
+    modalSubmitBtnContainer: {
+        width: "100%",
+        marginVertical: "10%",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    modalSubmitBtn: {
+        width: "80%",
+
+        backgroundColor: "#B06E6A",
+        borderRadius: 15,
+
+        padding: 25,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 5,
+
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    modalSubmitBtnText: {
+        color: "rgba(0, 0, 0, .5)",
+        fontFamily: "Inconsolata_Black",
+        fontSize: 25,
     }
 });
