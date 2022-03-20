@@ -1,17 +1,14 @@
 import React from "react";
 
-import { View, StyleSheet, SafeAreaView, Text } from "react-native";
-import Navbar from "./Navbar";
+import { View, StyleSheet, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Loading() {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <Navbar />
-        <View style={styles.center}>
+        <View style={styles.bodyContainer}>
           <Text style={styles.heading}>kostrjanc</Text>
-          <Text style={styles.subHeading}>přeni serbski social media</Text>
-        </View>
+          <Text style={styles.subHeading}>1. serbski social media</Text>
       </View>
     </SafeAreaView>
   );
@@ -19,23 +16,25 @@ export default function Loading() {
 
 const styles = StyleSheet.create({
   container: {
-    height: "100%",
     flex: 1,
+    width: "100%",
     backgroundColor: "#5884B0",
   },
-  center: {
-    height: "100%",
+  bodyContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   heading: {
-    color: "white",
-    fontFamily: "Inconsolata_Regular",
-    fontSize: 64,
+    color: "#143C63",
+    fontFamily: "Inconsolata_Black",
+    fontSize: 50,
+    marginVertical: 10
   },
   subHeading: {
-    color: "white",
-    fontFamily: "Inconsolata_Regular",
-    fontSize: 20,
+    color: "#143C63",
+    fontFamily: "Inconsolata_Light",
+    fontSize: 25,
+    marginVertical: 10
   },
 });

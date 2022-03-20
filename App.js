@@ -7,9 +7,13 @@ import { useFonts } from "expo-font";
 
 import Loading from "./componets/Loading";
 
+import ViewportManager from "./componets/main/ViewportManager";
+
 import AuthPage from "./componets/auth/AuthPage";
+import { NavigationContainer } from "@react-navigation/native";
 
 export default function App() {
+
   const [fontsLoaded, fontsError] = useFonts({
     Inconsolata_Light: require("./assets/fonts/Inconsolata-ExtraLight.ttf"),
     Inconsolata_Regular: require("./assets/fonts/Inconsolata-Regular.ttf"),
@@ -17,12 +21,14 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <Loading />;
+    return (<></>);
   }
 
   return (
-    <SafeAreaProvider>
-      <Loading />
-    </SafeAreaProvider>
+    <NavigationContainer>
+      <SafeAreaProvider>
+        <ViewportManager />
+      </SafeAreaProvider>
+    </NavigationContainer>
   );
 }

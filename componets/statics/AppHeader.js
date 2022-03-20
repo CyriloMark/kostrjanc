@@ -12,7 +12,7 @@ export default function AppHeader(props) {
             <View style={ styles.headerIconContainer }>
                 <View style={ styles.headerIcon } />
             </View>
-            <Text style={ styles.headerTitleText }>Kostrjanc</Text>
+            <Text style={ styles.headerTitleText }>kostrjanc</Text>
 
         </View>
     </View>
