@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { View, StyleSheet, Text, Pressable, Modal, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import AppHeader from '../statics/AppHeader';
+
 export default function AuthPage() {
 
     const loginScrollViewRef = useRef();
@@ -112,16 +114,7 @@ export default function AuthPage() {
                 </KeyboardAvoidingView>
             </Modal>
 
-                {/* Header */}
-            <View style={ styles.headerContainer }>
-                
-                    {/* Icon */}
-                <View style={ styles.headerIconContainer }>
-                    <View style={ styles.headerIcon } />
-                </View>
-                <Text style={ styles.headerTitleText }>Kostrjanc</Text>
-
-            </View>
+            <AppHeader style={{ width: "100%", height: "10%" }} />
 
                 {/* Body */}
             <View style={ styles.bodyContainer }>
@@ -159,55 +152,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#5884B0",
         alignItems: "center",
         padding: 10
-    },
-
-    headerContainer: {
-        width: "100%",
-        height: "10%",
-        backgroundColor: "#143C63",
-        borderRadius: 25,
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: 0.34,
-        shadowRadius: 6.27,
-        elevation: 10,
-
-        zIndex: 99,
-        padding: 10,
-        flexDirection: "row",
-        alignItems: "center"
-    },
-    headerIconContainer: {
-        height: "100%",
-        flex: .2,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    headerIcon: {
-        aspectRatio: 1,
-        height: "100%",
-        backgroundColor: "#B06E6A",
-        borderRadius: 50,
-    },
-    headerTitleText: {
-        flex: .75,
-        color: "#5884B0",
-        marginLeft: "5%",
-        fontFamily: "Inconsolata_Black",
-        fontSize: 25,
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: .34,
-        shadowRadius: 6.27,
-        elevation: 5,
     },
 
     bodyContainer: {
