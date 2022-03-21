@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { View, StyleSheet, Text, ScrollView, RefreshControl, Pressable, FlatList } from "react-native";
 
+import Navbar from '../statics/Navbar';
 import EventCard from '../statics/EventCard';
 
 const wait = (timeout) => {
@@ -94,7 +95,7 @@ const arraySplitter = (data , coloums) => {
     }
 }
 
-export default function Profile() {
+export default function Profile({ navigation }) {
 
     const [refreshing, setRefreshing] = useState(false);
     
@@ -112,13 +113,21 @@ export default function Profile() {
 
     return (
         <View style={ styles.container } >
-            <ScrollView contentContainerStyle={{ width: "100%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+
+            <Navbar style={ styles.navbar } active={3}
+                onPressRecent={ () => { navigation.navigate("Recent") }}
+                onPressSearch={ () => { navigation.navigate("Search") }}
+                onPressAdd={ () => { navigation.navigate("Add") }}
+                onPressProfile={ () => { navigation.navigate("Profile") }}
+            />
+
+
+            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={{ width: "100%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
                 refreshControl={
-                <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                />
-                }>
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    /> }>
 
                     {/* Profile Header */}
                 <View style={ styles.profileHeader }>
@@ -167,6 +176,24 @@ const styles = StyleSheet.create({
         backgroundColor: "#5884B0",
         padding: 10,
     },
+
+    navbar: {
+        width: "80%",
+        height: "10%",
+        bottom: "2%",
+        alignSelf: "center",
+        position: "absolute",
+        zIndex: 99,
+    
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 5,
+      },
 
     profileHeader: {
         width: "100%",

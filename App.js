@@ -37,7 +37,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <SafeAreaProvider>
+      <SafeAreaProvider style={{ flex: 1 }}>
         <ViewportManager />
       </SafeAreaProvider>
     </NavigationContainer>

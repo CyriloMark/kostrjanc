@@ -3,62 +3,27 @@ import React from 'react'
 import { View, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 
 import Landing from './Landing';
+import Add from './Add';
 import Profile from './Profile';
 
-import SVG_Recent from '../../assets/svg/Recent';
-import SVG_Search from '../../assets/svg/Search';
-import SVG_Add from '../../assets/svg/Add';
-import SVG_Profile from '../../assets/svg/Profile';
-
-const Navbar = createMaterialTopTabNavigator();
+const Stack = createStackNavigator();
 
 export default function ViewportManager() {
   return (
     <SafeAreaView style={styles.container}>
-        <Navbar.Navigator initialRouteName="Landing"
-            shifting={false} labeled={true} backBehavior='initialRoute'
-            style={ styles.bodyContainer } tabBarPosition="bottom"
-            sceneContainerStyle={ styles.sceneContainer }
-            screenOptions={{
-                tabBarShowLabel: false,
-                tabBarShowIcon: true,
-                tabBarIndicatorStyle: styles.navbarIndicator,
-                tabBarItemStyle: styles.navbarItem,
-                tabBarIconStyle: styles.navbarIcon,
-                tabBarLabelStyle: styles.navbarLabel,
-                lazy: true,
-                lazyPreloadDistance: 4,
-                tabBarStyle: styles.navbarStyle,
-                swipeEnabled: false,
-                tabBarScrollEnabled: false,
-
-                tabBarBounces: true
-            }}
-            >
-            <Navbar.Screen name='Landing' component={Landing} options={{
-                tabBarIcon: ({ focused }) => (
-                    <SVG_Recent fill={focused ? "#B06E6A" : "#5884B0"} />
-                )
-            }} />
-            <Navbar.Screen name='Search' component={Landing} options={{
-                tabBarIcon: ({ focused }) => (
-                    <SVG_Search fill={focused ? "#B06E6A" : "#5884B0"} />
-                )
-            }} />
-            <Navbar.Screen name='Add' component={Landing} options={{
-                tabBarIcon: ({ focused }) => (
-                    <SVG_Add fill={focused ? "#B06E6A" : "#5884B0"} />
-                )
-            }} />
-            <Navbar.Screen name='Profile' component={Profile} options={{
-                tabBarIcon: ({ focused }) => (
-                    <SVG_Profile fill={focused ? "#B06E6A" : "#5884B0"} />
-                )
-            }} />
-        </Navbar.Navigator>
+        <Stack.Navigator initialRouteName="Recent" screenOptions={{
+                animationEnabled: false,
+                gestureEnabled: false,
+                cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
+            }} >
+            <Stack.Screen name="Recent" component={Landing} options={{ headerShown: false }} />
+            <Stack.Screen name="Search" component={Landing} options={{ headerShown: false }} />
+            <Stack.Screen name="Add" component={Add} options={{ headerShown: false }} />
+            <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+        </Stack.Navigator>
     </SafeAreaView>
   )
 }

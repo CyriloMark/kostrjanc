@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { View, StyleSheet, Text, Pressable, Modal, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
 import AppHeader from '../statics/AppHeader';
 
 export default function AuthPage() {
@@ -12,6 +14,20 @@ export default function AuthPage() {
 
     const [loginScreenVisibility, setLoginScreenVisibility] = useState(false);
     const [registerScreenVisibility, setRegisterScreenVisibility] = useState(false);
+
+    const [account, setAccount,] = useState({ email: "", password: "" });
+
+    const login = () => {
+        const auth = getAuth();
+        signInWithEmailAndPassword(auth, account.email, account.password)
+            .then((userCredential) => {
+                console.log(userCredential.user.email);
+            })
+            .catch((error) => {
+                console.log(error.code);
+            }
+        );
+    }
 
     return (
 
@@ -34,6 +50,7 @@ export default function AuthPage() {
                                 <TextInput style={ styles.modalInput } keyboardType="email-address" autoCapitalize='none' maxLength={64}
                                     placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark'
                                     multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"}
+                                    onChangeText={ (value) => setAccount({ email: value, password: account.password }) }
                                 />
                             </View>
 
@@ -42,14 +59,15 @@ export default function AuthPage() {
                                 <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={64}
                                     placeholder="Hesło" autoComplete={ false } textContentType="password" keyboardAppearance='dark'
                                     multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"}
+                                    onChangeText={ (value) => setAccount({ email: account.email, password: value }) }
                                 />
                             </View>
 
                                 {/* Submit */}
                             <View style={ styles.modalSubmitBtnContainer }>
-                                <View style={ styles.modalSubmitBtn }>
+                                <Pressable style={ styles.modalSubmitBtn } onPress={ login } >
                                     <Text style={ styles.modalSubmitBtnText }>Zalogować</Text>
-                                </View>
+                                </Pressable>
                             </View>
 
                         </ScrollView>
