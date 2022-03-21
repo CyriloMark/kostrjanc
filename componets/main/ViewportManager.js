@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import Landing from './Landing';
+import Profile from './Profile';
 
 import SVG_Recent from '../../assets/svg/Recent';
 import SVG_Search from '../../assets/svg/Search';
@@ -32,7 +33,9 @@ export default function ViewportManager() {
                 lazyPreloadDistance: 4,
                 tabBarStyle: styles.navbarStyle,
                 swipeEnabled: false,
-                tabBarScrollEnabled: false 
+                tabBarScrollEnabled: false,
+
+                tabBarBounces: true
             }}
             >
             <Navbar.Screen name='Landing' component={Landing} options={{
@@ -50,7 +53,7 @@ export default function ViewportManager() {
                     <SVG_Add fill={focused ? "#B06E6A" : "#5884B0"} />
                 )
             }} />
-            <Navbar.Screen name='Profile' component={Landing} options={{
+            <Navbar.Screen name='Profile' component={Profile} options={{
                 tabBarIcon: ({ focused }) => (
                     <SVG_Profile fill={focused ? "#B06E6A" : "#5884B0"} />
                 )
