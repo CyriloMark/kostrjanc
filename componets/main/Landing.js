@@ -21,7 +21,7 @@ export default function Landing() {
   return (
     <View style={ styles.container } >
 
-      <View style={{ flex: .1 }}>
+      <View style={{ height: "10%" }}>
         <AppHeader style={ styles.header } />
       </View>
 

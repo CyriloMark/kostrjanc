@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         height: "100%",
         aspectRatio: 1,
         marginHorizontal: 10,
-        padding: "10%",
+        padding: "15%",
         justifyContent: "center",
         alignItems: "center",
 
