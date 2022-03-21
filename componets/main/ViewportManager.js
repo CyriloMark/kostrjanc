@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
 
         justifyContent: "center"
     },
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
     },
     navbarIcon: {
         aspectRatio: 1,

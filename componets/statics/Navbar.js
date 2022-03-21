@@ -40,6 +40,20 @@ const styles = StyleSheet.create({
   },
   navbarItem: {
     flex: 1,
-    paddingHorizontal: 15
+    paddingHorizontal: "7%",
+
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 5,
+    },
+    shadowOpacity: .34,
+    shadowRadius: 6.27,
+    elevation: 10,
+  },
+
+  androidBorder: {
+    borderWidth: 2,
+    borderColor: "#000",
   }
 });

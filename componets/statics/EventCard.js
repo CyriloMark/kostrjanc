@@ -1,29 +1,29 @@
 import React from 'react'
 
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
 
 export default function EventCard(props) {
     return (
         <View style={ props.style }>
-            <View style={ styles.eventCardContainer }>
+            <View style={ styles.eventCardContainer } >
 
-                        {/* Info Text */}
-                    <View style={ styles.eventCardInfoContainer }>
-                            {/* Title */}
-                        <Text style={ styles.eventCardInfoTitle }>{props.title}</Text>
-                            {/* Describtion */}
-                        <Text style={ styles.eventCardInfoBio } >{props.bio}</Text>
-                    </View>
-
-                        {/* Interations */}
-                    <View style={ styles.eventCardInterationsContainer }>
-                        <Pressable style={ styles.eventCardInterationsBtn } onPress={props.onBtnPress} >
-                            <Text style={ styles.eventCardInterationsBtnText } >Sym tež tu</Text>
-                        </Pressable>
-                    </View>
-                    
+                    {/* Info Text */}
+                <View style={ styles.eventCardInfoContainer }>
+                        {/* Title */}
+                    <Text style={ styles.eventCardInfoTitle }>{props.title}</Text>
+                        {/* Describtion */}
+                    <Text style={ styles.eventCardInfoBio } >{props.bio}</Text>
                 </View>
-        </View>
+
+                    {/* Interations */}
+                <View style={ styles.eventCardInterationsContainer }>
+                    <Pressable style={ styles.eventCardInterationsBtn } onPress={props.onBtnPress} >
+                        <Text style={ styles.eventCardInterationsBtnText } >Sym tež tu</Text>
+                    </Pressable>
+                </View>
+
+            </View>
+    </View>
     )
 }
 
@@ -68,11 +68,11 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
     },
     eventCardInterationsBtnText: {
         fontFamily: "Inconsolata_Regular",
         fontSize: 15,
         color: "#5884B0",
-    }
+    },
 })

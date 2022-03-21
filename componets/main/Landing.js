@@ -32,7 +32,7 @@ export default function Landing({ navigation }) {
         onPressAdd={ () => { navigation.navigate("Add") }}
         onPressProfile={ () => { navigation.navigate("Profile") }} />
 
-      <ScrollView contentContainerStyle={{ width: "100%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+      <ScrollView contentContainerStyle={{ width: "100%", paddingBottom: "5%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
           refreshing={refreshing}
@@ -69,12 +69,12 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: .34,
     shadowRadius: 6.27,
-    elevation: 5,
+    elevation: 10,
   },
   navbar: {
     width: "80%",
     height: "10%",
-    bottom: "2%",
+    bottom: "5%",
     alignSelf: "center",
     position: "absolute",
     zIndex: 99,
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: .34,
     shadowRadius: 6.27,
-    elevation: 5,
+    elevation: 10,
   },
   eventCardAlert: {
     width: "90%",
@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: .34,
     shadowRadius: 6.27,
-    elevation: 5,
+    elevation: 10,
 },
 });

@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
     },
     btnText: {
         color: "#5884B0",
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
     },
 
     modalSubmitBtnContainer: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
 
         alignItems: "center",
         justifyContent: "center",

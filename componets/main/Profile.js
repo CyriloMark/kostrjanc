@@ -4,6 +4,7 @@ import { View, StyleSheet, Text, ScrollView, RefreshControl, Pressable, FlatList
 
 import Navbar from '../statics/Navbar';
 import EventCard from '../statics/EventCard';
+import PostPreview from '../statics/PostPreview';
 
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -32,51 +33,8 @@ const Data = [
     },
     {
         id: 6,
-        name: "du"
+        name: "hay "
     },
-    {
-        id: 7,
-        name: "esel"
-    },
-];
-
-const data3 = [
-    [
-        {
-            id: 1,
-            name: "hey"
-        },
-        {
-            id: 2,
-            name: "du"
-        },
-    ],
-    [
-        {
-            id: 3,
-            name: "hey"
-        },
-        {
-            id: 4,
-            name: "du"
-        },
-    ],
-    [
-        {
-            id: 5,
-            name: "hey"
-        },
-        {
-            id: 6,
-            name: "du"
-        },
-    ],
-    [
-        {
-            id: 7,
-            name: "hey"
-        },
-    ],
 ];
 
 const arraySplitter = (data , coloums) => {
@@ -93,23 +51,18 @@ const arraySplitter = (data , coloums) => {
         }
         newData.push(currentObject);
     }
+    return(newData);
 }
 
 export default function Profile({ navigation }) {
 
     const [refreshing, setRefreshing] = useState(false);
-    
-    const [splittedData, setSplittedData] = useState([{ id: 0, name: "" }]);
-    const [data, setData] = useState(data3);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
+
         wait(2000).then(() => setRefreshing(false));
     }, []);
-
-    useEffect(() => {
-        setSplittedData(arraySplitter(Data, 2));
-    });
 
     return (
         <View style={ styles.container } >
@@ -122,7 +75,7 @@ export default function Profile({ navigation }) {
             />
 
 
-            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={{ width: "100%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={{ width: "100%", paddingBottom: "5%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -153,12 +106,10 @@ export default function Profile({ navigation }) {
 
                     {/* Post List */}
                 <View style={ styles.postContainer }>
-                    { data.map((list, listKey) => 
+                    { arraySplitter(Data, 2).map((list, listKey) => 
                         <View key={listKey} style={ styles.postItemListContainer }>
                             { list.map((item, itemKey) => 
-                                <View key={itemKey} style={ styles.postItemContainer } >
-                                    <Text style={ styles.postItemText } >{item.name}</Text>
-                                </View>
+                                <PostPreview key={itemKey} item={item} style={ styles.postPreview } />
                             ) }
                         </View>
                     ) }
@@ -180,7 +131,7 @@ const styles = StyleSheet.create({
     navbar: {
         width: "80%",
         height: "10%",
-        bottom: "2%",
+        bottom: "5%",
         alignSelf: "center",
         position: "absolute",
         zIndex: 99,
@@ -192,7 +143,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
       },
 
     profileHeader: {
@@ -238,7 +189,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
     },
     profileBioText: {
         fontFamily: "Inconsolata_Regular",
@@ -259,7 +210,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
     },
 
     postContainer: {
@@ -276,32 +227,11 @@ const styles = StyleSheet.create({
         padding: 0,
         margin: 0,
     },
-    postItemContainer: {
+
+    postPreview: {
         flex: 1,
-        margin: "2%",
         aspectRatio: .9,
-        borderRadius: 25,
-
-
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 10,
-
-        backgroundColor: "#143C63",
-        
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: .34,
-        shadowRadius: 6.27,
-        elevation: 5,
-    },
-    postItemText: {
-        fontFamily: "Inconsolata_Black",
-        fontSize: 25,
-        color: "#5884B0",
-    },
+        margin: "2%",
+    }
 });
     

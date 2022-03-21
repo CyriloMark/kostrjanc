@@ -27,7 +27,7 @@ export default function Add({ navigation }) {
                 onPressProfile={ () => { navigation.navigate("Profile") }}
             />
 
-            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={{ width: "100%" }}
+            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={{ width: "100%", paddingBottom: "5%" }}
                 showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     navbar: {
         width: "80%",
         height: "10%",
-        bottom: "2%",
+        bottom: "5%",
         alignSelf: "center",
         position: "absolute",
         zIndex: 99,
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: .34,
         shadowRadius: 6.27,
-        elevation: 5,
+        elevation: 10,
       },
 })
