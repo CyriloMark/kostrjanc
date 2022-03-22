@@ -2,11 +2,23 @@ import React from 'react'
 
 import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
 
+import MapView from 'react-native-maps';
+
 export default function EventCard(props) {
     return (
-        <View style={ props.style }>
-            <View style={ styles.eventCardContainer } >
+        <View style={[ props.style, { borderRadius: 15, overflow: "hidden" } ]}>
 
+            {/* <MapView style={styles.map}
+            accessible={false} focusable={false}
+                initialRegion={{
+                    latitude: 37.78825,
+                    longitude: -122.4324,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                  }}
+            /> */}
+
+            <View style={ styles.eventCardContainer }>
                     {/* Info Text */}
                 <View style={ styles.eventCardInfoContainer }>
                         {/* Title */}
@@ -21,19 +33,25 @@ export default function EventCard(props) {
                         <Text style={ styles.eventCardInterationsBtnText } >Sym tež tu</Text>
                     </Pressable>
                 </View>
-
             </View>
     </View>
     )
 }
 
 const styles = StyleSheet.create({
+
+    map: {
+        position: "absolute",
+        overflow: "hidden",
+        width: "100%",
+        height: "100%",
+        borderRadius: 15,
+    },
+
     eventCardContainer: {
         width: "100%",
-        borderRadius: 15,
-        backgroundColor: "#B06E6A",
-        
-        padding: 10
+        padding: 10,
+        backgroundColor: "rgba(176, 110, 106, 1)"
     },
     eventCardInfoContainer: {
         width: "100%",

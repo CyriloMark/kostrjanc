@@ -6,34 +6,45 @@ import Navbar from '../statics/Navbar';
 import EventCard from '../statics/EventCard';
 import PostPreview from '../statics/PostPreview';
 
+import { PostType } from '../statics/PostPreview';
+
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
 }
 
 const Data = [
     {
-        id: 1,
+        id: 0,
+        type: PostType.Event,
         name: "hey"
     },
     {
+        id: 1,
+        type: PostType.Post,
+        name: "du bist hässlich\ndu\nstinkts\nund bist dumm!",
+        imgUri: 'https://play-lh.googleusercontent.com/NKnjiKMPtPaDcfN_mcG-F1nR9nBHgZAclG5IkfVrfpekMy0SoGagXbVdRXv1C1mIKhc=s180'
+    },
+    {
         id: 2,
-        name: "du"
+        type: PostType.Event,
+        name: "esel"
     },
     {
         id: 3,
-        name: "esel"
-    },
-    {
-        id: 4,
+        type: PostType.Event,
         name: "du"
     },
     {
-        id: 5,
-        name: "esel"
+        id: 4,
+        type: PostType.Post,
+        name: "esel",
+        imgUri: 'https://glaswerk24.de/images/product_images/original_images/white_close_up_10.png'
     },
     {
-        id: 6,
-        name: "hay "
+        id: 5,
+        type: PostType.Post,
+        name: "hay ",
+        imgUri: 'https://pbs.twimg.com/profile_images/476886763/ieu_400x400.jpg'
     },
 ];
 

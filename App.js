@@ -6,6 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 
 import { initializeApp } from "firebase/app"
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const app = initializeApp({
   apiKey: "AIzaSyAKOoHKDJSBvVUbKMG0F5uYLnuwgSINYk0",
@@ -25,14 +26,39 @@ import { NavigationContainer } from "@react-navigation/native";
 
 export default function App() {
 
+  const [loaded, setLoaded] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
   const [fontsLoaded, fontsError] = useFonts({
     Inconsolata_Light: require("./assets/fonts/Inconsolata-ExtraLight.ttf"),
     Inconsolata_Regular: require("./assets/fonts/Inconsolata-Regular.ttf"),
     Inconsolata_Black: require("./assets/fonts/Inconsolata-Black.ttf"),
   });
 
+  useEffect(() => {
+
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            setLoggedIn(true);
+            setLoaded(true);
+        } else {
+            setLoggedIn(false);
+            setLoaded(true);
+        }
+    });
+  });
+
   if (!fontsLoaded) {
     return (<></>);
+  }
+
+  if (!loaded) {
+    return <Loading />
+  }
+
+  if (!loggedIn) {
+    return (<AuthPage />)
   }
 
   return (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import { View, StyleSheet, Text, Pressable, Modal, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
+import { View, StyleSheet, Text, Pressable, Modal, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -34,13 +34,13 @@ export default function AuthPage() {
         <SafeAreaView style={ styles.container }>
 
                 {/* Login */}
-            <Modal presentationStyle='formSheet' onRequestClose={ () => setLoginScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={loginScreenVisibility} >
-                <KeyboardAvoidingView behavior='padding' enabled style={ styles.modalScreenContainer }>
+            <Modal presentationStyle={ Platform.OS === 'ios' ? 'formSheet' : 'overFullScreen' } transparent={ Platform.OS === 'android' } onRequestClose={ () => setLoginScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={loginScreenVisibility} >
+                <KeyboardAvoidingView behavior='padding' enabled style={ Platform.OS === 'ios' ? styles.modalScreenContainerIOS : styles.modalScreenContainerAndroid }>
                 
                         {/* DragHandle */}
-                    <View style={ styles.modalDragHandleContainer }>
+                    <Pressable style={ styles.modalDragHandleContainer } onPress={ () => setLoginScreenVisibility(false) } >
                         <Pressable style={ styles.modalDragHandle } onPress={ () => setLoginScreenVisibility(false) } />
-                    </View>
+                    </Pressable>
                     
                     <View style={ styles.modalBodyContainer }>
                         <ScrollView ref={loginScrollViewRef} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={false} >
@@ -76,13 +76,13 @@ export default function AuthPage() {
                 </KeyboardAvoidingView>
             </Modal>
 
-            <Modal presentationStyle='formSheet' onRequestClose={ () => setRegisterScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={registerScreenVisibility} >
-                <KeyboardAvoidingView behavior='padding' enabled style={ styles.modalScreenContainer }>
+            <Modal presentationStyle={ Platform.OS === 'ios' ? 'formSheet' : 'overFullScreen' } transparent={ Platform.OS === 'android' } onRequestClose={ () => setRegisterScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={registerScreenVisibility} >
+                <KeyboardAvoidingView behavior='padding' enabled style={ Platform.OS === 'ios' ? styles.modalScreenContainerIOS : styles.modalScreenContainerAndroid } >
                 
                         {/* DragHandle */}
-                    <View style={ styles.modalDragHandleContainer }>
+                    <Pressable style={ styles.modalDragHandleContainer } onPress={ () => setRegisterScreenVisibility(false) } >
                         <Pressable style={ styles.modalDragHandle } onPress={ () => setRegisterScreenVisibility(false) } />
-                    </View>
+                    </Pressable>
 
                     <View style={ styles.modalBodyContainer }>
                         <ScrollView ref={registerScrollViewRef} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={false} >
@@ -235,10 +235,18 @@ const styles = StyleSheet.create({
         fontSize: 10
     },
 
-    modalScreenContainer: {
+    modalScreenContainerIOS: {
         width: "100%",
         flex: 1,
         backgroundColor: "#5884B0",
+    },
+    modalScreenContainerAndroid: {
+        width: "100%",
+        height: "90%",
+        top: "10%",
+        backgroundColor: "#5884B0",
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
     },
     modalDragHandleContainer: {
         flex: .05,
