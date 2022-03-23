@@ -7,12 +7,6 @@ export default function Event(props) {
     return (
         <Svg style={props.style} viewBox="0 0 500 450">
             <Path d={postPaths} fill={props.fill} />
-            <Rect x="105" y="167.5" width="90" height="100" rx="15" ry="15"/>
-            <Rect x="205" y="167.5" width="90" height="100" rx="15" ry="15"/>
-            <Rect x="305" y="167.5" width="90" height="100" rx="15" ry="15"/>
-            <Rect x="305" y="277.5" width="90" height="100" rx="15" ry="15"/>
-            <Rect x="205" y="277.5" width="90" height="100" rx="15" ry="15"/>
-            <Rect x="105" y="277.5" width="90" height="100" rx="15" ry="15"/>
         </Svg>
     )
 }

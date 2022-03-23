@@ -91,7 +91,7 @@ export default function Profile({ navigation }) {
             />
 
 
-            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "5%" }]} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "35%" }]} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}

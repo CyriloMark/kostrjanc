@@ -13,7 +13,7 @@ const wait = (timeout) => {
 }
 
 const user = {
-  name: "knecht",
+  name: "Cyril Mark",
   pbUri: "https://picsum.photos/536/354"
 }
 
@@ -22,6 +22,7 @@ export default function Landing({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const [pinEventChecked, setPinEventChecked] = useState(false);
+  const [postLike, setPostLike] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -49,7 +50,7 @@ export default function Landing({ navigation }) {
 
         <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
           onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
-        <PostCard user={user} style={ styles.card } imgUri="https://picsum.photos/536/354" />
+        <PostCard liked={postLike} user={user} style={ styles.card } imgUri="https://picsum.photos/536/354" onLikePress={ () => setPostLike(!postLike) } />
         <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
           onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
         <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"

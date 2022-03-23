@@ -2,10 +2,9 @@ import React, { useState } from 'react'
 
 import { View, Text, StyleSheet, Image, Pressable, Vibration } from 'react-native';
 
-const vibrateOptions = {
-    enableVibrateFallback: true,
-    ignoreAndroidSystemSettings: false
-};
+import SVG_Heart from '../../assets/svg/Heart';
+import SVG_Recent from '../../assets/svg/Recent';
+import SVG_Share from '../../assets/svg/Share';
 
 export default function PostCard(props) {
 
@@ -28,6 +27,23 @@ export default function PostCard(props) {
                         </View>
                         <Text style={ styles.headerTitleText }>{props.user.name}</Text>
                     </View>
+
+                    <View style={ styles.postInteractions }>
+
+                            {/* Like */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: !props.liked ? "#143C63" : "#9FB012" } ]} onPress={ props.onLikePress } >
+                            <SVG_Heart style={ styles.postInteractionsItemText } fill={ !props.liked ? "#B06E6A" : "#143C63" } />
+                        </Pressable>
+                            {/* Comment */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
+                            <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable>
+                            {/* Share */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
+                            <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable>
+                    </View>
+
                 </View>
 
             </Pressable>
@@ -65,6 +81,10 @@ const styles = StyleSheet.create({
         height: "15%",
         width: "100%",
         borderRadius: 15,
+
+        position: "absolute",
+        top: 10,
+        alignSelf: "center",
         
         flexDirection: "row",
         alignItems: "center",
@@ -107,4 +127,38 @@ const styles = StyleSheet.create({
         shadowRadius: 6.27,
         elevation: 10,
     },
+
+    postInteractions: {
+        height: "10%",
+        width: "100%",
+
+        position: "absolute",
+        bottom: 10,
+        alignSelf: "center",
+        
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-end",
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 10,
+    },
+    postInteractionsItem: {
+        height: "100%",
+        aspectRatio: 1,
+        borderRadius: 50,
+
+        marginLeft: 10,
+        padding: 12,
+    },
+    postInteractionsItemText: {
+        flex: 1,
+        width: "100%"
+    }
 });
