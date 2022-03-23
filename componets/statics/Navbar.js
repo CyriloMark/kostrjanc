@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 
 import SVG_Recent from '../../assets/svg/Recent';
 import SVG_Search from '../../assets/svg/Search';
@@ -37,6 +37,8 @@ const styles = StyleSheet.create({
     
     flexDirection: "row",
     padding: 10,
+
+    elevation: 10,
   },
   navbarItem: {
     flex: 1,
@@ -51,9 +53,4 @@ const styles = StyleSheet.create({
     shadowRadius: 6.27,
     elevation: 10,
   },
-
-  androidBorder: {
-    borderWidth: 2,
-    borderColor: "#000",
-  }
 });

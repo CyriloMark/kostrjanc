@@ -31,7 +31,7 @@ export default function ViewportManager() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#5884B0"
+        backgroundColor: "#5884B0",
     },
     bodyContainer: {
         flex: 1,

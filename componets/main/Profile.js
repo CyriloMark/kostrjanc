@@ -16,7 +16,8 @@ const Data = [
     {
         id: 0,
         type: PostType.Event,
-        name: "hey"
+        name: "hey",
+        checked: false
     },
     {
         id: 1,
@@ -27,12 +28,14 @@ const Data = [
     {
         id: 2,
         type: PostType.Event,
-        name: "esel"
+        name: "esel bist ja ein mongo geh töten",
+        checked: false
     },
     {
         id: 3,
         type: PostType.Event,
-        name: "du"
+        name: "du",
+        checked: true
     },
     {
         id: 4,
@@ -68,6 +71,8 @@ const arraySplitter = (data , coloums) => {
 export default function Profile({ navigation }) {
 
     const [refreshing, setRefreshing] = useState(false);
+    
+    const [pinEventChecked, setPinEventChecked] = useState(false);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -86,7 +91,7 @@ export default function Profile({ navigation }) {
             />
 
 
-            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={{ width: "100%", paddingBottom: "5%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+            <ScrollView style={{ width: "100%", flex: 1 }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "5%" }]} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -113,7 +118,8 @@ export default function Profile({ navigation }) {
                     <Text style={ styles.profileBioText }>Elit dolore eu non fugiat proident laboris sunt laborum dolor et ad consectetur sunt esse.</Text>
                 </View>
 
-                <EventCard style={ styles.eventCardAlert } title="Witaj, kak so ći wjedźe?" bio="sy tež tu?" />
+                <EventCard checked={pinEventChecked} style={ styles.eventCardAlert } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
+                    onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
 
                     {/* Post List */}
                 <View style={ styles.postContainer }>
@@ -136,7 +142,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#5884B0",
-        padding: 10,
+        paddingHorizontal: 10,
+    },
+
+    shadow: {
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
     },
 
     navbar: {
@@ -169,6 +185,7 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         borderRadius: 100, 
         backgroundColor: "#C4C4C4",
+        elevation: 10,
     },
     profileHeaderTextContainer: {
         flex: 2,
@@ -178,11 +195,12 @@ const styles = StyleSheet.create({
         fontFamily: "Inconsolata_Black",
         textAlign: "center",
         fontSize: 25,
-        color: "#143C63"
+        color: "#143C63",
+        elevation: 10,
     },
 
     profileBioContainer: {
-        width: "100%",
+        width: "90%",
         backgroundColor: "#143C63",
         borderRadius: 25,
 
@@ -193,13 +211,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
         paddingVertical: 10,
 
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: .34,
-        shadowRadius: 6.27,
         elevation: 10,
     },
     profileBioText: {
@@ -212,16 +223,8 @@ const styles = StyleSheet.create({
         width: "90%",
         position: "relative",
         marginTop: "5%",
-        alignSelf: "center",
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: .34,
-        shadowRadius: 6.27,
-        elevation: 10,
+        alignSelf: "center",   
+        elevation: 10     
     },
 
     postContainer: {
@@ -238,7 +241,7 @@ const styles = StyleSheet.create({
         padding: 0,
         margin: 0,
     },
-
+    
     postPreview: {
         flex: 1,
         aspectRatio: .9,

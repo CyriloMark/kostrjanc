@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 
 import MapView from 'react-native-maps';
 
@@ -8,15 +8,15 @@ export default function EventCard(props) {
     return (
         <View style={[ props.style, { borderRadius: 15, overflow: "hidden" } ]}>
 
-            {/* <MapView style={styles.map}
-            accessible={false} focusable={false}
+            <MapView style={styles.map}
+                accessible={false} focusable={false}
                 initialRegion={{
-                    latitude: 37.78825,
-                    longitude: -122.4324,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
+                    latitude: 51.180707,
+                    longitude: 14.427958,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.005,
                   }}
-            /> */}
+            />
 
             <View style={ styles.eventCardContainer }>
                     {/* Info Text */}
@@ -29,12 +29,17 @@ export default function EventCard(props) {
 
                     {/* Interations */}
                 <View style={ styles.eventCardInterationsContainer }>
-                    <Pressable style={ styles.eventCardInterationsBtn } onPress={props.onBtnPress} >
-                        <Text style={ styles.eventCardInterationsBtnText } >Sym tež tu</Text>
+                    <Pressable style={[ styles.eventCardInterationsBtn, { backgroundColor: "#143C63" } ]} onPress={props.onBtnInfoPress} >
+                        <Text style={[ styles.eventCardInterationsBtnText, { color: "#5884B0" } ]} >Info</Text>
+                    </Pressable>
+                    <Pressable style={[ styles.eventCardInterationsBtn, { backgroundColor: (!props.checked) ? "#143C63" : "#9FB012" } ]} onPress={props.onBtnTogglePress} >
+                        <Text style={[ styles.eventCardInterationsBtnText, { color: (!props.checked) ? "#5884B0" : "#143C63" } ]} >
+                            {!props.checked ? "Sym tež tu" : "Njejsym ty"}
+                        </Text>
                     </Pressable>
                 </View>
             </View>
-    </View>
+        </View>
     )
 }
 
@@ -46,12 +51,14 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         borderRadius: 15,
+        zIndex: 2
     },
 
     eventCardContainer: {
         width: "100%",
         padding: 10,
-        backgroundColor: "rgba(176, 110, 106, 1)"
+        backgroundColor: "rgba(176, 110, 106, .8)",
+        zIndex: 3
     },
     eventCardInfoContainer: {
         width: "100%",
@@ -78,6 +85,7 @@ const styles = StyleSheet.create({
 
         paddingVertical: 10,
         paddingHorizontal: 25,
+        marginRight: 10,
 
         shadowColor: "#000",
         shadowOffset: {
@@ -91,6 +99,5 @@ const styles = StyleSheet.create({
     eventCardInterationsBtnText: {
         fontFamily: "Inconsolata_Regular",
         fontSize: 15,
-        color: "#5884B0",
     },
 })

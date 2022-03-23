@@ -1,18 +1,27 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { View, StyleSheet, Text, ScrollView, RefreshControl } from "react-native";
 
 import AppHeader from '../statics/AppHeader';
 import Navbar from '../statics/Navbar';
+
 import EventCard from '../statics/EventCard';
+import PostCard from '../statics/PostCard';
 
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 }
 
+const user = {
+  name: "knecht",
+  pbUri: "https://picsum.photos/536/354"
+}
+
 export default function Landing({ navigation }) {
 
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [pinEventChecked, setPinEventChecked] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -22,9 +31,7 @@ export default function Landing({ navigation }) {
   return (
     <View style={ styles.container } >
 
-      <View style={{ height: "10%" }}>
-        <AppHeader style={ styles.header } />
-      </View>
+      <AppHeader style={ styles.header } />
 
       <Navbar style={ styles.navbar } active={0}
         onPressRecent={ () => { navigation.navigate("Recent") }}
@@ -32,18 +39,23 @@ export default function Landing({ navigation }) {
         onPressAdd={ () => { navigation.navigate("Add") }}
         onPressProfile={ () => { navigation.navigate("Profile") }} />
 
-      <ScrollView contentContainerStyle={{ width: "100%", paddingBottom: "5%" }} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
-        refreshControl={
+      <ScrollView style={{ width: "100%", marginTop: "25%", overflow: "visible" }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "35%", }]}
+        showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} refreshControl={
           <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
           />
         } >
 
-        <EventCard style={ styles.eventCardAlert } title="Witaj" bio="sy tež tu?" />
-        <EventCard style={ styles.eventCardAlert } title="Witaj" bio="sy tež tu?" />
-        <EventCard style={ styles.eventCardAlert } title="Witaj" bio="sy tež tu?" />
-        <EventCard style={ styles.eventCardAlert } title="Witaj" bio="sy tež tu?" />
+        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
+          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+        <PostCard user={user} style={ styles.card } imgUri="https://picsum.photos/536/354" />
+        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
+          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
+          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
+          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
 
       </ScrollView>
     </View>
@@ -54,13 +66,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#5884B0",
-    padding: 10
+    paddingHorizontal: 10,
   },
-  header: {
-    flex: 1,
-    width: "100%",
 
-    zIndex: 99,
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 5,
+    },
+    shadowOpacity: .34,
+    shadowRadius: 6.27,
+  },
+
+  header: {
+
+    position: "absolute",
+    height: "10%",
+    width: "100%",
+    top: 10,
+
+    alignSelf: "center",
 
     shadowColor: "#000",
     shadowOffset: {
@@ -70,6 +96,8 @@ const styles = StyleSheet.create({
     shadowOpacity: .34,
     shadowRadius: 6.27,
     elevation: 10,
+
+    zIndex: 99
   },
   navbar: {
     width: "80%",
@@ -88,19 +116,13 @@ const styles = StyleSheet.create({
     shadowRadius: 6.27,
     elevation: 10,
   },
-  eventCardAlert: {
+
+  card: {
     width: "90%",
     position: "relative",
     marginTop: "5%",
     alignSelf: "center",
 
-    shadowColor: "#000",
-    shadowOffset: {
-        width: 0,
-        height: 5,
-    },
-    shadowOpacity: .34,
-    shadowRadius: 6.27,
     elevation: 10,
 },
 });
