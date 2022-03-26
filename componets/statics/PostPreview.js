@@ -15,13 +15,13 @@ export const PostType = {
 export default function PostPreview(props) {
     return (
         <View style={[ props.style, { overflow: "visible", zIndex: 2 } ]}>
-            <View style={ styles.postItemContainer } >
+            <Pressable style={ styles.postItemContainer } onPress={ props.press } >
                 {
                     props.item.type === PostType.Post
                     ? <Preview_Post imgUri={props.item.imgUri} title={props.item.name} style={ styles.boxStyle } />
-                    : <Preview_Event title={props.item.name} checked={props.item.checked} style={ styles.boxStyle } />
+                    : <Preview_Event title={props.item.name} geoCords={props.item.geoCords} checked={props.item.checked} style={ styles.boxStyle } />
                 }
-            </View>
+            </Pressable>
         </View>
     )
 }
@@ -53,12 +53,7 @@ export function Preview_Event (props) {
 
                 <MapView style={styles.map}
                     accessible={false} focusable={false}
-                    initialRegion={{
-                        latitude: 37.78825,
-                        longitude: -122.4324,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    }}
+                    initialRegion={ props.geoCords }
                 />
 
                 <SVG_Event style={ styles.typePin } fill="#fff" />
@@ -70,7 +65,7 @@ export function Preview_Event (props) {
                 </View>
 
                     {/* CheckedPin */}
-                <View style={[ styles.previewEventPin, { backgroundColor: !props.checked ? "#143C63" : "#9FB012" } ]} />
+                <View style={[ styles.previewEventPin, { opacity: !props.checked ? 0 : 1 } ]} />
 
             </View>
         </View>
@@ -181,6 +176,7 @@ const styles = StyleSheet.create({
         right: 10,
 
         zIndex: 5,
+        backgroundColor: "#9FB012",
 
         shadowColor: "#000",
         shadowOffset: {

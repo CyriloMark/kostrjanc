@@ -132,7 +132,7 @@ export default function AuthPage() {
                 </KeyboardAvoidingView>
             </Modal>
 
-            <AppHeader style={{ width: "100%", height: "10%" }} />
+            <AppHeader style={ styles.header } />
 
                 {/* Body */}
             <View style={ styles.bodyContainer }>
@@ -169,7 +169,21 @@ const styles = StyleSheet.create({
         width: "100%",
         backgroundColor: "#5884B0",
         alignItems: "center",
-        padding: 10
+        padding: 10,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 10
+    },
+
+    header: {
+        width: "100%",
+        height: "10%",
     },
 
     bodyContainer: {
@@ -247,6 +261,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#5884B0",
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
+
+        elevation: 10
     },
     modalDragHandleContainer: {
         flex: .05,

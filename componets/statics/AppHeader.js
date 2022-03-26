@@ -3,20 +3,20 @@ import React from 'react'
 import { View, Text, StyleSheet } from 'react-native';
 
 export default function AppHeader(props) {
-  return (
-    <View style={ props.style }>
-             {/* Header */}
-        <View style={ styles.headerContainer }>
-                
-                {/* Icon */}
-            <View style={ styles.headerIconContainer }>
-                <View style={ styles.headerIcon } />
-            </View>
-            <Text style={ styles.headerTitleText }>kostrjanc</Text>
+    return (
+        <View style={ props.style }>
+                {/* Header */}
+            <View style={ styles.headerContainer }>
+                    
+                    {/* Icon */}
+                <View style={ styles.headerIconContainer }>
+                    <View style={ styles.headerIcon } />
+                </View>
+                <Text style={ styles.headerTitleText }>kostrjanc</Text>
 
+            </View>
         </View>
-    </View>
-  )
+    )
 }
 
 const styles = StyleSheet.create({
@@ -42,19 +42,10 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     headerTitleText: {
-        flex: .75,
-        color: "#5884B0",
-        marginLeft: "5%",
+        flex: .6,
+        color: "#B06E6A",
+        textAlign: "center",
         fontFamily: "Inconsolata_Black",
         fontSize: 25,
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: .34,
-        shadowRadius: 6.27,
-        elevation: 10,
     },
 })

@@ -8,8 +8,24 @@ import Navbar from '../statics/Navbar';
 import EventCard from '../statics/EventCard';
 import PostCard from '../statics/PostCard';
 
+import { PostType } from '../statics/PostPreview';
+
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
+}
+
+const event = {
+  id: 0,
+  type: PostType.Event,
+  name: "hey",
+  description: "test",
+  geoCords: {
+      latitude: 51.2392335862277,
+      longitude: 14.281389642218592,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.005,
+  },
+  checked: false
 }
 
 const user = {
@@ -48,15 +64,11 @@ export default function Landing({ navigation }) {
           />
         } >
 
-        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
-          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
-        <PostCard liked={postLike} user={user} style={ styles.card } imgUri="https://picsum.photos/536/354" onLikePress={ () => setPostLike(!postLike) } />
-        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
-          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
-        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
-          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
-        <EventCard checked={pinEventChecked} style={ styles.card } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
-          onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+        <EventCard onPress={ () => navigation.navigate('EventView', { user: user, item: event }) } item={event} style={ styles.card } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+        <PostCard onPress={ () => navigation.navigate('PostView', { user: user, item: {imgUri: "https://picsum.photos/536/354"} }) } liked={postLike} user={user} style={ styles.card } imgUri="https://firebasestorage.googleapis.com/v0/b/kostrjanc.appspot.com/o/Basti%20Party%20Cover.png?alt=media&token=bb5d175c-788a-4823-845c-fcf2aba6e4cf" onLikePress={ () => setPostLike(!postLike) } />
+        <PostCard onPress={ () => navigation.navigate('PostView', { user: user, item: {imgUri: "https://picsum.photos/536/354"} }) } liked={postLike} user={user} style={ styles.card } imgUri="https://firebasestorage.googleapis.com/v0/b/kostrjanc.appspot.com/o/Basti%20Party%20Cover.png?alt=media&token=bb5d175c-788a-4823-845c-fcf2aba6e4cf" onLikePress={ () => setPostLike(!postLike) } />
+        <EventCard item={event} style={ styles.card } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+        <EventCard item={event} style={ styles.card } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
 
       </ScrollView>
     </View>
@@ -125,5 +137,5 @@ const styles = StyleSheet.create({
     alignSelf: "center",
 
     elevation: 10,
-},
+  },
 });

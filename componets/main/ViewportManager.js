@@ -6,8 +6,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 
 import Landing from './Landing';
+import Search from './Search';
 import Add from './Add';
 import Profile from './Profile';
+
+import PostView from '../PostView';
+import EventView from '../EventView';
 
 const Stack = createStackNavigator();
 
@@ -15,14 +19,15 @@ export default function ViewportManager() {
   return (
     <SafeAreaView style={styles.container}>
         <Stack.Navigator initialRouteName="Recent" screenOptions={{
-                animationEnabled: false,
-                gestureEnabled: false,
-                cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
+                headerShown: false
             }} >
-            <Stack.Screen name="Recent" component={Landing} options={{ headerShown: false }} />
-            <Stack.Screen name="Search" component={Landing} options={{ headerShown: false }} />
-            <Stack.Screen name="Add" component={Add} options={{ headerShown: false }} />
-            <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+            <Stack.Screen name="Recent" component={Landing} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+            <Stack.Screen name="Search" component={Search} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+            <Stack.Screen name="Add" component={Add} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+            <Stack.Screen name="Profile" component={Profile} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+            
+            <Stack.Screen name="PostView" component={PostView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
+            <Stack.Screen name="EventView" component={EventView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
         </Stack.Navigator>
     </SafeAreaView>
   )

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { View, StyleSheet, Text, ScrollView, RefreshControl, Pressable, FlatList } from "react-native";
+import { View, StyleSheet, Text, ScrollView, RefreshControl, Image } from "react-native";
 
 import Navbar from '../statics/Navbar';
 import EventCard from '../statics/EventCard';
@@ -17,39 +17,71 @@ const Data = [
         id: 0,
         type: PostType.Event,
         name: "hey",
+        description: "test",
+        geoCords: {
+            latitude: 51.2392335862277,
+            longitude: 14.281389642218592,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.005,
+        },
         checked: false
     },
     {
         id: 1,
         type: PostType.Post,
         name: "du bist hässlich\ndu\nstinkts\nund bist dumm!",
-        imgUri: 'https://play-lh.googleusercontent.com/NKnjiKMPtPaDcfN_mcG-F1nR9nBHgZAclG5IkfVrfpekMy0SoGagXbVdRXv1C1mIKhc=s180'
+        description: "test",
+        imgUri: 'https://play-lh.googleusercontent.com/NKnjiKMPtPaDcfN_mcG-F1nR9nBHgZAclG5IkfVrfpekMy0SoGagXbVdRXv1C1mIKhc=s180',
+        liked: false
     },
     {
         id: 2,
         type: PostType.Event,
         name: "esel bist ja ein mongo geh töten",
+        description: "test",
+        geoCords: {
+            latitude: 51.2392335862277,
+            longitude: 14.281389642218592,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.005,
+        },
         checked: false
     },
     {
         id: 3,
         type: PostType.Event,
         name: "du",
+        description: "test",
+        geoCords: {
+            latitude: 51.180707,
+            longitude: 14.427958,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.005,
+        },
         checked: true
     },
     {
         id: 4,
         type: PostType.Post,
         name: "esel",
-        imgUri: 'https://glaswerk24.de/images/product_images/original_images/white_close_up_10.png'
+        description: "test",
+        imgUri: 'https://glaswerk24.de/images/product_images/original_images/white_close_up_10.png',
+        liked: false
     },
     {
         id: 5,
         type: PostType.Post,
         name: "hay ",
-        imgUri: 'https://pbs.twimg.com/profile_images/476886763/ieu_400x400.jpg'
+        description: "test\ns",
+        imgUri: 'https://firebasestorage.googleapis.com/v0/b/kostrjanc.appspot.com/o/Basti%20Party%20Cover.png?alt=media&token=bb5d175c-788a-4823-845c-fcf2aba6e4cf',
+        liked: false
     },
 ];
+
+const user = {
+    name: "Cyril Mark",
+    pbUri: "https://picsum.photos/536/354"
+}
 
 const arraySplitter = (data , coloums) => {
 
@@ -76,7 +108,6 @@ export default function Profile({ navigation }) {
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-
         wait(2000).then(() => setRefreshing(false));
     }, []);
 
@@ -103,12 +134,12 @@ export default function Profile({ navigation }) {
 
                         {/* Icon */}
                     <View style={ styles.profileHeaderIconContainer } >
-                        <View style={ styles.profileHeaderIcon } />
+                        <Image source={{ uri: user.pbUri }} style={ styles.profileHeaderIcon } resizeMode="cover" />
                     </View>
 
                     <View style={ styles.profileHeaderTextContainer }>
                         <Text style={ styles.profileHeaderText }>
-                            Cyril Mark
+                            {user.name}
                         </Text>
                     </View>
                 </View>
@@ -118,15 +149,15 @@ export default function Profile({ navigation }) {
                     <Text style={ styles.profileBioText }>Elit dolore eu non fugiat proident laboris sunt laborum dolor et ad consectetur sunt esse.</Text>
                 </View>
 
-                <EventCard checked={pinEventChecked} style={ styles.eventCardAlert } title="Witaj, kak so ći haha a što tam je wjedźe?" bio="sy tež tu?"
-                    onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+                <EventCard onPress={ () => navigation.navigate('EventView', { user: user, item: Data[3] }) } item={Data[3]} style={ styles.eventCardAlert } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
 
                     {/* Post List */}
                 <View style={ styles.postContainer }>
                     { arraySplitter(Data, 2).map((list, listKey) => 
                         <View key={listKey} style={ styles.postItemListContainer }>
                             { list.map((item, itemKey) => 
-                                <PostPreview key={itemKey} item={item} style={ styles.postPreview } />
+                                <PostPreview key={itemKey} item={item} style={ styles.postPreview }
+                                    press={ () => navigation.navigate(item.type === PostType.Post ? 'PostView' : 'EventView', { user: user, item: item }) } />
                             ) }
                         </View>
                     ) }
@@ -179,13 +210,11 @@ const styles = StyleSheet.create({
     },
     profileHeaderIconContainer: {
         flex: 1,
-        padding: "5%"
+        padding: "5%",
     },
     profileHeaderIcon: {
         aspectRatio: 1,
-        borderRadius: 100, 
-        backgroundColor: "#C4C4C4",
-        elevation: 10,
+        borderRadius: 100,
     },
     profileHeaderTextContainer: {
         flex: 2,

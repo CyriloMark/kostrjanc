@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { View, Text, StyleSheet, Image, Pressable, Vibration } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 
 import SVG_Heart from '../../assets/svg/Heart';
 import SVG_Recent from '../../assets/svg/Recent';
@@ -12,7 +12,7 @@ export default function PostCard(props) {
 
     return (
         <View style={[props.style, { borderRadius: 15, overflow: "hidden" } ]}>
-            <Pressable style={ styles.postContainer } onLongPress={ () => setNavVisibility(!navVisibility) }>
+            <Pressable style={ styles.postContainer } onLongPress={ () => setNavVisibility(!navVisibility) } onPress={ props.onPress } >
 
                 <Image source={{ uri: props.imgUri }} style={ styles.postBGImg } resizeMode="cover" />
 

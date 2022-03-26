@@ -5,41 +5,34 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import MapView from 'react-native-maps';
 
 export default function EventCard(props) {
+
     return (
-        <View style={[ props.style, { borderRadius: 15, overflow: "hidden" } ]}>
+        <Pressable style={[ props.style, { borderRadius: 15, overflow: "hidden" } ]} onPress={ props.onPress }>
 
             <MapView style={styles.map}
                 accessible={false} focusable={false}
-                initialRegion={{
-                    latitude: 51.180707,
-                    longitude: 14.427958,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.005,
-                  }}
+                initialRegion={ props.item.geoCords }
             />
 
             <View style={ styles.eventCardContainer }>
                     {/* Info Text */}
                 <View style={ styles.eventCardInfoContainer }>
                         {/* Title */}
-                    <Text style={ styles.eventCardInfoTitle }>{props.title}</Text>
+                    <Text style={ styles.eventCardInfoTitle }>{props.item.name}</Text>
                         {/* Describtion */}
-                    <Text style={ styles.eventCardInfoBio } >{props.bio}</Text>
+                    <Text style={ styles.eventCardInfoBio } >{props.item.description}</Text>
                 </View>
 
                     {/* Interations */}
                 <View style={ styles.eventCardInterationsContainer }>
-                    <Pressable style={[ styles.eventCardInterationsBtn, { backgroundColor: "#143C63" } ]} onPress={props.onBtnInfoPress} >
-                        <Text style={[ styles.eventCardInterationsBtnText, { color: "#5884B0" } ]} >Info</Text>
-                    </Pressable>
-                    <Pressable style={[ styles.eventCardInterationsBtn, { backgroundColor: (!props.checked) ? "#143C63" : "#9FB012" } ]} onPress={props.onBtnTogglePress} >
-                        <Text style={[ styles.eventCardInterationsBtnText, { color: (!props.checked) ? "#5884B0" : "#143C63" } ]} >
-                            {!props.checked ? "Sym tež tu" : "Njejsym ty"}
+                    <Pressable style={[ styles.eventCardInterationsBtn, { backgroundColor: (!props.item.checked) ? "#143C63" : "#9FB012" } ]} onPress={props.onBtnTogglePress} >
+                        <Text style={[ styles.eventCardInterationsBtnText, { color: (!props.item.checked) ? "#5884B0" : "#143C63" } ]} >
+                            {!props.item.checked ? "Sym tež tu" : "Njejsym ty"}
                         </Text>
                     </Pressable>
                 </View>
             </View>
-        </View>
+        </Pressable>
     )
 }
 
