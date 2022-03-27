@@ -7,7 +7,9 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 import AppHeader from '../statics/AppHeader';
 
-export default function AuthPage() {
+export default function AuthLanding({ navigation }) {
+
+    const savePasswordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
 
     const loginScrollViewRef = useRef();
     const registerScrollViewRef = useRef();
@@ -15,11 +17,13 @@ export default function AuthPage() {
     const [loginScreenVisibility, setLoginScreenVisibility] = useState(false);
     const [registerScreenVisibility, setRegisterScreenVisibility] = useState(false);
 
-    const [account, setAccount,] = useState({ email: "", password: "" });
+    const [loginData, setLoginData,] = useState({ email: "", password: "" });
+    const [registerData, setRegisterData,] = useState({ name: "", email: "", password: "", confirmPassword: "" });
 
     const login = () => {
+
         const auth = getAuth();
-        signInWithEmailAndPassword(auth, account.email, account.password)
+        signInWithEmailAndPassword(auth, loginData.email, loginData.password)
             .then((userCredential) => {
                 console.log(userCredential.user.email);
             })
@@ -27,6 +31,14 @@ export default function AuthPage() {
                 console.log(error.code);
             }
         );
+    }
+
+    const register = () => {
+        if (registerData.password !== registerData.confirmPassword) return;
+        if (!registerData.password.match(savePasswordRegex)) return;
+
+        setRegisterScreenVisibility(false);
+        navigation.navigate('AuthUserRegister', {registerData: registerData});
     }
 
     return (
@@ -48,18 +60,24 @@ export default function AuthPage() {
                                 {/* Email */}
                             <View style={ styles.modalInputContainer }>
                                 <TextInput style={ styles.modalInput } keyboardType="email-address" autoCapitalize='none' maxLength={64}
-                                    placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark'
-                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"}
-                                    onChangeText={ (value) => setAccount({ email: value, password: account.password }) }
+                                    placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark' value={loginData.email}
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setLoginData({
+                                        ...loginData,
+                                        email: value
+                                    }) }
                                 />
                             </View>
 
                                 {/* Password */}
                             <View style={ styles.modalInputContainer }>
                                 <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={64}
-                                    placeholder="Hesło" autoComplete={ false } textContentType="password" keyboardAppearance='dark'
-                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"}
-                                    onChangeText={ (value) => setAccount({ email: account.email, password: value }) }
+                                    placeholder="Hesło" autoComplete={ false } textContentType="password" keyboardAppearance='dark' value={loginData.password}
+                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setLoginData({
+                                        ...loginData,
+                                        password: value
+                                    }) }
                                 />
                             </View>
 
@@ -76,6 +94,7 @@ export default function AuthPage() {
                 </KeyboardAvoidingView>
             </Modal>
 
+                {/* Register */}
             <Modal presentationStyle={ Platform.OS === 'ios' ? 'formSheet' : 'overFullScreen' } transparent={ Platform.OS === 'android' } onRequestClose={ () => setRegisterScreenVisibility(false) } animationType="slide" statusBarTranslucent visible={registerScreenVisibility} >
                 <KeyboardAvoidingView behavior='padding' enabled style={ Platform.OS === 'ios' ? styles.modalScreenContainerIOS : styles.modalScreenContainerAndroid } >
                 
@@ -87,43 +106,61 @@ export default function AuthPage() {
                     <View style={ styles.modalBodyContainer }>
                         <ScrollView ref={registerScrollViewRef} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={false} >
 
-                                {/* Email */}
+                                {/* Name */}
                             <View style={ styles.modalInputContainer }>
                                 <TextInput style={ styles.modalInput } keyboardType="default" autoCapitalize='none' maxLength={32}
-                                    placeholder="Mjeno" autoComplete={ false } textContentType="name" keyboardAppearance='dark'
-                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"}
+                                    placeholder="Mjeno" autoComplete={ false } textContentType="name" keyboardAppearance='dark' value={registerData.name}
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setRegisterData({
+                                        ...registerData,
+                                        name: value,
+                                    }) }
                                 />
                             </View>
 
                                 {/* Email */}
                             <View style={ styles.modalInputContainer }>
                                 <TextInput style={ styles.modalInput } keyboardType="email-address" autoCapitalize='none' maxLength={64}
-                                    placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark'
-                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"}
+                                    placeholder="E-Mail" autoComplete={ false } textContentType="emailAddress" keyboardAppearance='dark' value={registerData.email}
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setRegisterData({
+                                        ...registerData,
+                                        email: value,
+                                    }) }
                                 />
                             </View>
 
                                 {/* Password */}
                             <View style={ styles.modalInputContainer }>
                                 <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={128}
-                                    placeholder="Hesło" autoComplete={ false } textContentType="password" keyboardAppearance='dark'
-                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"}
+                                    placeholder="Hesło" autoComplete={ false } textContentType="password" keyboardAppearance='dark' value={registerData.password}
+                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setRegisterData({
+                                        ...registerData,
+                                        password: value,
+                                    }) }
                                 />
                             </View>
 
                                 {/* Confirm password */}
                             <View style={ styles.modalInputContainer }>
-                                <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={128}
-                                    placeholder="Hesło wospjetować" autoComplete={ false } textContentType="password" keyboardAppearance='dark'
-                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"}
+                                <TextInput style={ styles.modalInput } autoCapitalize='none' maxLength={128} 
+                                    placeholder="Hesło wospjetować" autoComplete={ false } textContentType="password" keyboardAppearance='dark' value={registerData.confirmPassword}
+                                    multiline={ false } blurOnSubmit={ true } secureTextEntry editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setRegisterData({
+                                        ...registerData,
+                                        confirmPassword: value,
+                                    }) }
                                 />
                             </View>
 
+                            <Text style={ styles.warnText }>Kedźbuj, zo wšitke daty prawje zapodaš, hewak maš wjac dźěła!</Text>
+
                                 {/* Submit */}
                             <View style={ styles.modalSubmitBtnContainer }>
-                                <View style={ styles.modalSubmitBtn }>
+                                <Pressable style={ styles.modalSubmitBtn } onPress={register}>
                                     <Text style={ styles.modalSubmitBtnText }>Registrować</Text>
-                                </View>
+                                </Pressable>
                             </View>
 
                         </ScrollView>
@@ -345,5 +382,26 @@ const styles = StyleSheet.create({
         color: "rgba(0, 0, 0, .5)",
         fontFamily: "Inconsolata_Black",
         fontSize: 25,
+    },
+
+    warnText: {
+        width: "80%",
+        alignSelf: "center",
+        textAlign: "center",
+
+        marginVertical: "2%",
+        
+        fontFamily: "Inconsolata_Light",
+        fontSize: 15,
+        color: "#143C63",
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 10,
     }
 });

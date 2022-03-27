@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { View, StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
@@ -38,7 +38,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#5884B0",
     },
-    bodyContainer: {
+});
+
+{/*}
+bodyContainer: {
         flex: 1,
         width: "100%",
     },
@@ -91,4 +94,4 @@ const styles = StyleSheet.create({
         flex: 1,
         width: "100%",
     }
-});
+{*/}

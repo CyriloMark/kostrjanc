@@ -6,11 +6,16 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 
 import { initializeApp } from "firebase/app"
+import { getDatabase, ref, child, get } from "firebase/database";
+import { getStorage, uploadBytes } from "firebase/storage";
+import * as Storage from "firebase/storage";
+
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const app = initializeApp({
   apiKey: "AIzaSyAKOoHKDJSBvVUbKMG0F5uYLnuwgSINYk0",
   authDomain: "kostrjanc.firebaseapp.com",
+  databaseURL: "https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "kostrjanc",
   storageBucket: "kostrjanc.appspot.com",
   messagingSenderId: "919686819174",
@@ -19,9 +24,9 @@ const app = initializeApp({
 
 import Loading from "./componets/Loading";
 
+import AuthManager from "./componets/auth/AuthManager";
 import ViewportManager from "./componets/main/ViewportManager";
 
-import AuthPage from "./componets/auth/AuthPage";
 import { NavigationContainer } from "@react-navigation/native";
 
 export default function App() {
@@ -36,21 +41,32 @@ export default function App() {
   });
 
   useEffect(() => {
-
+    
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
         if (user) {
             setLoggedIn(true);
             setLoaded(true);
+
+            // console.log(user.uid);
+            // get(child(ref(getDatabase()), 'users/' + user.uid))
+            //   .then((snapshot) => {
+            //     if (snapshot.exists()) {
+            //       console.log(snapshot.val());
+            //     }
+            //   })
+            //   .catch((error) => console.log(error.code));
+
         } else {
             setLoggedIn(false);
             setLoaded(true);
         }
     });
+
   });
 
   if (!fontsLoaded) {
-    return (<></>);
+    return (<></>); 
   }
 
   if (!loaded) {
@@ -58,7 +74,11 @@ export default function App() {
   }
 
   if (!loggedIn) {
-    return (<AuthPage />)
+    return (
+      <NavigationContainer>
+        <AuthManager />
+      </NavigationContainer>
+    )
   }
 
   return (

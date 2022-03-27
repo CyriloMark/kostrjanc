@@ -8,6 +8,14 @@ import PostPreview from '../statics/PostPreview';
 
 import { PostType } from '../statics/PostPreview';
 
+const LOCAL_USER = {
+    name: "Cyril Mark",
+    description: "s",
+    ageGroup: 0,
+    gender: 0,
+    pbUri: "https://picsum.photos/500/500"
+}
+
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
 }
@@ -78,11 +86,6 @@ const Data = [
     },
 ];
 
-const user = {
-    name: "Cyril Mark",
-    pbUri: "https://picsum.photos/536/354"
-}
-
 const arraySplitter = (data , coloums) => {
 
     let splitter = Math.floor(data.length / coloums) + ((data.length % coloums) === 0 ? 0 : 1);
@@ -111,6 +114,11 @@ export default function Profile({ navigation }) {
         wait(2000).then(() => setRefreshing(false));
     }, []);
 
+
+    useEffect(() => {
+
+    });
+
     return (
         <View style={ styles.container } >
 
@@ -134,12 +142,12 @@ export default function Profile({ navigation }) {
 
                         {/* Icon */}
                     <View style={ styles.profileHeaderIconContainer } >
-                        <Image source={{ uri: user.pbUri }} style={ styles.profileHeaderIcon } resizeMode="cover" />
+                        <Image source={{ uri: "https://picsum.photos/536/354" }} style={ styles.profileHeaderIcon } resizeMode="cover" />
                     </View>
 
                     <View style={ styles.profileHeaderTextContainer }>
                         <Text style={ styles.profileHeaderText }>
-                            {user.name}
+                            {LOCAL_USER.name}
                         </Text>
                     </View>
                 </View>
@@ -149,7 +157,7 @@ export default function Profile({ navigation }) {
                     <Text style={ styles.profileBioText }>Elit dolore eu non fugiat proident laboris sunt laborum dolor et ad consectetur sunt esse.</Text>
                 </View>
 
-                <EventCard onPress={ () => navigation.navigate('EventView', { user: user, item: Data[3] }) } item={Data[3]} style={ styles.eventCardAlert } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+                <EventCard onPress={ () => navigation.navigate('EventView', { user: LOCAL_USER, item: Data[3] }) } item={Data[3]} style={ styles.eventCardAlert } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
 
                     {/* Post List */}
                 <View style={ styles.postContainer }>
@@ -157,7 +165,7 @@ export default function Profile({ navigation }) {
                         <View key={listKey} style={ styles.postItemListContainer }>
                             { list.map((item, itemKey) => 
                                 <PostPreview key={itemKey} item={item} style={ styles.postPreview }
-                                    press={ () => navigation.navigate(item.type === PostType.Post ? 'PostView' : 'EventView', { user: user, item: item }) } />
+                                    press={ () => navigation.navigate(item.type === PostType.Post ? 'PostView' : 'EventView', { user: LOCAL_USER, item: item }) } />
                             ) }
                         </View>
                     ) }

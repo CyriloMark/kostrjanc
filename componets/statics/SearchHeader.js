@@ -14,7 +14,7 @@ export default function SearchHeader(props) {
             <View style={ styles.headerContainer }>
                     
                 <TextInput style={[ styles.input, styles.shadow ]} placeholder="Pytaj něšto..."
-                    multiline={false} numberOfLines={1} placeholderTextColor={"#143C63"}
+                    multiline={false} numberOfLines={1} placeholderTextColor={"#143C63"} selectionColor={"#B06E6A"}
                     keyboardType="default" keyboardAppearance='dark' value={input} onChangeText={ (value) => setInput(value) } />
 
                     {/* Search Btn */}
