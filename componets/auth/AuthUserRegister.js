@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 
 import { View, StyleSheet, Text, KeyboardAvoidingView, ScrollView, Platform, Keyboard, Switch, TextInput, Pressable, Image } from "react-native";
 
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
-import { getStorage, uploadBytes } from "firebase/storage";
+import { getDownloadURL, getStorage, uploadBytes } from "firebase/storage";
 import * as Storage from "firebase/storage";
 
 import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions } from 'expo-image-picker';
@@ -87,7 +87,7 @@ export default function AuthUserRegister({ navigation, route }) {
             mediaTypes: MediaTypeOptions.Images,
             allowsEditing: true,
             quality: .5,
-            aspect: 1,
+            aspect: [1, 1],
             allowsMultipleSelection: false,
         });
         if (pickerResult.cancelled) return;
@@ -120,21 +120,29 @@ export default function AuthUserRegister({ navigation, route }) {
         const auth = getAuth();
         createUserWithEmailAndPassword(auth, registerData.email, registerData.password)
             .then((userCredential) => {
-                set(ref(getDatabase(), 'users/' + userCredential.user.uid), {
-                    name: registerData.name,
-                    description: userData.description,
-                    ageGroup: userData.ageGroup,
-                    gender: userData.gender,
-                    isBanned: false,
-                });
 
+                sendEmailVerification(auth.currentUser)
+                    .then((result) => console.log("email sent"))
+                    .catch((error) => console.log(error.code))
+                    
                 uploadBytes(Storage.ref(getStorage(), 'profile_pics/' + userCredential.user.uid), blob, userUploadMetadata)
-                    .then((snapshot) => {
-                        console.log("yalla");
-                    })
-                    .catch((error) => {
-                        console.log(error.code);
-                    });
+                .then((snapshot) => {
+                    getDownloadURL(Storage.ref(getStorage(), 'profile_pics/' + userCredential.user.uid))
+                        .then((url) => {
+                            set(ref(getDatabase(), 'users/' + userCredential.user.uid), {
+                                name: registerData.name,
+                                description: userData.description,
+                                ageGroup: userData.ageGroup,
+                                gender: userData.gender,
+                                isBanned: false,
+                                pbUri: url
+                            });
+                        })
+                        .catch((error) => console.log(error.code))
+                })
+                .catch((error) => {
+                    console.log(error.code);
+                });
             })
             .catch((error) => {
                 console.log(error.code);

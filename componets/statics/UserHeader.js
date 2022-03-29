@@ -6,7 +6,7 @@ export default function UserHeader(props) {
     return (
         <View style={ props.style }>
                 {/* User */}
-            <View style={[ styles.userContainer, styles.shadow ]} >
+            <Pressable style={[ styles.userContainer, styles.shadow ]} onPress={props.onPress}>
                 <View style={ styles.userIconContainer }>
                     <Image source={{ uri: props.user.pbUri }} style={ styles.userIcon } resizeMode="cover" />
                 </View>
@@ -14,7 +14,7 @@ export default function UserHeader(props) {
                 <Pressable style={[ styles.userAddContainer ]}>
                     <Text style={[ styles.userAddText, styles.shadow ]}>+</Text>
                 </Pressable>
-            </View>
+            </Pressable>
         </View>
     )
 }

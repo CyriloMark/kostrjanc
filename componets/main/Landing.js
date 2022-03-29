@@ -1,6 +1,8 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 
-import { View, StyleSheet, Text, ScrollView, RefreshControl } from "react-native";
+import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
+
+import { getDatabase, ref, child, get } from "firebase/database";
 
 import AppHeader from '../statics/AppHeader';
 import Navbar from '../statics/Navbar';
@@ -8,42 +10,63 @@ import Navbar from '../statics/Navbar';
 import EventCard from '../statics/EventCard';
 import PostCard from '../statics/PostCard';
 
-import { PostType } from '../statics/PostPreview';
-
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
-}
-
-const event = {
-  id: 0,
-  type: PostType.Event,
-  name: "hey",
-  description: "test",
-  geoCords: {
-      latitude: 51.2392335862277,
-      longitude: 14.281389642218592,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.005,
-  },
-  checked: false
-}
-
-const user = {
-  name: "Cyril Mark",
-  pbUri: "https://picsum.photos/536/354"
 }
 
 export default function Landing({ navigation }) {
 
   const [refreshing, setRefreshing] = useState(false);
-
-  const [pinEventChecked, setPinEventChecked] = useState(false);
-  const [postLike, setPostLike] = useState(false);
-
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    getNewPosts();
+    getNewEvents();
     wait(2000).then(() => setRefreshing(false));
   }, []);
+
+  const [posts, setPosts] = useState(null);
+  const [events, setEvents] = useState(null);
+
+  const getNewPosts = () => {
+    get(child(ref(getDatabase()), 'posts'))
+      .then((snapshot) => {
+        if (!snapshot.exists()) return;
+
+        let po = [];
+        snapshot.forEach((data) => {
+          const key = data.key;
+          console.log("id post nicht löschen!!!", key);
+          po.push(key);
+        });
+
+        setPosts(po);
+        console.log(posts, "POSTS");
+      })
+      .catch((error) => console.log("posts", error.code));
+  }
+
+  const getNewEvents = () => {
+    get(child(ref(getDatabase()), 'events'))
+      .then((snapshot) => {
+        if (!snapshot.exists()) return;
+
+        let ev = [];
+        snapshot.forEach((data) => {
+          const key = data.key;
+          console.log("id event nicht löschen!!!", key);
+          ev.push(key);
+        });
+
+        setEvents(ev);
+        console.log(posts, "EVENTS");
+      })
+      .catch((error) => console.log("events", error.code));
+  }
+
+  useEffect(() => {
+    getNewPosts();
+    getNewEvents();
+  }, [])
 
   return (
     <View style={ styles.container } >
@@ -64,11 +87,18 @@ export default function Landing({ navigation }) {
           />
         } >
 
-        <EventCard onPress={ () => navigation.navigate('EventView', { user: user, item: event }) } item={event} style={ styles.card } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
-        <PostCard onPress={ () => navigation.navigate('PostView', { user: user, item: {imgUri: "https://picsum.photos/536/354"} }) } liked={postLike} user={user} style={ styles.card } imgUri="https://firebasestorage.googleapis.com/v0/b/kostrjanc.appspot.com/o/Basti%20Party%20Cover.png?alt=media&token=bb5d175c-788a-4823-845c-fcf2aba6e4cf" onLikePress={ () => setPostLike(!postLike) } />
-        <PostCard onPress={ () => navigation.navigate('PostView', { user: user, item: {imgUri: "https://picsum.photos/536/354"} }) } liked={postLike} user={user} style={ styles.card } imgUri="https://firebasestorage.googleapis.com/v0/b/kostrjanc.appspot.com/o/Basti%20Party%20Cover.png?alt=media&token=bb5d175c-788a-4823-845c-fcf2aba6e4cf" onLikePress={ () => setPostLike(!postLike) } />
-        <EventCard item={event} style={ styles.card } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
-        <EventCard item={event} style={ styles.card } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
+        {
+          posts !== null ?
+          posts.map((data, key) =>
+            <PostCard key={key} style={styles.card} postID={data} onPress={ () => navigation.navigate('PostView', { postID: data }) } />
+          ) : null
+        }
+        {
+          events !== null ?
+          events.map((data, key) =>
+            <EventCard key={key} style={styles.card} eventID={data} onPress={ () => navigation.navigate('EventView', { eventID: data }) } />
+          ) : null
+        }
 
       </ScrollView>
     </View>

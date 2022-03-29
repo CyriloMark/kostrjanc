@@ -2,10 +2,30 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Image } from 'react-native';
 
+import { getDatabase, ref, onValue, get, child } from "firebase/database";
+
 import MapView, { Marker } from 'react-native-maps';
 
 import BackHeader from './statics/BackHeader';
 import UserHeader from './statics/UserHeader';
+
+const USER_PLACEHOLDER = {
+    name: "",
+    pbUri: "https://www.colorhexa.com/587db0.png"
+}
+const EVENT_PLACEHOLDER = {
+    title: "hey",
+    description: "test",
+    geoCords: {
+        latitude: 51.2392335862277,
+        longitude: 14.281389642218592,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.005,
+    },
+    created: "27.3.2022 21:20",
+    checks: 0,
+    starting: 0
+}
 
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -19,13 +39,76 @@ export default function EventView({ navigation, route }) {
         wait(2000).then(() => setRefreshing(false));
     }, []);
 
+    
+    const [creator, setCreator] = useState(null);
+    
+    const [user, setUser] = useState(USER_PLACEHOLDER);
+    const [event, setEvent] = useState(EVENT_PLACEHOLDER);
+    
+    const {eventID} = route.params;
 
-    const {item, user} = route.params;
+    const loadData = () => {
+        const db = getDatabase();
+        onValue(ref(db, 'events/' + eventID), snapshot => {
+            const data = snapshot.val();
+            
+            setCreator(data['creator']);
+
+            setEvent({
+                id: data['id'],
+                creator: data['creator'],
+                title: data['title'],
+                description: data['description'],
+                geoCords: data['geoCords'],
+                created: data['created'],
+                checks: data['checks'],
+                starting: data['starting']
+            });
+        });
+    }
+
+    const loadUser = () => {
+        const db = ref(getDatabase());
+        get(child(db, 'users/' + creator))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+
+                    const data = snapshot.val();
+
+                    setUser({
+                        name: data['name'],
+                        description: data['description'],
+                        pbUri: data['pbUri'],
+                        gender: data['gender'],
+                        ageGroup: data['ageGroup']
+                    });
+                }
+                else {
+                    setUser(USER_PLACEHOLDER);
+                }
+            })
+    }
+
+    useEffect(() => {
+        if (event === EVENT_PLACEHOLDER) loadData();
+    }, []);
+
+    useEffect(() => {
+        if (creator === null) return;
+        loadUser();
+    }, [creator]);
+
+    const convertTimestampIntoString = (val) => {
+        const date = new Date(val);
+
+        let min = date.getMinutes().toString().length === 1 ? date.getMinutes() + "0" : date.getMinutes()
+        return (date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear() + " " + date.getHours() + ":" + min + " hodź.");
+    }
 
     return (
         <View style={ styles.container }>
 
-            <BackHeader style={ styles.backHeader } title="Event" onPress={ () => navigation.goBack() } />
+            <BackHeader style={[ styles.backHeader, styles.shadow ]} title="Event" onPress={ () => navigation.goBack() } />
 
             <ScrollView style={{ width: "100%", marginTop: "25%", overflow: "visible" }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "10%", }]}
                 showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} refreshControl={
@@ -34,27 +117,28 @@ export default function EventView({ navigation, route }) {
                         onRefresh={onRefresh}
                     /> }>
 
-                <UserHeader user={user} />
+                <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} />
 
                     {/* MapView */}
                 <View style={ styles.mapViewContainer }>
                     <MapView style={styles.map}
                         accessible={false} focusable={false}
-                        initialRegion={ item.geoCords } >
-                        <Marker title={item.name} coordinate={item.geoCords} />
+                        initialRegion={ event.geoCords } >
+                        <Marker title={event.title} coordinate={event.geoCords} />
                     </MapView>
                 </View>
 
                     {/* Describtion */}
                 <View style={ styles.descriptionContainer }>
-                    <Text style={ styles.titleText }>{item.name}</Text>
-                    <Text style={ styles.descriptionText }>{item.description}</Text>
+                    <Text style={ styles.titleText }>{event.title}</Text>
+                    <Text style={ styles.titleText }>{convertTimestampIntoString(event.starting)}</Text>
+                    <Text style={ styles.descriptionText }>{event.description}</Text>
                 </View>
 
                     {/* Join */}
-                <Pressable style={[ styles.joinBtnContainer, { backgroundColor: (!item.checked) ? "#B06E6A" : "#9FB012" } ]}>
-                    <Text style={ [styles.joinText, { color: (!item.checked) ? "#143C63" : "#143C63" } ]} >
-                        {!item.checked ? "Sym tež tu" : "Njejsym ty"}
+                <Pressable style={[ styles.joinBtnContainer, { backgroundColor: (!true) ? "#B06E6A" : "#9FB012" } ]}>
+                    <Text style={ [styles.joinText, { color: (!true) ? "#143C63" : "#143C63" } ]} >
+                        {!true ? "Sym tež tu" : "Njejsym ty"}
                     </Text>
                 </Pressable>
 

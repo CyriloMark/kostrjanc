@@ -2,89 +2,25 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { View, StyleSheet, Text, ScrollView, RefreshControl, Image } from "react-native";
 
+import { getDatabase, ref, child, get, onValue } from "firebase/database";
+import { getAuth } from 'firebase/auth';
+
 import Navbar from '../statics/Navbar';
-import EventCard from '../statics/EventCard';
 import PostPreview from '../statics/PostPreview';
 
-import { PostType } from '../statics/PostPreview';
-
-const LOCAL_USER = {
-    name: "Cyril Mark",
-    description: "s",
+const LOCAL_USER_Placeholder = {
+    name: "",
+    description: "",
     ageGroup: 0,
     gender: 0,
-    pbUri: "https://picsum.photos/500/500"
+    pbUri: "https://www.colorhexa.com/587db0.png",
+    posts: [],
+    events: []
 }
 
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
 }
-
-const Data = [
-    {
-        id: 0,
-        type: PostType.Event,
-        name: "hey",
-        description: "test",
-        geoCords: {
-            latitude: 51.2392335862277,
-            longitude: 14.281389642218592,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.005,
-        },
-        checked: false
-    },
-    {
-        id: 1,
-        type: PostType.Post,
-        name: "du bist hässlich\ndu\nstinkts\nund bist dumm!",
-        description: "test",
-        imgUri: 'https://play-lh.googleusercontent.com/NKnjiKMPtPaDcfN_mcG-F1nR9nBHgZAclG5IkfVrfpekMy0SoGagXbVdRXv1C1mIKhc=s180',
-        liked: false
-    },
-    {
-        id: 2,
-        type: PostType.Event,
-        name: "esel bist ja ein mongo geh töten",
-        description: "test",
-        geoCords: {
-            latitude: 51.2392335862277,
-            longitude: 14.281389642218592,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.005,
-        },
-        checked: false
-    },
-    {
-        id: 3,
-        type: PostType.Event,
-        name: "du",
-        description: "test",
-        geoCords: {
-            latitude: 51.180707,
-            longitude: 14.427958,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.005,
-        },
-        checked: true
-    },
-    {
-        id: 4,
-        type: PostType.Post,
-        name: "esel",
-        description: "test",
-        imgUri: 'https://glaswerk24.de/images/product_images/original_images/white_close_up_10.png',
-        liked: false
-    },
-    {
-        id: 5,
-        type: PostType.Post,
-        name: "hay ",
-        description: "test\ns",
-        imgUri: 'https://firebasestorage.googleapis.com/v0/b/kostrjanc.appspot.com/o/Basti%20Party%20Cover.png?alt=media&token=bb5d175c-788a-4823-845c-fcf2aba6e4cf',
-        liked: false
-    },
-];
 
 const arraySplitter = (data , coloums) => {
 
@@ -103,21 +39,105 @@ const arraySplitter = (data , coloums) => {
     return(newData);
 }
 
-export default function Profile({ navigation }) {
+export default function UserProfile({ navigation }) {
 
     const [refreshing, setRefreshing] = useState(false);
-    
-    const [pinEventChecked, setPinEventChecked] = useState(false);
-
     const onRefresh = useCallback(() => {
         setRefreshing(true);
+        loadUser();
         wait(2000).then(() => setRefreshing(false));
     }, []);
+    
+    const [LOCAL_USER, setLOCAL_USER] = useState(LOCAL_USER_Placeholder);;
 
+    const [postEventList, setPostEventList] = useState([]);
+
+
+    const loadUser = () => {
+
+        const db = getDatabase();
+
+        let postEventDatas = [];
+
+        onValue(ref(db, 'users/' + getAuth().currentUser.uid), snapshot => {
+            const data = snapshot.val();
+
+            let userData = {
+                name: data['name'],
+                description: data['description'],
+                ageGroup: data['ageGroup'],
+                gender: data['gender'],
+                pbUri: data['pbUri'],
+            };
+
+            const hasPosts = snapshot.hasChild('posts');
+            const hasEvents = snapshot.hasChild('events');
+
+            if (!hasPosts && !hasEvents) setLOCAL_USER(userData);
+
+            if (hasPosts) {
+                const posts = data['posts'];
+                
+                userData = {
+                    ...userData,
+                    posts: posts
+                }
+                if (!hasEvents) setLOCAL_USER(userData);
+
+                for(let i = 0; i < posts.length; i++) {
+                    get(child(ref(db), "posts/" + posts[i]))
+                        .then((post) => {
+                            const postData = post.val();
+    
+                            postEventDatas.push(postData);
+                            if (!hasEvents) sortArrayByDate(postEventDatas);
+                        })
+                        .catch((error) => console.log("error posts", error.code));
+                }
+            }
+            
+            if (hasEvents){
+                const events = data['events'];
+                
+                userData = {
+                    ...userData,
+                    events: events
+                }
+                setLOCAL_USER(userData);
+
+                for(let i = 0; i < events.length; i++) {
+                    get(child(ref(db), "events/" + events[i]))
+                        .then((event) => {
+                            const eventData = event.val();
+    
+                            postEventDatas.push(eventData);
+                            sortArrayByDate(postEventDatas);
+                        })
+                        .catch((error) => console.log("error events", error.code));
+                }
+            }
+
+        });
+    }
+
+    const sortArrayByDate = (data) => {
+        let dates = data;
+        for(let i = data.length - 1; i >= 0; i--) {
+            for (let j = 1; j <= i; j++) {
+                if (dates[j - 1].created > dates[j].created) {
+                    let temp = dates[j - 1];
+                    dates[j - 1] = dates[j];
+                    dates[j] = temp;
+                }
+            }
+        }
+
+        setPostEventList(dates);
+    }
 
     useEffect(() => {
-
-    });
+        if (LOCAL_USER === LOCAL_USER_Placeholder) loadUser();
+    }, []);
 
     return (
         <View style={ styles.container } >
@@ -142,7 +162,7 @@ export default function Profile({ navigation }) {
 
                         {/* Icon */}
                     <View style={ styles.profileHeaderIconContainer } >
-                        <Image source={{ uri: "https://picsum.photos/536/354" }} style={ styles.profileHeaderIcon } resizeMode="cover" />
+                        <Image source={{ uri: LOCAL_USER.pbUri }} style={ styles.profileHeaderIcon } resizeMode="cover" />
                     </View>
 
                     <View style={ styles.profileHeaderTextContainer }>
@@ -154,18 +174,20 @@ export default function Profile({ navigation }) {
 
                     {/* Profile Bio */}
                 <View style={ styles.profileBioContainer }>
-                    <Text style={ styles.profileBioText }>Elit dolore eu non fugiat proident laboris sunt laborum dolor et ad consectetur sunt esse.</Text>
+                    <Text style={ styles.profileBioText }>{LOCAL_USER.description}</Text>
                 </View>
-
-                <EventCard onPress={ () => navigation.navigate('EventView', { user: LOCAL_USER, item: Data[3] }) } item={Data[3]} style={ styles.eventCardAlert } onBtnTogglePress={ () => setPinEventChecked(!pinEventChecked) } />
 
                     {/* Post List */}
                 <View style={ styles.postContainer }>
-                    { arraySplitter(Data, 2).map((list, listKey) => 
+                    { arraySplitter(postEventList, 2).map((list, listKey) => 
                         <View key={listKey} style={ styles.postItemListContainer }>
                             { list.map((item, itemKey) => 
                                 <PostPreview key={itemKey} item={item} style={ styles.postPreview }
-                                    press={ () => navigation.navigate(item.type === PostType.Post ? 'PostView' : 'EventView', { user: LOCAL_USER, item: item }) } />
+                                    press={ () => {
+                                        item.type === 0 ?
+                                            navigation.navigate('PostView', { postID: item.id }) :
+                                            navigation.navigate('EventView', { eventID: item.id })
+                                    } } />
                             ) }
                         </View>
                     ) }
@@ -284,5 +306,4 @@ const styles = StyleSheet.create({
         aspectRatio: .9,
         margin: "2%",
     }
-});
-    
+})

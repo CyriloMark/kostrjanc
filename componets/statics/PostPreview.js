@@ -18,8 +18,8 @@ export default function PostPreview(props) {
             <Pressable style={ styles.postItemContainer } onPress={ props.press } >
                 {
                     props.item.type === PostType.Post
-                    ? <Preview_Post imgUri={props.item.imgUri} title={props.item.name} style={ styles.boxStyle } />
-                    : <Preview_Event title={props.item.name} geoCords={props.item.geoCords} checked={props.item.checked} style={ styles.boxStyle } />
+                    ? <Preview_Post imgUri={props.item.imgUri} title={props.item.title} style={ styles.boxStyle } />
+                    : <Preview_Event title={props.item.title} geoCords={props.item.geoCords} checked={true} style={ styles.boxStyle } />
                 }
             </Pressable>
         </View>

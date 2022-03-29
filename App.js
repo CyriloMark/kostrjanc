@@ -6,9 +6,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 
 import { initializeApp } from "firebase/app"
-import { getDatabase, ref, child, get } from "firebase/database";
-import { getStorage, uploadBytes } from "firebase/storage";
-import * as Storage from "firebase/storage";
 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
@@ -47,16 +44,6 @@ export default function App() {
         if (user) {
             setLoggedIn(true);
             setLoaded(true);
-
-            // console.log(user.uid);
-            // get(child(ref(getDatabase()), 'users/' + user.uid))
-            //   .then((snapshot) => {
-            //     if (snapshot.exists()) {
-            //       console.log(snapshot.val());
-            //     }
-            //   })
-            //   .catch((error) => console.log(error.code));
-
         } else {
             setLoggedIn(false);
             setLoaded(true);

@@ -8,10 +8,11 @@ import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/
 import Landing from './Landing';
 import Search from './Search';
 import Add from './Add';
-import Profile from './Profile';
+import Profile from './UserProfile';
 
 import PostView from '../PostView';
 import EventView from '../EventView';
+import ProfileView from '../ProfileView';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ export default function ViewportManager() {
             
             <Stack.Screen name="PostView" component={PostView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
             <Stack.Screen name="EventView" component={EventView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
+            <Stack.Screen name="ProfileView" component={ProfileView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
         </Stack.Navigator>
     </SafeAreaView>
   )
