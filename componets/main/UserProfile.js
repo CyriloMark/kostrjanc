@@ -7,6 +7,7 @@ import { getAuth } from 'firebase/auth';
 
 import Navbar from '../statics/Navbar';
 import PostPreview from '../statics/PostPreview';
+import EditButton from '../statics/EditButton';
 
 const LOCAL_USER_Placeholder = {
     name: "",
@@ -193,6 +194,8 @@ export default function UserProfile({ navigation }) {
                     ) }
                 </View>
 
+                <EditButton style={ styles.editBtn } />
+
             </ScrollView>
 
         </View>
@@ -240,7 +243,7 @@ const styles = StyleSheet.create({
     },
     profileHeaderIconContainer: {
         flex: 1,
-        padding: "5%",
+        padding: 10,
     },
     profileHeaderIcon: {
         aspectRatio: 1,
@@ -264,7 +267,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
 
         position: "relative",
-        marginTop: "2%",
+        marginTop: 10,
         alignSelf: "center",
         
         paddingHorizontal: 25,
@@ -278,19 +281,11 @@ const styles = StyleSheet.create({
         color: "#5884B0"
     },
 
-    eventCardAlert: {
-        width: "90%",
-        position: "relative",
-        marginTop: "5%",
-        alignSelf: "center",   
-        elevation: 10     
-    },
-
     postContainer: {
         width: "100%",
 
         position: "relative",
-        marginTop: "5%",
+        marginTop: 25,
     },
 
 
@@ -304,6 +299,13 @@ const styles = StyleSheet.create({
     postPreview: {
         flex: 1,
         aspectRatio: .9,
-        margin: "2%",
+        margin: 10
+    },
+
+    editBtn: {
+        width: "60%",
+        marginVertical: 25,
+        elevation: 10,
+        alignSelf: "center"
     }
 })

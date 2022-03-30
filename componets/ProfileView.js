@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     },
     profileHeaderIconContainer: {
         flex: 1,
-        padding: "5%",
+        padding: 10,
     },
     profileHeaderIcon: {
         aspectRatio: 1,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
         width: "100%",
 
         position: "relative",
-        marginTop: "5%",
+        marginTop: 25,
     },
 
 
@@ -310,6 +310,6 @@ const styles = StyleSheet.create({
     postPreview: {
         flex: 1,
         aspectRatio: .9,
-        margin: "2%",
+        margin: 10,
     }
 })
