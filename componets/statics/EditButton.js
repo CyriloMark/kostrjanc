@@ -7,7 +7,7 @@ import SVG_Pencil from '../../assets/svg/Pencil';
 export default function EditButton(props) {
     return (
         <View style={ props.style }>
-            <Pressable style={ styles.container }>
+            <Pressable style={ styles.container } onPress={props.onPress}>
                 <View style={styles.pencilContainer} >
                     <SVG_Pencil fill={"#143C63"} style={[styles.pencilIcon, styles.shadow]} />
                 </View>

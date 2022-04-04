@@ -11,7 +11,7 @@ import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaType
 
 import SVG_Post from '../../assets/svg/Post';
 
-const ageOptions = [
+export const ageOptions = [
     {
         id: 0,
         ageGroup: "sekudnarny schodźeń I.",
@@ -29,7 +29,7 @@ const ageOptions = [
     },
     {
         id: 3,
-        ageGroup: "młodźi dźěłaćer",
+        ageGroup: "młody dźěłaćer",
         ages: "24-30",
     },
     {
@@ -40,7 +40,7 @@ const ageOptions = [
     {
         id: 5,
         ageGroup: "senior",
-        ages: "66-100",
+        ages: "66+",
     },
 ];
 
@@ -126,23 +126,23 @@ export default function AuthUserRegister({ navigation, route }) {
                     .catch((error) => console.log(error.code))
                     
                 uploadBytes(Storage.ref(getStorage(), 'profile_pics/' + userCredential.user.uid), blob, userUploadMetadata)
-                .then((snapshot) => {
-                    getDownloadURL(Storage.ref(getStorage(), 'profile_pics/' + userCredential.user.uid))
-                        .then((url) => {
-                            set(ref(getDatabase(), 'users/' + userCredential.user.uid), {
-                                name: registerData.name,
-                                description: userData.description,
-                                ageGroup: userData.ageGroup,
-                                gender: userData.gender,
-                                isBanned: false,
-                                pbUri: url
-                            });
-                        })
-                        .catch((error) => console.log(error.code))
-                })
-                .catch((error) => {
-                    console.log(error.code);
-                });
+                    .then((snapshot) => {
+                        getDownloadURL(Storage.ref(getStorage(), 'profile_pics/' + userCredential.user.uid))
+                            .then((url) => {
+                                set(ref(getDatabase(), 'users/' + userCredential.user.uid), {
+                                    name: registerData.name,
+                                    description: userData.description,
+                                    ageGroup: userData.ageGroup,
+                                    gender: userData.gender,
+                                    isBanned: false,
+                                    pbUri: url
+                                });
+                            })
+                            .catch((error) => console.log(error.code))
+                    })
+                    .catch((error) => {
+                        console.log(error.code);
+                    });
             })
             .catch((error) => {
                 console.log(error.code);
@@ -154,7 +154,8 @@ export default function AuthUserRegister({ navigation, route }) {
             <KeyboardAvoidingView behavior='height' enabled={ Platform.OS != 'ios' } style={{ height: "100%" }}>
 
                 <ScrollView style={{ width: "100%", overflow: "visible" }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "10%", }]}
-                        showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} onScrollBeginDrag={ () => { if (Platform.OS === 'ios') Keyboard.dismiss }} keyboardDismissMode='on-drag'>
+                        showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} onScrollBeginDrag={ () => { if (Platform.OS === 'ios') Keyboard.dismiss }}
+                        keyboardDismissMode='on-drag' bounces={true}>
                     
                         {/* Title */}
                     <View style={ styles.titleContainer }>
@@ -242,7 +243,7 @@ export default function AuthUserRegister({ navigation, route }) {
     )
 }
 
-const SelectableBtn = (props) => {
+export const SelectableBtn = (props) => {
     return (
         <View style={props.style}>
             <Pressable style={[stylesSB.container, { backgroundColor: !props.selected ? "#143C63" : "#B06E6A" }]} onPress={props.onPress}>

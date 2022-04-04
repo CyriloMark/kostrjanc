@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 
 export default function AppHeader(props) {
     return (
@@ -10,7 +10,9 @@ export default function AppHeader(props) {
                     
                     {/* Icon */}
                 <View style={ styles.headerIconContainer }>
-                    <View style={ styles.headerIcon } />
+                    <View style={styles.headerIconBg}>
+                        <Image style={ styles.headerIcon } source={ require('../../assets/app-system-icons/adaptive-icon.png') } resizeMode='contain' />
+                    </View>
                 </View>
                 <Text style={ styles.headerTitleText }>kostrjanc</Text>
 
@@ -29,17 +31,31 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
     },
+    shadow: {
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 10
+    },
     headerIconContainer: {
-        height: "100%",
         flex: .2,
+        maxHeight: "100%",
         alignItems: "center",
         justifyContent: "center",
     },
-    headerIcon: {
-        aspectRatio: 1,
-        height: "100%",
+    headerIconBg: {
+        flex: 1,
         backgroundColor: "#B06E6A",
         borderRadius: 50,
+        padding: 5
+    },
+    headerIcon: {
+        aspectRatio: 1,
+        flex: 1,
     },
     headerTitleText: {
         flex: .6,

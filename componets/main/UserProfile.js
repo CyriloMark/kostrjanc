@@ -1,13 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 
-import { View, StyleSheet, Text, ScrollView, RefreshControl, Image } from "react-native";
+import { View, StyleSheet, Text, ScrollView, RefreshControl, Modal, Pressable, Image, KeyboardAvoidingView, Platform, Keyboard, TextInput, Switch } from "react-native";
 
-import { getDatabase, ref, child, get, onValue } from "firebase/database";
+import { getDatabase, ref, child, get, onValue, set } from "firebase/database";
 import { getAuth } from 'firebase/auth';
+import * as Storage from "firebase/storage";
+
+import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions } from 'expo-image-picker';
+
+import { ageOptions, SelectableBtn } from '../auth/AuthUserRegister';
 
 import Navbar from '../statics/Navbar';
 import PostPreview from '../statics/PostPreview';
 import EditButton from '../statics/EditButton';
+
+import SVG_Post from '../../assets/svg/Post';
 
 const LOCAL_USER_Placeholder = {
     name: "",
@@ -40,6 +47,12 @@ const arraySplitter = (data , coloums) => {
     return(newData);
 }
 
+const userUploadMetadata = {
+    contentType: 'image/jpeg',
+};  
+
+let pbChanged = false;
+
 export default function UserProfile({ navigation }) {
 
     const [refreshing, setRefreshing] = useState(false);
@@ -48,11 +61,16 @@ export default function UserProfile({ navigation }) {
         loadUser();
         wait(2000).then(() => setRefreshing(false));
     }, []);
+
+    const editScrollRef = useRef();
+    const [pbImageUri, setPbImageUri] = useState(null);
     
     const [LOCAL_USER, setLOCAL_USER] = useState(LOCAL_USER_Placeholder);;
-
     const [postEventList, setPostEventList] = useState([]);
 
+    const [editScreenVisible, setEditScreenVisible] = useState(false);
+
+    const [editDataInput, setEditDataInput] = useState(LOCAL_USER_Placeholder);
 
     const loadUser = () => {
 
@@ -136,12 +154,177 @@ export default function UserProfile({ navigation }) {
         setPostEventList(dates);
     }
 
+    const overrideUserData = async () => {
+
+        if (pbChanged) {
+
+            const blob = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.onload = function() {
+                    resolve(xhr.response);
+                };
+                xhr.onerror = function() {
+                    reject(new TypeError('Network request failed!'));
+                };
+                xhr.responseType = 'blob';
+                xhr.open('GET', pbImageUri, true);
+                xhr.send(null); 
+            });
+
+            Storage.deleteObject(Storage.ref(Storage.getStorage(), 'profile_pics/' + getAuth().currentUser.uid))
+                .then(() => {
+
+                    Storage.uploadBytes(Storage.ref(Storage.getStorage(), 'profile_pics/' + getAuth().currentUser.uid), blob, userUploadMetadata)
+                        .then((snapshot) => {
+                            Storage.getDownloadURL(Storage.ref(Storage.getStorage(), 'profile_pics/' + getAuth().currentUser.uid))
+                                .then((url) => {
+                                    set(ref(getDatabase(), 'users/' + getAuth().currentUser.uid), {
+                                        ...LOCAL_USER,
+                                        isBanned: false,
+                                        name: editDataInput.name,
+                                        description: editDataInput.description,
+                                        ageGroup: editDataInput.ageGroup,
+                                        gender: editDataInput.gender,
+                                        pbUri: url
+                                    });
+                                })
+                                .catch((error) => console.log("error download", error.code))
+                        })
+                        .catch((error) => console.log("error upload", error.code))
+
+                })
+                .catch((error) => console.log("error delete", error.code));
+        } else {
+            set(ref(getDatabase(), 'users/' + getAuth().currentUser.uid), {
+                ...LOCAL_USER,
+                isBanned: false,
+                name: editDataInput.name,
+                description: editDataInput.description,
+                ageGroup: editDataInput.ageGroup,
+                gender: editDataInput.gender,
+            });
+        }
+
+        setEditScreenVisible(false);
+    }
+
     useEffect(() => {
         if (LOCAL_USER === LOCAL_USER_Placeholder) loadUser();
     }, []);
 
+    const openImagePickerAsync = async () => {
+
+        let permissionResult = await requestMediaLibraryPermissionsAsync();
+        if (!permissionResult.granted) return;
+        
+        let pickerResult = await launchImageLibraryAsync({
+            mediaTypes: MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: .5,
+            aspect: [1, 1],
+            allowsMultipleSelection: false,
+        });
+        if (pickerResult.cancelled) return;
+
+        pbChanged = true;
+        setPbImageUri(pickerResult.uri);
+    }
+
     return (
         <View style={ styles.container } >
+
+            <Modal presentationStyle={ Platform.OS === 'ios' ? 'formSheet' : 'overFullScreen' } transparent={ Platform.OS === 'android' }
+                onRequestClose={ () => setEditScreenVisible(false) } animationType="slide" statusBarTranslucent visible={editScreenVisible} >
+                <KeyboardAvoidingView behavior='padding' enabled style={ Platform.OS === 'ios' ? styles.modalScreenContainerIOS : styles.modalScreenContainerAndroid }>
+                
+                        {/* DragHandle */}
+                    <Pressable style={ styles.modalDragHandleContainer } onPress={ () => setEditScreenVisible(false) } >
+                        <Pressable style={ styles.modalDragHandle } onPress={ () => setEditScreenVisible(false) } />
+                    </Pressable>
+                    
+                    <View style={ styles.modalBodyContainer }>
+                        <ScrollView ref={editScrollRef} style={ styles.modalScrollViewContainer } scrollEnabled={true}
+                            showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} onScrollBeginDrag={ () => { if (Platform.OS === 'ios') Keyboard.dismiss }}
+                            keyboardDismissMode='on-drag' bounces={true} >
+
+                                {/* Name */}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } keyboardType="default" autoCapitalize='words' maxLength={32}
+                                    placeholder="Mjeno" autoComplete={ false } textContentType="name" keyboardAppearance='dark' value={editDataInput.name}
+                                    multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setEditDataInput({
+                                        ...editDataInput,
+                                        name: value
+                                    }) }
+                                />
+                            </View>
+
+                            <Pressable onPress={openImagePickerAsync} style={ styles.inputContainer }>
+                                {pbImageUri !== null ?
+                                    <Image source={{ uri: pbImageUri }} style={ styles.pbImage } resizeMode="cover" /> :
+
+                                    <View style={ styles.pbImagePlaceholder } >
+                                        <SVG_Post style={ styles.pbImageIcon } fill="#5884B0" />
+                                        <Text style={ styles.pbImageHint }>Tłoć, zo wobrazy přepytać móžeš</Text>
+                                    </View>
+                                }
+                            </Pressable>
+
+                            <View style={[ styles.inputContainer, { flexDirection: "row" } ]}>
+                                <Text style={ styles.genderText } >hólc</Text>
+                                <Switch style={ styles.switch }
+                                    thumbColor={"#B06E6A"} ios_backgroundColor={"#143C63"} value={editDataInput.gender === 0 ? false : true}
+                                    onValueChange={ (value) => 
+                                        setEditDataInput({
+                                            ...editDataInput,
+                                            gender: !value ? 0 : 1
+                                        }) } trackColor={{
+                                        false: "#143C63",
+                                        true: "#143C63"
+                                    }}/>
+                                <Text style={ styles.genderText } >holca</Text>
+                            </View>
+
+                            <View style={ styles.inputContainer }>
+                                { arraySplitter(ageOptions, 2).map((list, listKey) => 
+                                <View key={listKey} style={ styles.ageGroupListContainer }>
+                                    { list.map((ageGroup, ageGroupKey) => 
+                                        <SelectableBtn key={ageGroupKey} selected={editDataInput.ageGroup === ageGroup.id} title={ageGroup.ageGroup}
+                                            subTitle={ageGroup.ages} style={ styles.ageBtn } onPress={ () => {
+                                                setEditDataInput({
+                                                    ...editDataInput,
+                                                    ageGroup: ageGroup.id
+                                                });
+                                            }} />
+                                    ) }
+                                </View>
+                            ) }
+                            </View>
+
+                                 {/* Bio */}
+                            <View style={ styles.modalInputContainer }>
+                                <TextInput style={ styles.modalInput } keyboardType="default" autoCapitalize='sentences' maxLength={512}
+                                    placeholder="Wopisaj tebje..." autoComplete={ false } keyboardAppearance='dark' value={editDataInput.description}
+                                    multiline blurOnSubmit={ true } numberOfLines={5} editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                                    onChangeText={ (value) => setEditDataInput({
+                                        ...editDataInput,
+                                        description: value,
+                                    }) }
+                                    
+                                />
+                            </View>
+
+                                {/* Submit */}
+                            <Pressable style={ styles.modalSubmitBtn } onPress={ overrideUserData } >
+                                <Text style={ styles.modalSubmitBtnText }>Změnić</Text>
+                            </Pressable>
+
+                        </ScrollView>
+                    </View>
+
+                </KeyboardAvoidingView>
+            </Modal>
+
 
             <Navbar style={ styles.navbar } active={3}
                 onPressRecent={ () => { navigation.navigate("Recent") }}
@@ -194,7 +377,12 @@ export default function UserProfile({ navigation }) {
                     ) }
                 </View>
 
-                <EditButton style={ styles.editBtn } />
+                <EditButton style={ styles.editBtn } onPress={ () => {
+                    pbChanged = false;
+                    setPbImageUri(LOCAL_USER.pbUri);
+                    setEditDataInput(LOCAL_USER);
+                    setEditScreenVisible(true)
+                } } />
 
             </ScrollView>
 
@@ -307,5 +495,168 @@ const styles = StyleSheet.create({
         marginVertical: 25,
         elevation: 10,
         alignSelf: "center"
-    }
+    },
+
+
+    modalScreenContainerIOS: {
+        width: "100%",
+        flex: 1,
+        backgroundColor: "#5884B0",
+    },
+    modalScreenContainerAndroid: {
+        width: "100%",
+        height: "90%",
+        top: "10%",
+        backgroundColor: "#5884B0",
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+
+        elevation: 10
+    },
+
+    modalDragHandleContainer: {
+        flex: .05,
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalDragHandle: {
+        flex: .2,
+        width: "40%",
+        borderRadius: 25,
+        backgroundColor: "#143C63"
+    },
+
+    modalBodyContainer: {
+        width: "100%",
+        flex: .9,
+        paddingHorizontal: 10
+    },
+    modalScrollViewContainer: {
+        width: "100%",
+    },
+
+    modalInputContainer: {
+        width: "100%",
+        marginVertical: 10,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    modalInput: {
+        width: "80%",
+        color: "#5884B0",
+
+        padding: 25,
+
+        fontFamily: "Inconsolata_Regular",
+        fontSize: 25,
+
+        backgroundColor: "#143C63",
+        borderRadius: 15,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 10,
+    },
+
+    modalSubmitBtn: {
+        width: "80%",
+        alignSelf: "center",
+        marginVertical: 25,
+
+        backgroundColor: "#B06E6A",
+        borderRadius: 15,
+
+        padding: 25,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .34,
+        shadowRadius: 6.27,
+        elevation: 10,
+
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    modalSubmitBtnText: {
+        color: "rgba(0, 0, 0, .5)",
+        fontFamily: "Inconsolata_Black",
+        fontSize: 25,
+    },
+
+    inputContainer: {
+        width: "80%",
+        marginVertical: 10,
+        alignSelf: "center",
+        alignItems: "center",
+        justifyContent: "center",
+        
+    },
+
+    pbImage: {
+        aspectRatio: 1,
+        width: "100%",
+        borderRadius: 500
+    },
+    pbImagePlaceholder: {
+        aspectRatio: 1,
+        width: "100%",
+        borderRadius: 500,
+        backgroundColor: "#143C63",
+
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden"
+    },
+    pbImageIcon: {
+        width: "50%",
+        height: "50%"
+    },
+    pbImageHint: {
+        width: "60%",
+        alignSelf: "center",
+        
+        fontFamily: "Inconsolata_Regular",
+        fontSize: 15,
+        color: "#5884B0",
+        textAlign: "center",
+    },
+
+    switch: {
+        flex: .2,
+        marginHorizontal: 10,
+    },
+    genderText: {
+        flex: .4,
+        textAlign: "center",
+
+        fontFamily: "Inconsolata_Black",
+        fontSize: 25,
+        color: "#143C63"
+    },
+
+    ageGroupListContainer: {
+        width: "100%",
+        flexDirection: "row",
+        padding: 0,
+        margin: 0,
+    },
+    ageGroupPreview: {
+        flex: 1,
+        aspectRatio: .9,
+        margin: "2%",
+    },
+    ageBtn: {
+        flex: 1,
+        margin: 10,
+    },
+
 })
