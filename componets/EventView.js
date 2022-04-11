@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text } from 'react-native';
 
-import { getDatabase, ref, onValue, get, child } from "firebase/database";
+import { getAuth } from 'firebase/auth';
+import { getDatabase, ref, onValue, get, child, remove, set, off } from "firebase/database";
 
 import MapView, { Marker } from 'react-native-maps';
 
 import BackHeader from './statics/BackHeader';
 import UserHeader from './statics/UserHeader';
+import DeleteButton from './statics/DeleteButton';
 
 const USER_PLACEHOLDER = {
     name: "",
@@ -16,12 +18,6 @@ const USER_PLACEHOLDER = {
 const EVENT_PLACEHOLDER = {
     title: "hey",
     description: "test",
-    geoCords: {
-        latitude: 51.2392335862277,
-        longitude: 14.281389642218592,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.005,
-    },
     created: "27.3.2022 21:20",
     checks: 0,
     starting: 0
@@ -31,6 +27,7 @@ const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
 }
 
+let userDatabase;
 export default function EventView({ navigation, route }) {
 
     const [refreshing, setRefreshing] = useState(false);
@@ -44,6 +41,7 @@ export default function EventView({ navigation, route }) {
     
     const [user, setUser] = useState(USER_PLACEHOLDER);
     const [event, setEvent] = useState(EVENT_PLACEHOLDER);
+    const [pin, setPin] = useState(null);
     
     const {eventID} = route.params;
 
@@ -64,6 +62,7 @@ export default function EventView({ navigation, route }) {
                 checks: data['checks'],
                 starting: data['starting']
             });
+            setPin(data['geoCords']);
         });
     }
 
@@ -74,6 +73,7 @@ export default function EventView({ navigation, route }) {
                 if (snapshot.exists()) {
 
                     const data = snapshot.val();
+                    userDatabase = data;
 
                     setUser({
                         name: data['name'],
@@ -98,11 +98,32 @@ export default function EventView({ navigation, route }) {
         loadUser();
     }, [creator]);
 
+    
     const convertTimestampIntoString = (val) => {
         const date = new Date(val);
 
         let min = date.getMinutes().toString().length === 1 ? date.getMinutes() + "0" : date.getMinutes()
         return (date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear() + " " + date.getHours() + ":" + min + " hodź.");
+    }
+
+    const deleteEvent = () => {
+        ref(getDatabase(), 'events').off();
+        remove(ref(getDatabase(), 'events/' + event.id))
+            .then(() => {
+
+                let userEventList = userDatabase['events']
+                
+                userEventList.splice(userEventList.indexOf(event.id), 1);
+                set(ref(getDatabase(), 'users/' + creator), {
+                    ...userDatabase,
+                    events: userEventList
+                })
+            })
+            .finally(() => {
+                console.log("sjwskjw");
+                navigation.navigate('Recent');
+            })
+            .catch((error) => console.log("error", error.code))
     }
 
     return (
@@ -121,11 +142,14 @@ export default function EventView({ navigation, route }) {
 
                     {/* MapView */}
                 <View style={ styles.mapViewContainer }>
-                    <MapView style={styles.map}
-                        accessible={false} focusable={false}
-                        initialRegion={ event.geoCords } >
-                        <Marker title={event.title} coordinate={event.geoCords} />
-                    </MapView>
+                    {
+                        pin != null ?
+                        <MapView style={styles.map}
+                            accessible={false} focusable={false}
+                            initialRegion={ event.geoCords } >
+                            <Marker title={event.title} coordinate={event.geoCords} />
+                        </MapView> : null
+                    }
                 </View>
 
                     {/* Describtion */}
@@ -141,6 +165,13 @@ export default function EventView({ navigation, route }) {
                         {!true ? "Sym tež tu" : "Njejsym ty"}
                     </Text>
                 </Pressable>
+
+                    {/* Delete */}
+                {
+                    getAuth().currentUser.uid === creator ?    
+                        <DeleteButton style={ styles.deleteBtn } onPress={ deleteEvent } /> :
+                        null
+                }
 
             </ScrollView>
 
@@ -243,5 +274,11 @@ const styles = StyleSheet.create({
         fontFamily: "Inconsolata_Black",
         fontSize: 25,
         color: "#143C63"
-    }
+    },
+
+    deleteBtn: {
+        width: "60%",
+        marginTop: 25,
+        alignSelf: "center"
+    },
 });

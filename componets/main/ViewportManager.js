@@ -14,6 +14,9 @@ import PostView from '../PostView';
 import EventView from '../EventView';
 import ProfileView from '../ProfileView';
 
+import PostCreate from '../statics/PostCreate';
+import EventCreate from '../statics/EventCreate';
+
 const Stack = createStackNavigator();
 
 export default function ViewportManager() {
@@ -30,6 +33,9 @@ export default function ViewportManager() {
             <Stack.Screen name="PostView" component={PostView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
             <Stack.Screen name="EventView" component={EventView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
             <Stack.Screen name="ProfileView" component={ProfileView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
+
+            <Stack.Screen name="PostCreate" component={PostCreate} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
+            <Stack.Screen name="EventCreate" component={EventCreate } options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
         </Stack.Navigator>
     </SafeAreaView>
   )

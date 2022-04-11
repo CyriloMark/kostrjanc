@@ -13,12 +13,13 @@ export const PostType = {
 }
 
 export default function PostPreview(props) {
+
     return (
         <View style={[ props.style, { overflow: "visible", zIndex: 2 } ]}>
             <Pressable style={ styles.postItemContainer } onPress={ props.press } >
                 {
                     props.item.type === PostType.Post
-                    ? <Preview_Post imgUri={props.item.imgUri} title={props.item.title} style={ styles.boxStyle } />
+                    ? <Preview_Post imgUri={props.item.imgUri} postShowText={props.postShowText} title={props.item.title} style={ styles.boxStyle } />
                     : <Preview_Event title={props.item.title} geoCords={props.item.geoCords} checked={true} style={ styles.boxStyle } />
                 }
             </Pressable>
@@ -36,9 +37,9 @@ export function Preview_Post (props) {
                 <SVG_Post style={ styles.typePin } fill="#fff" />
 
                 <View style={ styles.previewPostContent }>
-                    {/* <Text style={ styles.previewPostTitle }>
+                    <Text style={[ styles.previewPostTitle, { opacity: !props.postShowText ? 0 : 1 } ]}>
                         {props.title}
-                    </Text> */}
+                    </Text>
                 </View>
 
             </View>

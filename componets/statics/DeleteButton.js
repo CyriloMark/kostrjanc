@@ -2,16 +2,16 @@ import React from 'react'
 
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 
-import SVG_Pencil from '../../assets/svg/Pencil';
+import SVG_Basket from '../../assets/svg/Basket';
 
-export default function EditButton(props) {
+export default function DeleteButton(props) {
     return (
         <View style={ props.style }>
             <Pressable style={ styles.container } onPress={props.onPress}>
-                <View style={styles.pencilContainer} >
-                    <SVG_Pencil fill={"#143C63"} style={ styles.pencilIcon } />
+                <View style={styles.basketContainer} >
+                    <SVG_Basket fill={"#143C63"} style={ styles.basketIcon } />
                 </View>
-                <Text style={styles.editText}>Wobdźěłać</Text>
+                <Text style={styles.text}>Zhašeć</Text>
             </Pressable>
         </View>
     )
@@ -26,21 +26,21 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
         paddingVertical: 10,
         alignItems: "center",
-        backgroundColor: "#5884B0",
+        backgroundColor: "#B06E6A",
     },
 
-    pencilContainer: {
+    basketContainer: {
         flex: .2,
         alignItems: "center",
         justifyContent: "center",
         aspectRatio: 1,
     },
-    pencilIcon: {
+    basketIcon: {
         aspectRatio: 1,
         width: "100%",
         borderRadius: 50,
     },
-    editText: {
+    text: {
         flex: .8,
         paddingHorizontal: 10,
         fontFamily: "Inconsolata_Regular",

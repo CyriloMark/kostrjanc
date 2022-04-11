@@ -366,7 +366,7 @@ export default function UserProfile({ navigation }) {
                     { arraySplitter(postEventList, 2).map((list, listKey) => 
                         <View key={listKey} style={ styles.postItemListContainer }>
                             { list.map((item, itemKey) => 
-                                <PostPreview key={itemKey} item={item} style={ styles.postPreview }
+                                <PostPreview postShowText={false} key={itemKey} item={item} style={ styles.postPreview }
                                     press={ () => {
                                         item.type === 0 ?
                                             navigation.navigate('PostView', { postID: item.id }) :

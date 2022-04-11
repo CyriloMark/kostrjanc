@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Image } from 'react-native';
 
+import { getAuth } from 'firebase/auth';
 import { getDatabase, ref, onValue, get, child } from "firebase/database";
 
 import SVG_Heart from '../assets/svg/Heart';
@@ -10,6 +11,7 @@ import SVG_Share from '../assets/svg/Share';
 
 import BackHeader from './statics/BackHeader';
 import UserHeader from './statics/UserHeader';
+import DeleteButton from './statics/DeleteButton';
 
 const USER_PLACEHOLDER = {
     name: "",
@@ -17,6 +19,7 @@ const USER_PLACEHOLDER = {
 }
 const POST_PLACEHOLDER = {
     title: "",
+    creator: "",
     description: "",
     imgUri: "https://www.colorhexa.com/587db0.png",
     likes: 0,
@@ -133,6 +136,13 @@ export default function PostView({ navigation, route }) {
                     <Text style={ styles.descriptionText }>{post.description}</Text>
                 </View>
 
+                    {/* Delete */}
+                {
+                    getAuth().currentUser.uid === creator ?    
+                        <DeleteButton style={ styles.deleteBtn } /> :
+                        null
+                }
+
             </ScrollView>
 
         </View>
@@ -241,5 +251,12 @@ const styles = StyleSheet.create({
         fontFamily: "Inconsolata_Regular",
         fontSize: 25,
         color: "#5884B0"
+    },
+
+
+    deleteBtn: {
+        width: "60%",
+        marginTop: 25,
+        alignSelf: "center"
     },
 });

@@ -9,19 +9,21 @@ import MapView from 'react-native-maps';
 const EVENT_PLACEHOLDER = {
     title: "hey",
     description: "test",
-    geoCords: {
-        latitude: 51.2392335862277,
-        longitude: 14.281389642218592,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.005,
-    },
     created: "27.3.2022 21:20",
     checks: 0,
+}
+
+const initialRegion = {
+    latitude: 51.186106956552244,
+    longitude: 14.435684115023259,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
 }
 
 export default function EventCard(props) {
 
     const [event, setEvent] = useState(EVENT_PLACEHOLDER);
+    const [pin, setPin] = useState(null);
 
     const loadData = () => {
         const db = getDatabase();
@@ -39,6 +41,7 @@ export default function EventCard(props) {
                 created: data['created'],
                 checks: data['checks'],
             });
+            setPin(data['geoCords']);
         });
     }
 
@@ -49,10 +52,13 @@ export default function EventCard(props) {
     return (
         <Pressable style={[ props.style, { borderRadius: 15, overflow: "hidden" } ]} onPress={ props.onPress }>
 
-            <MapView style={styles.map}
-                accessible={false} focusable={false}
-                initialRegion={ event.geoCords }
-            />
+            {
+                pin != null ?
+                <MapView style={styles.map}
+                    accessible={false} focusable={false}
+                    initialRegion={ event.geoCords }
+                /> : null
+            }
 
             <View style={ styles.eventCardContainer }>
                     {/* Info Text */}
