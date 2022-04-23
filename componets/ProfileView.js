@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { View, StyleSheet, Text, ScrollView, RefreshControl, Image, Pressable } from "react-native";
 
-import { getDatabase, ref, child, get, onValue } from "firebase/database";
+import { getDatabase, ref, child, get, onValue, set } from "firebase/database";
 import { getAuth } from 'firebase/auth';
 
 import BackHeader from './statics/BackHeader';
@@ -15,7 +15,9 @@ const USER_PLACEHOLDER = {
     gender: 0,
     pbUri: "https://www.colorhexa.com/587db0.png",
     posts: [],
-    events: []
+    events: [],
+    follower: [],
+    following: []
 }
 
 const wait = (timeout) => {
@@ -48,7 +50,8 @@ export default function ProfileView({ navigation, route }) {
         wait(2000).then(() => setRefreshing(false));
     }, []);
     
-    const [user, setUser] = useState(USER_PLACEHOLDER);;
+    const [user, setUser] = useState(USER_PLACEHOLDER);
+    const [following, setFollowing] = useState(false);
 
     const [postEventList, setPostEventList] = useState([]);
 
@@ -69,6 +72,8 @@ export default function ProfileView({ navigation, route }) {
                 ageGroup: data['ageGroup'],
                 gender: data['gender'],
                 pbUri: data['pbUri'],
+                follower: snapshot.hasChild('follower') ? data['follower'] : [],
+                following: snapshot.hasChild('following') ? data['following'] : []
             };
 
             const hasPosts = snapshot.hasChild('posts');
@@ -91,7 +96,7 @@ export default function ProfileView({ navigation, route }) {
                             const postData = post.val();
     
                             postEventDatas.push(postData);
-                            if (!hasEvents) sortArrayByDate(postEventDatas);
+                            if (i === posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
                         })
                         .catch((error) => console.log("error posts", error.code));
                 }
@@ -112,7 +117,7 @@ export default function ProfileView({ navigation, route }) {
                             const eventData = event.val();
     
                             postEventDatas.push(eventData);
-                            sortArrayByDate(postEventDatas);
+                            if (i === events.length - 1) sortArrayByDate(postEventDatas);
                         })
                         .catch((error) => console.log("error events", error.code));
                 }
@@ -132,9 +137,69 @@ export default function ProfileView({ navigation, route }) {
                 }
             }
         }
+        dates.reverse();
 
         setPostEventList(dates);
     }
+
+    const follow = () => {
+
+        const db = getDatabase();
+        const uid = getAuth().currentUser.uid;
+
+        get(child(ref(db), "users/" + uid))
+            .then((result) => {
+
+                if (result.exists()) {
+                    let a = result.val();
+
+                    let following = [];
+                    if (result.hasChild('following')) following = a['following'];
+                    else following = [];
+                    following.push(userID);
+
+                    set(ref(db, "users/" + uid), {
+                        ...a,
+                        following: following
+                    }).catch((error) => console.log("error s", error.code))
+                }
+
+            }).catch((error) => console.log("error g", error.code))
+            .finally(() => {
+
+                get(child(ref(db), "users/" + userID))
+                .then((result) => {
+
+                    if (result.exists()) {
+                        let a = result.val();
+
+                        let follower = [];
+                        if (result.hasChild('follower')) follower = a['follower'];
+                        else follower = [];
+                        follower.push(uid);
+
+                        set(ref(db, "users/" + userID), {
+                            ...a,
+                            follower: follower
+                        }).catch((error) => console.log("error s", error.code))
+                    }
+
+                }).catch((error) => console.log("error g", error.code))
+
+                .finally(() => setFollowing(true));
+            })
+    }
+
+    useEffect(() => {
+        
+        get(child(ref(getDatabase()), "users/" + getAuth().currentUser.uid + "/following"))
+            .then((result) => {
+                if (result.exists()) {
+                    const data = result.val();
+                    setFollowing(data.includes(userID));
+                } else setFollowing(false);
+            })
+    })
 
     useEffect(() => {
         if (user === USER_PLACEHOLDER) loadUser();
@@ -170,11 +235,11 @@ export default function ProfileView({ navigation, route }) {
 
                     {/* Follow */}
                 {
-                    getAuth().currentUser.uid !== userID ?    
-                        <Pressable style={ styles.followBtn }>
+                    !(!(getAuth().currentUser.uid === userID) && !following) ?
+                        null :
+                        <Pressable style={ styles.followBtn } onPress={ follow }>
                             <Text style={ styles.followText }>Sćěhować</Text>
-                        </Pressable> :
-                        null
+                        </Pressable>
                 }
 
                     {/* Profile Bio */}
@@ -182,7 +247,6 @@ export default function ProfileView({ navigation, route }) {
                     <Text style={ styles.profileBioText }>{user.description}</Text>
                 </View>
 
-                    {/* Post List */}
                 <View style={ styles.postContainer }>
                     { arraySplitter(postEventList, 2).map((list, listKey) => 
                         <View key={listKey} style={ styles.postItemListContainer }>
@@ -278,7 +342,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
 
         position: "relative",
-        marginTop: 25,
+        marginVertical: 10,
         alignSelf: "center",
         
         paddingHorizontal: 25,
@@ -296,7 +360,7 @@ const styles = StyleSheet.create({
         width: "100%",
 
         position: "relative",
-        marginTop: 25,
+        marginVertical: 10,
     },
 
 

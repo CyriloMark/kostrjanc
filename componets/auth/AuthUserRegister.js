@@ -134,8 +134,11 @@ export default function AuthUserRegister({ navigation, route }) {
                                     description: userData.description,
                                     ageGroup: userData.ageGroup,
                                     gender: userData.gender,
+                                    pbUri: url,
+                                    follower: [],
+                                    isMod: false,
                                     isBanned: false,
-                                    pbUri: url
+                                    isAdmin: false
                                 });
                             })
                             .catch((error) => console.log(error.code))

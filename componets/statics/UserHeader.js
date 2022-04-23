@@ -1,8 +1,73 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 
+import { getAuth } from 'firebase/auth';
+import { getDatabase, set, ref, get, child } from 'firebase/database';
+
 export default function UserHeader(props) {
+
+    const [following, setFollowing] = useState(false);
+
+    const follow = () => {
+        const db = getDatabase();
+        const uid = getAuth().currentUser.uid;
+
+        get(child(ref(db), "users/" + uid))
+            .then((result) => {
+
+                if (result.exists()) {
+                    let a = result.val();
+
+                    let following = [];
+                    if (result.hasChild('following')) following = a['following'];
+                    else following = [];
+                    following.push(props.userID);
+
+                    set(ref(db, "users/" + uid), {
+                        ...a,
+                        following: following
+                    }).catch((error) => console.log("error s", error.code))
+                }
+
+            }).catch((error) => console.log("error g", error.code))
+            .finally(() => {
+
+                get(child(ref(db), "users/" + props.userID))
+                .then((result) => {
+
+                    if (result.exists()) {
+                        let a = result.val();
+
+                        let follower = [];
+                        if (result.hasChild('follower')) follower = a['follower'];
+                        else follower = [];
+                        follower.push(uid);
+
+                        set(ref(db, "users/" + props.userID), {
+                            ...a,
+                            follower: follower
+                        }).catch((error) => console.log("error s", error.code))
+                    }
+
+                }).catch((error) => console.log("error g", error.code))
+
+                .finally(() => setFollowing(true));
+            })
+    }
+
+    useEffect(() => {
+        get(child(ref(getDatabase()), "users/" + getAuth().currentUser.uid + "/following"))
+            .then((result) => {
+                if (result.exists()) {
+                    const data = result.val();
+                    setFollowing(data.includes(props.userID));
+                } else {
+                    setFollowing(false);
+                }
+            })
+    })
+
     return (
         <View style={ props.style }>
                 {/* User */}
@@ -11,9 +76,14 @@ export default function UserHeader(props) {
                     <Image source={{ uri: props.user.pbUri }} style={ styles.userIcon } resizeMode="cover" />
                 </View>
                 <Text style={ styles.userTitleText }>{props.user.name}</Text>
-                <Pressable style={[ styles.userAddContainer ]}>
-                    <Text style={[ styles.userAddText, styles.shadow ]}>+</Text>
-                </Pressable>
+                {
+                    !(!(getAuth().currentUser.uid === props.userID) && !following) ?
+                        null :
+                        <Pressable style={[ styles.userAddContainer ]} onPress={follow}>
+                            <Text style={[ styles.userAddText, styles.shadow ]}>+</Text>
+                        </Pressable>
+                }
+                
             </Pressable>
         </View>
     )

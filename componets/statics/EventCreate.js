@@ -5,7 +5,7 @@ import { View, KeyboardAvoidingView, ScrollView, StyleSheet, Keyboard, TextInput
 import { getAuth } from 'firebase/auth';
 import { child, get, getDatabase, ref, set } from "firebase/database";
 
-import MapView, { Marker } from 'react-native-maps';
+import MapView from 'react-native-maps';
 
 import BackHeader from './BackHeader'
 
@@ -35,12 +35,9 @@ export default function EventCreate({ navigation }) {
         return a;
     }
 
-    useEffect(() => {
-        console.log(eventData.starting);
-    }, [eventData.starting])
-
     const publish = async () => {
         if (!(eventData.title.length !== 0 && eventData.description.length !== 0)) return;
+        if (eventData.starting === "undefined") return;
 
         const id = Date.now();
         set(ref(getDatabase(), 'events/' + id), {
@@ -111,11 +108,12 @@ export default function EventCreate({ navigation }) {
                         />
                     </View>
 
+                    <Text style={styles.timeHint}>(w formje: dźeń.měsac.lěto hodź:min)</Text>
                         {/* 1.1.1970 0:00 hodź. */}
                         {/* Starting */} 
                     <View style={ styles.inputContainer }>
                         <TextInput style={ styles.input } keyboardType="default" autoCapitalize='sentences' maxLength={32}
-                            placeholder="Započatk [6.4.2022 17:25]" autoComplete={ false } textContentType="name" keyboardAppearance='dark'
+                            placeholder="Započatk" autoComplete={ false } textContentType="name" keyboardAppearance='dark'
                             multiline={ false } blurOnSubmit={ true } editable={ true } placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
                             onChangeText={ (value) => setEventData({
                                 ...eventData,
@@ -190,6 +188,15 @@ const styles = StyleSheet.create({
 
         justifyContent: "center",
         alignItems: "center",
+    },
+
+    timeHint: {
+        textAlign: "center",
+        marginTop: 15,
+
+        fontFamily: "Inconsolata_Regular",
+        fontSize: 15,
+        color: "#143C63",
     },
 
     inputContainer: {

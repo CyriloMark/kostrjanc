@@ -2,10 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text } from 'react-native';
 
-import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, onValue, get, child, remove, set, off } from "firebase/database";
+import { getDatabase, ref, onValue, get, child, remove, set } from "firebase/database";
 
 import MapView, { Marker } from 'react-native-maps';
+
+import CommentsModal from './statics/CommentsModal';
+import ReportModal from './statics/ReportModal';
+
+import SVG_Recent from '../assets/svg/Recent';
+import SVG_Share from '../assets/svg/Share';
+import SVG_Warn from '../assets/svg/Warn';
 
 import BackHeader from './statics/BackHeader';
 import UserHeader from './statics/UserHeader';
@@ -20,7 +26,8 @@ const EVENT_PLACEHOLDER = {
     description: "test",
     created: "27.3.2022 21:20",
     checks: 0,
-    starting: 0
+    starting: 0,
+    comments: []
 }
 
 const wait = (timeout) => {
@@ -38,7 +45,10 @@ export default function EventView({ navigation, route }) {
 
     
     const [creator, setCreator] = useState(null);
-    
+
+    const [commentsVisible, setCommentsVisible] = useState(false);
+    const [reportVisible, setReportVisible] = useState(false);
+
     const [user, setUser] = useState(USER_PLACEHOLDER);
     const [event, setEvent] = useState(EVENT_PLACEHOLDER);
     const [pin, setPin] = useState(null);
@@ -60,7 +70,8 @@ export default function EventView({ navigation, route }) {
                 geoCords: data['geoCords'],
                 created: data['created'],
                 checks: data['checks'],
-                starting: data['starting']
+                starting: data['starting'],
+                comments: snapshot.hasChild('comments') ? data['comments'] : [],
             });
             setPin(data['geoCords']);
         });
@@ -129,6 +140,9 @@ export default function EventView({ navigation, route }) {
     return (
         <View style={ styles.container }>
 
+            <CommentsModal type={1} title={event.title} visible={commentsVisible} close={ () => setCommentsVisible(false) } commentsList={event.comments} />
+            <ReportModal type={1} visible={reportVisible} close={ () => setReportVisible(false) } id={eventID}  />
+
             <BackHeader style={[ styles.backHeader, styles.shadow ]} title="Event" onPress={ () => navigation.goBack() } />
 
             <ScrollView style={{ width: "100%", marginTop: "25%", overflow: "visible" }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "10%", }]}
@@ -138,7 +152,7 @@ export default function EventView({ navigation, route }) {
                         onRefresh={onRefresh}
                     /> }>
 
-                <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} />
+                <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} userID={creator} />
 
                     {/* MapView */}
                 <View style={ styles.mapViewContainer }>
@@ -150,6 +164,22 @@ export default function EventView({ navigation, route }) {
                             <Marker title={event.title} coordinate={event.geoCords} />
                         </MapView> : null
                     }
+                </View>
+
+                    {/* Interations */}
+                <View style={[ styles.interactionsContainer, styles.shadow ]}>
+                        {/* Comment */}
+                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setCommentsVisible(true) } >
+                        <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                    </Pressable>
+                        {/* Share */}
+                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
+                        <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                    </Pressable>
+                        {/* Report */}
+                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setReportVisible(true) } >
+                        <SVG_Warn style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                    </Pressable>
                 </View>
 
                     {/* Describtion */}
@@ -165,13 +195,6 @@ export default function EventView({ navigation, route }) {
                         {!true ? "Sym tež tu" : "Njejsym ty"}
                     </Text>
                 </Pressable>
-
-                    {/* Delete */}
-                {
-                    getAuth().currentUser.uid === creator ?    
-                        <DeleteButton style={ styles.deleteBtn } onPress={ deleteEvent } /> :
-                        null
-                }
 
             </ScrollView>
 
@@ -253,6 +276,36 @@ const styles = StyleSheet.create({
         color: "#5884B0"
     },
 
+    interactionsContainer: {
+        width: "100%",
+        position: "relative",
+        borderRadius: 15,
+        marginTop: 10,
+        alignSelf: "center",
+        
+        padding: 10,
+        backgroundColor: "#143C63",
+        
+        flexDirection: "row",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        
+        zIndex: 3,
+    },
+    postInteractionsItem: {
+        flex: .1,
+        aspectRatio: 1,
+        borderRadius: 50,
+
+        marginRight: 10,
+        padding: 12,
+    },
+    postInteractionsItemText: {
+        flex: 1,
+        width: "100%"
+    },
+
     joinBtnContainer: {
         width: "60%",
         backgroundColor: "",
@@ -280,5 +333,22 @@ const styles = StyleSheet.create({
         width: "60%",
         marginTop: 25,
         alignSelf: "center"
+    },
+
+    reportContainer: {
+        width: "40%",
+        borderRadius: 100,
+        aspectRatio: 1,
+        marginTop: 25,
+        alignSelf: "center",
+        paddingHorizontal: 35,
+        paddingBottom: 10,
+        backgroundColor: "#143C63",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    reportText: {
+        height: "100%",
+        width: "100%"
     },
 });

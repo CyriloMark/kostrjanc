@@ -18,7 +18,7 @@ export default function PostPreview(props) {
         <View style={[ props.style, { overflow: "visible", zIndex: 2 } ]}>
             <Pressable style={ styles.postItemContainer } onPress={ props.press } >
                 {
-                    props.item.type === PostType.Post
+                    props.item.type === 0
                     ? <Preview_Post imgUri={props.item.imgUri} postShowText={props.postShowText} title={props.item.title} style={ styles.boxStyle } />
                     : <Preview_Event title={props.item.title} geoCords={props.item.geoCords} checked={true} style={ styles.boxStyle } />
                 }

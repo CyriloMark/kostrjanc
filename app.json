@@ -27,6 +27,8 @@
     },
     "web": {
       "favicon": "./assets/app-system-icons/favicon.png"
-    }
+    },
+    "description": "",
+    "githubUrl": "https://github.com/CyriloMark/kostrjanc"
   }
 }

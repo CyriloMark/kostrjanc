@@ -4,7 +4,6 @@ import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 
 import { getDatabase, ref, onValue, get, child } from "firebase/database";
 
-import SVG_Heart from '../../assets/svg/Heart';
 import SVG_Recent from '../../assets/svg/Recent';
 import SVG_Share from '../../assets/svg/Share';
 
@@ -16,7 +15,6 @@ const POST_PLACEHOLDER = {
     title: "",
     description: "",
     imgUri: "https://www.colorhexa.com/587db0.png",
-    likes: 0,
     created: "27.3.2022 21:20"
 }
 
@@ -43,7 +41,6 @@ export default function PostCard(props) {
                 description: data['description'],
                 imgUri: data['imgUri'],
                 created: data['created'],
-                likes: data['likes'],
             });
         });
     }
@@ -99,21 +96,18 @@ export default function PostCard(props) {
                         <Text style={ styles.headerTitleText }>{user.name}</Text>
                     </View>
 
-                    <View style={ styles.postInteractions }>
+                    {/* <View style={ styles.postInteractions }>
 
-                            {/* Like */}
-                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: !true ? "#143C63" : "#9FB012" } ]} onPress={ props.onLikePress } >
-                            <SVG_Heart style={ styles.postInteractionsItemText } fill={ !props.liked ? "#B06E6A" : "#143C63" } />
-                        </Pressable>
-                            {/* Comment */}
+                            Comment
                         <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
                             <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
                         </Pressable>
-                            {/* Share */}
+                        
+                            Share
                         <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
                             <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
                         </Pressable>
-                    </View>
+                    </View> */}
 
                 </View>
 

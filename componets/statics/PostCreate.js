@@ -101,12 +101,12 @@ export default function PostCreate({ navigation }) {
                     })
                     .catch(() => btnPressed = false);
 
-                navigation.navigate("Recent");
+                
             })
             .catch((error) => {
                 console.log("error 2", error.code);
                 btnPressed = false;
-            });
+            })
     }
 
     return (

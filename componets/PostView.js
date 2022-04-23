@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Image, Alert } from 'react-native';
 
 import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, onValue, get, child } from "firebase/database";
+import { getDatabase, ref, onValue, get, child, set } from "firebase/database";
 
-import SVG_Heart from '../assets/svg/Heart';
 import SVG_Recent from '../assets/svg/Recent';
 import SVG_Share from '../assets/svg/Share';
+import SVG_Warn from '../assets/svg/Warn';
 
 import BackHeader from './statics/BackHeader';
 import UserHeader from './statics/UserHeader';
 import DeleteButton from './statics/DeleteButton';
+
+import CommentsModal from './statics/CommentsModal';
+import ReportModal from './statics/ReportModal';
 
 const USER_PLACEHOLDER = {
     name: "",
@@ -22,8 +25,8 @@ const POST_PLACEHOLDER = {
     creator: "",
     description: "",
     imgUri: "https://www.colorhexa.com/587db0.png",
-    likes: 0,
-    created: "27.3.2022 21:20"
+    created: "27.3.2022 21:20",
+    comments: []
 }
 
 const wait = (timeout) => {
@@ -40,6 +43,9 @@ export default function PostView({ navigation, route }) {
     }, []);
 
     const [creator, setCreator] = useState(null);
+
+    const [commentsVisible, setCommentsVisible] = useState(false);
+    const [reportVisible, setReportVisible] = useState(false);
 
     const [user, setUser] = useState(USER_PLACEHOLDER);
     const [post, setPost] = useState(POST_PLACEHOLDER)
@@ -59,7 +65,7 @@ export default function PostView({ navigation, route }) {
                 description: data['description'],
                 imgUri: data['imgUri'],
                 created: data['created'],
-                likes: data['likes'],
+                comments: snapshot.hasChild('comments') ? data['comments'] : [],
             });
         });
     }
@@ -97,7 +103,10 @@ export default function PostView({ navigation, route }) {
 
     return (
         <View style={ styles.container }>
-            
+        
+            <CommentsModal type={0} title={post.title} visible={commentsVisible} close={ () => setCommentsVisible(false) } commentsList={post.comments} postID={post.id} />
+            <ReportModal type={0} visible={reportVisible} close={ () => setReportVisible(false) } id={postID} />
+
             <BackHeader style={[ styles.backHeader, styles.shadow ]} title="Post" onPress={ () => navigation.goBack() } />
 
             <ScrollView style={{ width: "100%", marginTop: "25%", overflow: "visible" }} contentContainerStyle={[ styles.shadow, { width: "100%", paddingBottom: "10%", }]}
@@ -107,7 +116,7 @@ export default function PostView({ navigation, route }) {
                         onRefresh={onRefresh}
                     /> }>
 
-                <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} />
+                <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} userID={creator} />
 
                     {/* Post */}
                 <View style={[ styles.postContainer, styles.shadow ]} >
@@ -116,17 +125,17 @@ export default function PostView({ navigation, route }) {
 
                     {/* Interations */}
                 <View style={[ styles.interactionsContainer, styles.shadow ]}>
-                        {/* Like */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" }]} >
-                        <SVG_Heart style={ styles.postInteractionsItemText } fill={ "#B06E6A" } />
-                    </Pressable>
                         {/* Comment */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
+                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setCommentsVisible(true) } >
                         <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
                     </Pressable>
                         {/* Share */}
                     <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
                         <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                    </Pressable>
+                        {/* Report */}
+                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setReportVisible(true) } >
+                        <SVG_Warn style={ styles.postInteractionsItemText } fill="#B06E6A" />
                     </Pressable>
                 </View>
 

@@ -13,6 +13,7 @@ import { ageOptions, SelectableBtn } from '../auth/AuthUserRegister';
 import Navbar from '../statics/Navbar';
 import PostPreview from '../statics/PostPreview';
 import EditButton from '../statics/EditButton';
+import UserListModal from '../statics/UserListModal';
 
 import SVG_Post from '../../assets/svg/Post';
 
@@ -23,7 +24,9 @@ const LOCAL_USER_Placeholder = {
     gender: 0,
     pbUri: "https://www.colorhexa.com/587db0.png",
     posts: [],
-    events: []
+    events: [],
+    follower: [],
+    following: []
 }
 
 const wait = (timeout) => {
@@ -72,6 +75,11 @@ export default function UserProfile({ navigation }) {
 
     const [editDataInput, setEditDataInput] = useState(LOCAL_USER_Placeholder);
 
+    const [followerVisible, setFollowerVisible] = useState(false);
+    const [followingVisible, setFollowingVisible] = useState(false);
+    const [followerUserList, setFollowerUserList] = useState([]);
+    const [followingUserList, setFollowingUserList] = useState([]);
+
     const loadUser = () => {
 
         const db = getDatabase();
@@ -87,6 +95,8 @@ export default function UserProfile({ navigation }) {
                 ageGroup: data['ageGroup'],
                 gender: data['gender'],
                 pbUri: data['pbUri'],
+                follower: snapshot.hasChild('follower') ? data['follower'] : [],
+                following: snapshot.hasChild('following') ? data['following'] : []
             };
 
             const hasPosts = snapshot.hasChild('posts');
@@ -109,7 +119,7 @@ export default function UserProfile({ navigation }) {
                             const postData = post.val();
     
                             postEventDatas.push(postData);
-                            if (!hasEvents) sortArrayByDate(postEventDatas);
+                            if (i === posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
                         })
                         .catch((error) => console.log("error posts", error.code));
                 }
@@ -130,7 +140,7 @@ export default function UserProfile({ navigation }) {
                             const eventData = event.val();
     
                             postEventDatas.push(eventData);
-                            sortArrayByDate(postEventDatas);
+                            if (i === events.length - 1) sortArrayByDate(postEventDatas);
                         })
                         .catch((error) => console.log("error events", error.code));
                 }
@@ -150,6 +160,7 @@ export default function UserProfile({ navigation }) {
                 }
             }
         }
+        dates.reverse();
 
         setPostEventList(dates);
     }
@@ -230,8 +241,53 @@ export default function UserProfile({ navigation }) {
         setPbImageUri(pickerResult.uri);
     }
 
+    const getFollowerUserList = () => {
+        const db = ref(getDatabase());
+
+        let list = [];
+        for(let i = 0; i < LOCAL_USER.follower.length; i++) {
+            get(child(db, "users/" + LOCAL_USER.follower[i]))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const a = snapshot.val();
+                        list.push({
+                            name: a['name'],
+                            pbUri: a['pbUri']
+                        });
+                        setFollowerUserList(list);
+                    }
+                })
+                .catch((error) => console.log("error get", error.code))
+        }
+    }
+
+    const getFollowingUserList = () => {
+        const db = ref(getDatabase());
+
+        let list = [];
+        for(let i = 0; i < LOCAL_USER.following.length; i++) {
+            get(child(db, "users/" + LOCAL_USER.following[i]))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const a = snapshot.val();
+                        list.push({
+                            name: a['name'],
+                            pbUri: a['pbUri']
+                        });
+                        setFollowingUserList(list);
+                    }
+                })
+                .catch((error) => console.log("error get", error.code))
+        }
+    }
+    
     return (
         <View style={ styles.container } >
+
+                {/* Follower */}
+            <UserListModal close={ () => setFollowerVisible(false) } visible={followerVisible} title={"Tute ludźo ći sćěhuja"} userList={followerUserList} />
+                {/* Following */}
+            <UserListModal close={ () => setFollowingVisible(false) } visible={followingVisible} title={"Tutym ludźom ty sćěhuješ"} userList={followingUserList} />
 
             <Modal presentationStyle={ Platform.OS === 'ios' ? 'formSheet' : 'overFullScreen' } transparent={ Platform.OS === 'android' }
                 onRequestClose={ () => setEditScreenVisible(false) } animationType="slide" statusBarTranslucent visible={editScreenVisible} >
@@ -361,6 +417,16 @@ export default function UserProfile({ navigation }) {
                     <Text style={ styles.profileBioText }>{LOCAL_USER.description}</Text>
                 </View>
 
+                    {/* Follower */}
+                <Pressable style={ styles.profileFollowContainerTop  } onPress={ () => { setFollowerVisible(true); getFollowerUserList(); } }>
+                    <Text style={ styles.profileBioText }>
+                        <Text style={{fontFamily: "Inconsolata_Black"}}>{LOCAL_USER.follower.length }</Text> ludźo ći sćěhuja</Text>
+                </Pressable>
+                    {/* Follower */}
+                <Pressable style={ styles.profileFollowContainerBottom } onPress={ () => { setFollowingVisible(true); getFollowingUserList(); } }>
+                    <Text style={ styles.profileBioText }>Ty sćehuješ <Text style={{fontFamily: "Inconsolata_Black"}}>{LOCAL_USER.following.length }</Text> ludźom</Text>
+                </Pressable>
+
                     {/* Post List */}
                 <View style={ styles.postContainer }>
                     { arraySplitter(postEventList, 2).map((list, listKey) => 
@@ -455,7 +521,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
 
         position: "relative",
-        marginTop: 10,
+        marginVertical: 10,
         alignSelf: "center",
         
         paddingHorizontal: 25,
@@ -469,11 +535,44 @@ const styles = StyleSheet.create({
         color: "#5884B0"
     },
 
+    profileFollowContainerTop: {
+        width: "90%",
+        backgroundColor: "#143C63",
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+
+        position: "relative",
+        marginTop: 10,
+        marginBottom: 2,
+        alignSelf: "center",
+        
+        paddingHorizontal: 25,
+        paddingVertical: 10,
+
+        elevation: 10,
+    },
+    profileFollowContainerBottom: {
+        width: "90%",
+        backgroundColor: "#143C63",
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+
+        position: "relative",
+        marginBottom: 10,
+        marginTop: 2,
+        alignSelf: "center",
+        
+        paddingHorizontal: 25,
+        paddingVertical: 10,
+
+        elevation: 10,
+    },
+
     postContainer: {
         width: "100%",
 
         position: "relative",
-        marginTop: 25,
+        marginVertical: 10,
     },
 
 

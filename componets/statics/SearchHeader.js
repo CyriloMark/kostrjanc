@@ -13,13 +13,13 @@ export default function SearchHeader(props) {
                 {/* Header */}
             <View style={ styles.headerContainer }>
                     
-                <TextInput style={[ styles.input, styles.shadow ]} placeholder="Pytaj něšto..."
+                <TextInput style={ styles.input } placeholder="Pytaj něšto..." maxLength={128}
                     multiline={false} numberOfLines={1} placeholderTextColor={"#143C63"} selectionColor={"#B06E6A"}
                     keyboardType="default" keyboardAppearance='dark' value={input} onChangeText={ (value) => setInput(value) } />
 
                     {/* Search Btn */}
                 <Pressable style={ styles.searchBtn } onPress={ props.onPress } >
-                    <SVG_Search style={[ styles.searchBtnIcon, styles.shadow ]} fill={"#B06E6A"} />
+                    <SVG_Search style={ styles.searchBtnIcon } fill={"#B06E6A"} />
                 </Pressable>
 
             </View>

@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
         elevation: 10
     },
     modalDragHandleContainer: {
-        flex: .05,
+        height: "5%",
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
