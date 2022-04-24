@@ -10,7 +10,6 @@ const Data_PLACEHOLDER = [
     {
         type: 0,
         title: "Nowy post wozjewić",
-        checked: false
     },
     {
         type: 1,
@@ -21,6 +20,7 @@ const Data_PLACEHOLDER = [
             longitude : 14.281389642218592,
             longitudeDelta : 0.005
         },
+        checks: []
     }
 ]
 
@@ -38,11 +38,11 @@ export default function Add({ navigation }) {
 
             <TitleHeader style={[styles.header, styles.shadow]} title="Post abo ewent wozjawnić" />
             
-            <View style={[ styles.body, styles.shadow ]}>
+            <View style={ styles.body }>
 
                 <Text style={styles.titleText}>Wuzwol sej typ:</Text>
 
-                <View style={styles.itemsContainer}>
+                <View style={[ styles.itemsContainer, styles.shadow ]}>
                     <PostPreview style={styles.item} postShowText item={Data_PLACEHOLDER[0]} press={ () => navigation.navigate("PostCreate") } />
                     <PostPreview style={styles.item} item={Data_PLACEHOLDER[1]} press={ () => navigation.navigate("EventCreate") } />
                 </View>

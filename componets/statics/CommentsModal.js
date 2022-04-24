@@ -195,9 +195,8 @@ const styles = StyleSheet.create({
 
     modalScrollViewContainer: {
         width: "100%",
-        paddingVertical: 25,
-        marginBottom: 100,
-        overflow: "visible"
+        marginBottom: "30%",
+        overflow: "hidden"
     },
 
     title: {

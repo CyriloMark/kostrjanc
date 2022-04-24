@@ -2,7 +2,7 @@
   "expo": {
     "name": "kostrjanc",
     "slug": "kostrjanc",
-    "version": "1.0.0",
+    "version": "0.4.2b",
     "orientation": "portrait",
     "icon": "./assets/app-system-icons/icon.png",
     "splash": {
@@ -29,6 +29,15 @@
       "favicon": "./assets/app-system-icons/favicon.png"
     },
     "description": "",
-    "githubUrl": "https://github.com/CyriloMark/kostrjanc"
+    "githubUrl": "https://github.com/CyriloMark/kostrjanc",
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/app-system-icons/icon.png",
+          "color": "#ffffff"
+        }
+      ]
+    ]
   }
 }

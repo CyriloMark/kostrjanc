@@ -16,6 +16,8 @@ import EditButton from '../statics/EditButton';
 import UserListModal from '../statics/UserListModal';
 
 import SVG_Post from '../../assets/svg/Post';
+import SVG_Admin from '../../assets/svg/Admin';
+import SVG_Moderator from '../../assets/svg/Moderator';
 
 const LOCAL_USER_Placeholder = {
     name: "",
@@ -26,7 +28,9 @@ const LOCAL_USER_Placeholder = {
     posts: [],
     events: [],
     follower: [],
-    following: []
+    following: [],
+    isAdmin: false,
+    isMod: false,
 }
 
 const wait = (timeout) => {
@@ -90,11 +94,7 @@ export default function UserProfile({ navigation }) {
             const data = snapshot.val();
 
             let userData = {
-                name: data['name'],
-                description: data['description'],
-                ageGroup: data['ageGroup'],
-                gender: data['gender'],
-                pbUri: data['pbUri'],
+                ...data,
                 follower: snapshot.hasChild('follower') ? data['follower'] : [],
                 following: snapshot.hasChild('following') ? data['following'] : []
             };
@@ -417,12 +417,21 @@ export default function UserProfile({ navigation }) {
                     <Text style={ styles.profileBioText }>{LOCAL_USER.description}</Text>
                 </View>
 
+                {
+                    LOCAL_USER.isAdmin ?
+                        <SVG_Admin style={styles.adminCrown} fill={"#B06E6A"} /> : null
+                }
+                {
+                    LOCAL_USER.isMod ?
+                        <SVG_Moderator style={styles.adminCrown} fill={"#B06E6A"} /> : null
+                }
+
                     {/* Follower */}
                 <Pressable style={ styles.profileFollowContainerTop  } onPress={ () => { setFollowerVisible(true); getFollowerUserList(); } }>
                     <Text style={ styles.profileBioText }>
                         <Text style={{fontFamily: "Inconsolata_Black"}}>{LOCAL_USER.follower.length }</Text> ludźo ći sćěhuja</Text>
                 </Pressable>
-                    {/* Follower */}
+                    {/* Following */}
                 <Pressable style={ styles.profileFollowContainerBottom } onPress={ () => { setFollowingVisible(true); getFollowingUserList(); } }>
                     <Text style={ styles.profileBioText }>Ty sćehuješ <Text style={{fontFamily: "Inconsolata_Black"}}>{LOCAL_USER.following.length }</Text> ludźom</Text>
                 </Pressable>
@@ -533,6 +542,13 @@ const styles = StyleSheet.create({
         fontFamily: "Inconsolata_Regular",
         fontSize: 25,
         color: "#5884B0"
+    },
+
+    adminCrown: {
+        aspectRatio: 1,
+        width: "60%",
+        alignSelf: "center",
+        marginVertical: 10,
     },
 
     profileFollowContainerTop: {

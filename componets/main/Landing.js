@@ -71,7 +71,7 @@ export default function Landing({ navigation }) {
   return (
     <View style={ styles.container } >
 
-      <AppHeader style={ styles.header } />
+      <AppHeader style={ styles.header } settingsPress={ () => navigation.navigate('Settings') } />
 
       <Navbar style={ styles.navbar } active={0}
         onPressRecent={ () => { navigation.navigate("Recent") }}

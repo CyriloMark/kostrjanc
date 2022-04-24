@@ -8,6 +8,9 @@ import { getAuth } from 'firebase/auth';
 import BackHeader from './statics/BackHeader';
 import PostPreview from './statics/PostPreview';
 
+import SVG_Admin from '../assets/svg/Admin';
+import SVG_Moderator from '../assets/svg/Moderator';
+
 const USER_PLACEHOLDER = {
     name: "",
     description: "",
@@ -67,11 +70,7 @@ export default function ProfileView({ navigation, route }) {
             const data = snapshot.val();
 
             let userData = {
-                name: data['name'],
-                description: data['description'],
-                ageGroup: data['ageGroup'],
-                gender: data['gender'],
-                pbUri: data['pbUri'],
+                ...data,
                 follower: snapshot.hasChild('follower') ? data['follower'] : [],
                 following: snapshot.hasChild('following') ? data['following'] : []
             };
@@ -233,6 +232,15 @@ export default function ProfileView({ navigation, route }) {
                     </View>
                 </View>
 
+                {
+                    user.isAdmin ?
+                        <SVG_Admin style={styles.adminCrown} fill={"#B06E6A"} /> : null
+                }
+                {
+                    user.isMod ?
+                        <SVG_Moderator style={styles.adminCrown} fill={"#B06E6A"} /> : null
+                }
+
                     {/* Follow */}
                 {
                     !(!(getAuth().currentUser.uid === userID) && !following) ?
@@ -290,7 +298,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "10%",
         top: 10,
-
         alignSelf: "center",
 
         zIndex: 99
@@ -318,6 +325,13 @@ const styles = StyleSheet.create({
         fontSize: 25,
         color: "#143C63",
         elevation: 10,
+    },
+
+    adminCrown: {
+        aspectRatio: 1,
+        width: "60%",
+        alignSelf: "center",
+        marginVertical: 10
     },
 
     followBtn: {

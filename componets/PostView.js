@@ -3,7 +3,9 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Image, Alert } from 'react-native';
 
 import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, onValue, get, child, set } from "firebase/database";
+import { getDatabase, ref, onValue, get, child } from "firebase/database";
+
+import { Share as Share_Post } from './statics/PostShare';
 
 import SVG_Recent from '../assets/svg/Recent';
 import SVG_Share from '../assets/svg/Share';
@@ -130,7 +132,7 @@ export default function PostView({ navigation, route }) {
                         <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
                     </Pressable>
                         {/* Share */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
+                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () =>  Share_Post(post.imgUri, post.title) } >
                         <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
                     </Pressable>
                         {/* Report */}

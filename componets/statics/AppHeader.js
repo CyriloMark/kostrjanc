@@ -1,6 +1,8 @@
 import React from 'react'
 
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+
+import SVG_Settings from '../../assets/svg/Settings';
 
 export default function AppHeader(props) {
     return (
@@ -11,10 +13,15 @@ export default function AppHeader(props) {
                     {/* Icon */}
                 <View style={ styles.headerIconContainer }>
                     <View style={styles.headerIconBg}>
-                        <Image style={ styles.headerIcon } source={ require('../../assets/app-system-icons/adaptive-icon.png') } resizeMode='contain' />
+                        <Image style={[ styles.headerIcon, styles.headerIconShadow ]} source={ require('../../assets/app-system-icons/adaptive-icon.png') } resizeMode='contain' />
                     </View>
                 </View>
                 <Text style={ styles.headerTitleText }>kostrjanc</Text>
+
+                    {/* Settings */}
+                <Pressable style={[ styles.headerIconContainer, { paddingVertical: 10, transform: [{ rotate: "20deg" }] } ]} onPress={ props.settingsPress }>
+                    <SVG_Settings style={ styles.headerIcon } fill="#5884B0" />
+                </Pressable>
 
             </View>
         </View>
@@ -49,7 +56,6 @@ const styles = StyleSheet.create({
     },
     headerIconBg: {
         flex: 1,
-        backgroundColor: "#B06E6A",
         borderRadius: 50,
         padding: 5
     },
@@ -57,9 +63,20 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         flex: 1,
     },
+    headerIconShadow: {
+        overflow: "visible",
+
+        shadowOpacity: 1,
+        shadowColor: "rgba(0, 0, 0, .8)",
+        shadowRadius: 10,
+        shadowOffset: {
+            width: 0,
+            height: 0
+        }
+    },
     headerTitleText: {
         flex: .6,
-        color: "#B06E6A",
+        color: "#5884B0",
         textAlign: "center",
         fontFamily: "Inconsolata_Black",
         fontSize: 25,

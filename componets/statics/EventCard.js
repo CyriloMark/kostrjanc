@@ -13,13 +13,6 @@ const EVENT_PLACEHOLDER = {
     checks: 0,
 }
 
-const initialRegion = {
-    latitude: 51.186106956552244,
-    longitude: 14.435684115023259,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-}
-
 export default function EventCard(props) {
 
     const [event, setEvent] = useState(EVENT_PLACEHOLDER);
@@ -69,14 +62,14 @@ export default function EventCard(props) {
                     <Text style={ styles.eventCardInfoBio } >{event.description}</Text>
                 </View>
 
-                    {/* Interations */}
-                <View style={ styles.eventCardInterationsContainer }>
+                {/* <View style={ styles.eventCardInterationsContainer }>
                     <Pressable style={[ styles.eventCardInterationsBtn, { backgroundColor: (!true) ? "#143C63" : "#9FB012" } ]} onPress={props.onBtnTogglePress} >
                         <Text style={[ styles.eventCardInterationsBtnText, { color: (!true) ? "#5884B0" : "#143C63" } ]} >
                             {!true ? "Sym tež tu" : "Njejsym ty"}
                         </Text>
                     </Pressable>
-                </View>
+                </View> */}
+
             </View>
         </Pressable>
     )
@@ -95,6 +88,7 @@ const styles = StyleSheet.create({
 
     eventCardContainer: {
         width: "100%",
+        aspectRatio: 1.8,
         padding: 10,
         backgroundColor: "rgba(176, 110, 106, .8)",
         zIndex: 3

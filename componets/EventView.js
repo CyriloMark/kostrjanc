@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text } from 'react-native';
 
 import { getDatabase, ref, onValue, get, child, remove, set } from "firebase/database";
+import { getAuth } from 'firebase/auth';
 
 import MapView, { Marker } from 'react-native-maps';
 
@@ -25,7 +26,7 @@ const EVENT_PLACEHOLDER = {
     title: "hey",
     description: "test",
     created: "27.3.2022 21:20",
-    checks: 0,
+    checks: [],
     starting: 0,
     comments: []
 }
@@ -43,6 +44,7 @@ export default function EventView({ navigation, route }) {
         wait(2000).then(() => setRefreshing(false));
     }, []);
 
+    const uid = getAuth().currentUser.uid;
     
     const [creator, setCreator] = useState(null);
 
@@ -63,14 +65,8 @@ export default function EventView({ navigation, route }) {
             setCreator(data['creator']);
 
             setEvent({
-                id: data['id'],
-                creator: data['creator'],
-                title: data['title'],
-                description: data['description'],
-                geoCords: data['geoCords'],
-                created: data['created'],
-                checks: data['checks'],
-                starting: data['starting'],
+                ...data,
+                checks: snapshot.hasChild('checks') ? data['checks'] : [],
                 comments: snapshot.hasChild('comments') ? data['comments'] : [],
             });
             setPin(data['geoCords']);
@@ -137,6 +133,29 @@ export default function EventView({ navigation, route }) {
             .catch((error) => console.log("error", error.code))
     }
 
+    const checkEvent = () => {
+        let a = event.checks;
+
+        if (a.includes(uid)) {
+            a.splice(a.indexOf(uid), 1)
+            setEvent({
+                ...event,
+                checks: a
+            });
+        } else {
+            a.push(uid)
+            setEvent({
+                ...event,
+                checks: a
+            });
+        }
+
+        const db = getDatabase();
+        set(ref(db, "events/" + event.id), {
+            ...event
+        });
+    }
+
     return (
         <View style={ styles.container }>
 
@@ -190,9 +209,9 @@ export default function EventView({ navigation, route }) {
                 </View>
 
                     {/* Join */}
-                <Pressable style={[ styles.joinBtnContainer, { backgroundColor: (!true) ? "#B06E6A" : "#9FB012" } ]}>
+                <Pressable style={[ styles.joinBtnContainer, { backgroundColor: !(event.checks.includes(uid)) ? "#B06E6A" : "#9FB012" } ]} onPress={ checkEvent }>
                     <Text style={ [styles.joinText, { color: (!true) ? "#143C63" : "#143C63" } ]} >
-                        {!true ? "Sym tež tu" : "Njejsym ty"}
+                        { !(event.checks.includes(uid)) ? "Sym tež tu" : "Njejsym ty"}
                     </Text>
                 </Pressable>
 

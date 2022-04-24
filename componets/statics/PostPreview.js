@@ -6,6 +6,7 @@ import MapView from 'react-native-maps';
 
 import SVG_Post from '../../assets/svg/Post';
 import SVG_Event from '../../assets/svg/Event';
+import { getAuth } from 'firebase/auth';
 
 export const PostType = {
     Post: 0,
@@ -20,7 +21,7 @@ export default function PostPreview(props) {
                 {
                     props.item.type === 0
                     ? <Preview_Post imgUri={props.item.imgUri} postShowText={props.postShowText} title={props.item.title} style={ styles.boxStyle } />
-                    : <Preview_Event title={props.item.title} geoCords={props.item.geoCords} checked={true} style={ styles.boxStyle } />
+                    : <Preview_Event title={props.item.title} geoCords={props.item.geoCords} checked={props.item.checks.includes(getAuth().currentUser.uid)} style={ styles.boxStyle } />
                 }
             </Pressable>
         </View>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useFonts } from "expo-font";
@@ -70,6 +70,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
+      <StatusBar animated barStyle="light-content" hidden={false} networkActivityIndicatorVisible />
       <SafeAreaProvider style={{ flex: 1 }}>
         <ViewportManager />
       </SafeAreaProvider>
