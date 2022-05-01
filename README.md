@@ -8,4 +8,4 @@ Tools: RN/expo, JavaScript
 All assets in './assets' folder
 Initial index file: './App.js'
 
-For questions and similar - ...
+For questions and similar - info@kostrjanc.de
