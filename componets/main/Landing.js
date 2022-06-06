@@ -2,7 +2,8 @@ import React, { useCallback, useState, useEffect } from 'react'
 
 import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
 
-import { getDatabase, ref, child, get } from "firebase/database";
+import { getAuth } from "firebase/auth";
+import { getDatabase, ref, child, get, set } from "firebase/database";
 
 import AppHeader from '../statics/AppHeader';
 import Navbar from '../statics/Navbar';
@@ -10,6 +11,10 @@ import Navbar from '../statics/Navbar';
 import EventCard from '../statics/EventCard';
 import PostCard from '../statics/PostCard';
 import BannerCard from '../statics/BannerCard';
+
+let postEvents = [];
+let showingPosts = [];
+let showingEvents = [];
 
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -20,68 +25,148 @@ export default function Landing({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+
+    postEvents = [];
     getNewBanners();
     getNewPosts();
     getNewEvents();
+
     wait(2000).then(() => setRefreshing(false));
   }, []);
 
-  const [posts, setPosts] = useState(null);
-  const [events, setEvents] = useState(null);
+  const [postEventList, setPostEventList] = useState(null);
   const [banners, setBanners] = useState(null);
 
   const getNewBanners = () => {
-    get(child(ref(getDatabase()), 'banners'))
+    const db = getDatabase();
+    get(child(ref(db), 'banners'))
       .then((snapshot) => {
         if (!snapshot.exists()) return;
 
+        const currentDate = Date.now();
         let ba = [];
-        snapshot.forEach((data) => {
-          const key = data.key;
-          console.log("id banner nicht löschen!!!", key);
-          ba.push(key);
-        });
 
+        snapshot.forEach(child => {
+          if (child.val()["ending"] > currentDate && child.val()["starting"] < currentDate) {
+            ba.push(child.key);
+          }
+          else if (child.val()["ending"] < currentDate) {
+            set(ref(db, "banners/" + child.key), null)
+          }
+        });
         setBanners(ba);
-        console.log(banners, "BANNER");
       })
       .catch((error) => console.log("banners", error.code));
   }
 
   const getNewPosts = () => {
-    get(child(ref(getDatabase()), 'posts'))
-      .then((snapshot) => {
-        if (!snapshot.exists()) return;
+    const db = getDatabase();
+    
+    showingPosts = [];
 
-        let po = [];
-        snapshot.forEach((data) => {
-          const key = data.key;
-          console.log("id post nicht löschen!!!", key);
-          po.push(key);
-        });
+    let following = [];
+    let follower = [];
 
-        setPosts(po);
-        console.log(posts, "POSTS");
-      })
-      .catch((error) => console.log("posts", error.code));
+    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/following.json")
+      .then(
+        response => response.json()
+      )
+        .then(f => f ? following = f : following = [])
+        .finally(() => {
+
+          fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/follower.json")
+            .then(
+              response => response.json()
+            )
+              .then(f => f ? follower = f : follower = [])
+              .finally(() => {
+                
+                const combined = following;
+                combined.concat(follower);
+
+                let postIds = [];
+
+                for (let i = 0; i < combined.length; i++) {
+                  get(child(ref(db), 'users/' + combined[i] + "/posts"))
+                    .then(pSnap => {
+                      if (!pSnap.exists()) return;
+                      let pList = pSnap.val();
+                      
+                      pList.forEach(p => postIds.push(p));
+                    })
+                    .finally(() => {
+                      if (i == combined.length - 1) {
+
+                        if (postIds.length <= 20) {
+                          const amtLeft = 20 - postIds.length;
+                          getPostExceptOf(postIds, amtLeft);
+                        } else {
+                          let finalPosts = sortArrayByDate(postIds).splice(19, postIds.length - 20);
+                          showingPosts.push(finalPosts);
+                          finalPosts.forEach(p => postEvents.push(p));;
+                          setPostEventList(postEvents);
+                        }
+                        
+                      }
+                  })
+                }
+              })
+        })
   }
 
   const getNewEvents = () => {
-    get(child(ref(getDatabase()), 'events'))
-      .then((snapshot) => {
-        if (!snapshot.exists()) return;
+    const db = getDatabase();
+    
+    showingEvents = [];
 
-        let ev = [];
-        snapshot.forEach((data) => {
-          const key = data.key;
-          console.log("id event nicht löschen!!!", key);
-          ev.push(key);
-        });
+    let following = [];
+    let follower = [];
 
-        setEvents(ev);
-        console.log(events, "EVENTS");
-      })
-      .catch((error) => console.log("events", error.code));
+    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/following.json")
+      .then(
+        response => response.json()
+      )
+        .then(f => f ? following = f : following = [])
+        .finally(() => {
+
+          fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/follower.json")
+            .then(
+              response => response.json()
+            )
+              .then(f => f ? follower = f : follower = [])
+              .finally(() => {
+                
+                const combined = following;
+                combined.concat(follower);
+
+                let eventIds = [];
+
+                for (let i = 0; i < combined.length; i++) {
+                  get(child(ref(db), 'users/' + combined[i] + "/posts"))
+                    .then(eSnap => {
+                      if (!eSnap.exists()) return;
+                      let eList = eSnap.val();
+                      
+                      eList.forEach(p => eList.push(p));
+                    })
+                    .finally(() => {
+                      if (i == combined.length - 1) {
+
+                        if (eventIds.length <= 5) {
+                          const amtLeft = 5 - eventIds.length;
+                          getEventsExceptOf(eventIds, amtLeft);
+                        } else {
+                          const finalEvents = sortArrayByDate(eventIds).splice(4, eventIds.length - 5);
+                          showingEvents.push(finalEvents);
+                          finalEvents.forEach(e => postEvents.push(e));
+                          setPostEventList(postEvents);
+                        }
+                        
+                      }
+                  })
+                }
+              })
+        })
   }
 
   useEffect(() => {
@@ -89,6 +174,68 @@ export default function Landing({ navigation }) {
     getNewPosts();
     getNewEvents();
   }, [])
+
+  let getPostExceptOf = (except, amt) => {
+    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/posts.json")
+      .then(
+        response => response.json()
+      ).then(posts => {
+
+        let allPosts = Object.values(posts);
+        const filteredPosts = allPosts.filter(p => !except.includes(p["id"])) 
+
+        if (filteredPosts.length === 0) {
+          const finalPosts = sortArrayByDate(except);
+          showingPosts.push(finalPosts);
+          
+          finalPosts.forEach(p => postEvents.push(p));
+          setPostEventList(postEvents);
+        } else if (filteredPosts.length <= amt) {
+          let ids = [];
+          filteredPosts.forEach(p => ids.push(p["id"]));
+
+          const finalPosts = sortArrayByDate(except).concat(ids);
+          showingPosts.push(finalPosts);
+
+          finalPosts.forEach(p => postEvents.push(p));
+          setPostEventList(postEvents);
+        } else if (filteredPosts.length > amt) {
+
+        }
+
+      })
+  }
+
+  let getEventsExceptOf = (except, amt) => {
+    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/events.json")
+      .then(
+        response => response.json()
+      ).then(events => {
+
+        let allEvents = Object.values(events);
+        const filteredEvents = allEvents.filter(e => !except.includes(e["id"])) 
+
+        if (filteredEvents.length === 0) {
+          const finalEvents = sortArrayByDate(except);
+          showingEvents.push(finalEvents);
+          
+          finalEvents.forEach(e => postEvents.push(e));
+          setPostEventList(postEvents);
+        } else if (filteredEvents.length <= amt) {
+          let ids = [];
+          filteredEvents.forEach(p => ids.push(p["id"]));
+
+          const finalEvents = sortArrayByDate(except).concat(ids);
+          showingEvents.push(finalEvents);
+          
+          finalEvents.forEach(e => postEvents.push(e));
+          setPostEventList(postEvents);
+        } else if (filteredEvents.length > amt) {
+
+        }
+
+      })
+  }
 
   return (
     <View style={ styles.container } >
@@ -115,22 +262,47 @@ export default function Landing({ navigation }) {
             <BannerCard key={key} style={styles.card} bannerID={data} />
           ) : null
         }
+
         {
-          posts !== null ?
-          posts.map((data, key) =>
-            <PostCard key={key} style={styles.card} postID={data} onPress={ () => navigation.navigate('PostView', { postID: data }) } />
-          ) : null
+          postEventList ?
+          postEventList.map((data, key) => {
+            showingPosts.includes(data) ?
+              console.log("hs", data, key) : console.log("kne", data, key);
+              // <PostCard key={key} style={styles.card} postID={data} onPress={ () => navigation.navigate('PostView', { postID: data }) } /> :
+              // <EventCard key={key} style={styles.card} eventID={data} onPress={ () => navigation.navigate('EventView', { eventID: data }) } />
+          }) : null
+        }
+{/*         
+        {
+          console.log("pe", postEvents)
         }
         {
-          events !== null ?
-          events.map((data, key) =>
-            <EventCard key={key} style={styles.card} eventID={data} onPress={ () => navigation.navigate('EventView', { eventID: data }) } />
-          ) : null
-        }
+          console.log("pel", postEventList)
+        }*/}
+        {
+          console.log("sp",showingPosts)
+        } 
 
       </ScrollView>
     </View>
   )
+}
+
+export function sortArrayByDate (data) {
+  let dates = data;
+        
+  for(let i = data.length - 1; i >= 0; i--) {
+      for (let j = 1; j <= i; j++) {
+          if (dates[j - 1].created > dates[j].created) {
+              let temp = dates[j - 1];
+              dates[j - 1] = dates[j];
+              dates[j] = temp;
+          }
+      }
+  }
+  dates.reverse();
+
+  return dates;
 }
 
 const styles = StyleSheet.create({

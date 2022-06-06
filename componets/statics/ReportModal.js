@@ -21,7 +21,8 @@ export default function ReportModal(props) {
         const db = getDatabase();
         set(ref(db, "reports/" + Date.now()), {
             id: reportData.id,
-            reason: reportData.reason
+            reason: reportData.reason,
+            type: props.type
         }).finally(() => {
             reporting = false;
             props.close();

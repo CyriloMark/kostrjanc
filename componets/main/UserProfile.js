@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 
 import { View, StyleSheet, Text, ScrollView, RefreshControl, Modal, Pressable, Image, KeyboardAvoidingView, Platform, Keyboard, TextInput, Switch } from "react-native";
 
-import { getDatabase, ref, child, get, onValue, set } from "firebase/database";
+import { getDatabase, ref, child, get, set } from "firebase/database";
 import { getAuth } from 'firebase/auth';
 import * as Storage from "firebase/storage";
 
