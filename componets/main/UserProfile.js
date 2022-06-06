@@ -87,70 +87,140 @@ export default function UserProfile({ navigation }) {
     const loadUser = () => {
 
         const db = getDatabase();
-
         let postEventDatas = [];
 
-        onValue(ref(db, 'users/' + getAuth().currentUser.uid), snapshot => {
-            const data = snapshot.val();
+        get(child(ref(db), "users/" + getAuth().currentUser.uid))
+            .then((snapshot) => {
+                const data = snapshot.val();
 
-            let userData = {
-                ...data,
-                follower: snapshot.hasChild('follower') ? data['follower'] : [],
-                following: snapshot.hasChild('following') ? data['following'] : []
-            };
+                let userData = {
+                    ...data,
+                    follower: snapshot.hasChild('follower') ? data['follower'] : [],
+                    following: snapshot.hasChild('following') ? data['following'] : []
+                };
 
-            const hasPosts = snapshot.hasChild('posts');
-            const hasEvents = snapshot.hasChild('events');
-
-            if (!hasPosts && !hasEvents) setLOCAL_USER(userData);
-
-            if (hasPosts) {
-                const posts = data['posts'];
-                
-                userData = {
-                    ...userData,
-                    posts: posts
-                }
-                if (!hasEvents) setLOCAL_USER(userData);
-
-                for(let i = 0; i < posts.length; i++) {
-                    get(child(ref(db), "posts/" + posts[i]))
-                        .then((post) => {
-                            const postData = post.val();
-    
-                            postEventDatas.push(postData);
-                            if (i === posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
-                        })
-                        .catch((error) => console.log("error posts", error.code));
-                }
-            }
-            
-            if (hasEvents){
-                const events = data['events'];
-                
-                userData = {
-                    ...userData,
-                    events: events
-                }
                 setLOCAL_USER(userData);
 
-                for(let i = 0; i < events.length; i++) {
-                    get(child(ref(db), "events/" + events[i]))
-                        .then((event) => {
-                            const eventData = event.val();
-    
-                            postEventDatas.push(eventData);
-                            if (i === events.length - 1) sortArrayByDate(postEventDatas);
-                        })
-                        .catch((error) => console.log("error events", error.code));
-                }
-            }
+                const hasPosts = snapshot.hasChild('posts');
+                const hasEvents = snapshot.hasChild('events');
 
-        });
+                if (hasPosts) {
+                    for(let i = 0; i < userData.posts.length; i++) {
+                        get(child(ref(db), "posts/" + userData.posts[i]))
+                            .then((post) => {
+                                const postData = post.val();        
+                                postEventDatas.push(postData);
+                                if (i === userData.posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
+                            })
+                            .catch((error) => console.log("error posts", error.code));
+                    }
+                }
+
+                if (hasEvents) {
+                    for(let i = 0; i < userData.events.length; i++) {
+                        get(child(ref(db), "events/" + userData.events[i]))
+                            .then((event) => {
+                                const eventData = event.val();
+                                postEventDatas.push(eventData);
+                                if (i === userData.events.length - 1) sortArrayByDate(postEventDatas);
+                            })
+                            .catch((error) => console.log("error events", error.code));
+                    }
+                }
+
+            })
+            .catch((error) => console.log("error user", error.code))
+        
+
+        // onValue(ref(db, 'users/' + getAuth().currentUser.uid), snapshot => {
+        //     const data = snapshot.val();
+
+        //     let userData = {
+        //         ...data,
+        //         follower: snapshot.hasChild('follower') ? data['follower'] : [],
+        //         following: snapshot.hasChild('following') ? data['following'] : []
+        //     };
+
+        //     const hasPosts = snapshot.hasChild('posts');
+        //     const hasEvents = snapshot.hasChild('events');
+
+        //     setLOCAL_USER(userData);
+        //     getPostsAndEvents(hasPosts, hasEvents);
+
+        // });
     }
 
+    const getPostsAndEvents = (hasPosts, hasEvents) => {
+        
+        console.log(hasPosts, hasEvents);
+
+        const db = getDatabase();
+        let postEventDatas = [];
+        
+        if (hasPosts) {
+            get(child(ref(db), "users/" + getAuth().currentUser.uid + "/posts"))
+                .then(snap => {
+                    if (snap.exists()) {
+                        const posts = snap.val();
+
+                        setLOCAL_USER({
+                            ...LOCAL_USER,
+                            posts: posts
+                        })
+
+                        for(let i = 0; i < posts.length; i++) {
+                            get(child(ref(db), "posts/" + posts[i]))
+                                .then((post) => {
+                                    const postData = post.val();
+            
+                                    postEventDatas.push(postData);
+                                    if (i === posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
+                                })
+                                .catch((error) => console.log("error posts", error.code));
+                        }
+
+                    }
+                })
+                .catch(e => console.log("error", e.code))
+        }
+
+        if (hasEvents) {
+            get(child(ref(db), "users/" + getAuth().currentUser.uid + "/events"))
+                .then(snap => {
+                    if (snap.exists()) {
+                        const events = snap.val();
+
+                        setLOCAL_USER({
+                            ...LOCAL_USER,
+                            events: events
+                        })
+
+                        for(let i = 0; i < events.length; i++) {
+                            get(child(ref(db), "events/" + events[i]))
+                                .then((event) => {
+                                    const eventData = event.val();
+            
+                                    postEventDatas.push(eventData);
+                                    if (i === events.length - 1) sortArrayByDate(postEventDatas);
+                                })
+                                .catch((error) => console.log("error events", error.code));
+                        }
+
+                    }
+                })
+                .catch(e => console.log("error", e.code))
+        }
+    }
+        
+    useEffect(() => {
+        if (LOCAL_USER === LOCAL_USER_Placeholder) loadUser();
+    }, []);
+
+
     const sortArrayByDate = (data) => {
+        
         let dates = data;
+        
         for(let i = data.length - 1; i >= 0; i--) {
             for (let j = 1; j <= i; j++) {
                 if (dates[j - 1].created > dates[j].created) {
@@ -219,10 +289,6 @@ export default function UserProfile({ navigation }) {
         setEditScreenVisible(false);
     }
 
-    useEffect(() => {
-        if (LOCAL_USER === LOCAL_USER_Placeholder) loadUser();
-    }, []);
-
     const openImagePickerAsync = async () => {
 
         let permissionResult = await requestMediaLibraryPermissionsAsync();
@@ -254,10 +320,12 @@ export default function UserProfile({ navigation }) {
                             name: a['name'],
                             pbUri: a['pbUri']
                         });
-                        setFollowerUserList(list);
                     }
                 })
                 .catch((error) => console.log("error get", error.code))
+                .finally(() => {
+                    if (i === LOCAL_USER.follower.length - 1) setFollowerUserList(list);
+                })
         }
     }
 
@@ -274,10 +342,12 @@ export default function UserProfile({ navigation }) {
                             name: a['name'],
                             pbUri: a['pbUri']
                         });
-                        setFollowingUserList(list);
                     }
                 })
                 .catch((error) => console.log("error get", error.code))
+                .finally(() => {
+                    if (i === LOCAL_USER.following.length - 1) setFollowingUserList(list);
+                })
         }
     }
     

@@ -17,12 +17,11 @@ export default function AppHeader(props) {
                     </View>
                 </View>
                 <Text style={ styles.headerTitleText }>kostrjanc</Text>
-
-                    {/* Settings */}
+{ props.showSettings ?
                 <Pressable style={[ styles.headerIconContainer, { paddingVertical: 10, transform: [{ rotate: "20deg" }] } ]} onPress={ props.settingsPress }>
                     <SVG_Settings style={ styles.headerIcon } fill="#5884B0" />
-                </Pressable>
-
+                </Pressable> : null
+}
             </View>
         </View>
     )

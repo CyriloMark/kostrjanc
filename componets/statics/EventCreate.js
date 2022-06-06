@@ -246,5 +246,6 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         borderColor: "#B06E6A",
         borderWidth: 5,
+        zIndex: 999
     }
 });

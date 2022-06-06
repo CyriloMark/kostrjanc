@@ -136,6 +136,7 @@ export default function AuthUserRegister({ navigation, route }) {
                                     gender: userData.gender,
                                     pbUri: url,
                                     follower: [],
+                                    following: [],
                                     isMod: false,
                                     isBanned: false,
                                     isAdmin: false

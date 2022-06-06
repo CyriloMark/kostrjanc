@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import { View, StyleSheet, TextInput, Pressable, Dimensions } from 'react-native';
 
@@ -6,16 +6,14 @@ import SVG_Search from '../../assets/svg/Search';
 
 export default function SearchHeader(props) {
 
-    const [input, setInput] = useState("");
-
     return (
         <View style={ props.style }>
                 {/* Header */}
             <View style={ styles.headerContainer }>
                     
                 <TextInput style={ styles.input } placeholder="Pytaj něšto..." maxLength={128}
-                    multiline={false} numberOfLines={1} placeholderTextColor={"#143C63"} selectionColor={"#B06E6A"}
-                    keyboardType="default" keyboardAppearance='dark' value={input} onChangeText={ (value) => setInput(value) } />
+                    multiline={false} numberOfLines={1} placeholderTextColor={"#5884B0"} selectionColor={"#B06E6A"}
+                    keyboardType="default" keyboardAppearance='dark' value={props.input} onChangeText={ props.onText } />
 
                     {/* Search Btn */}
                 <Pressable style={ styles.searchBtn } onPress={ props.onPress } >
@@ -30,12 +28,13 @@ export default function SearchHeader(props) {
 const styles = StyleSheet.create({
     headerContainer: {
         width: "100%",
-        height: Dimensions.get('screen').height * .1,
-        backgroundColor: "#143C63",
         borderRadius: 25,
-        padding: 10,
+        
         flexDirection: "row",
         alignItems: "center",
+        padding: 10,
+
+        backgroundColor: "#143C63",
     },
     
     shadow: {
@@ -49,15 +48,14 @@ const styles = StyleSheet.create({
     },
 
     searchBtn: {
-        height: "100%",
         flex: .2,
         alignItems: "center",
         paddingVertical: 10,
         justifyContent: "center",
     },
     searchBtnIcon: {
-        aspectRatio: 1,
         height: "100%",
+        aspectRatio: 1,
         borderRadius: 50,
         elevation: 10
     },
@@ -71,10 +69,9 @@ const styles = StyleSheet.create({
 
         fontFamily: "Inconsolata_Regular",
         fontSize: 15,
-        color: "#143C63",
+        color: "#5884B0",
         
         borderRadius: 15,
-        backgroundColor: "#B06E6A",
         elevation: 10
     }
 })

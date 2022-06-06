@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
@@ -21,26 +21,33 @@ import EventCreate from '../statics/EventCreate';
 const Stack = createStackNavigator();
 
 export default function ViewportManager() {
-  return (
-    <SafeAreaView style={styles.container}>
-        <Stack.Navigator initialRouteName="Recent" screenOptions={{
-                headerShown: false
-            }} >
-            <Stack.Screen name="Recent" component={Landing} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
-            <Stack.Screen name="Search" component={Search} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
-            <Stack.Screen name="Add" component={Add} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
-            <Stack.Screen name="Profile" component={Profile} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
-            
-            <Stack.Screen name="PostView" component={PostView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
-            <Stack.Screen name="EventView" component={EventView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
-            <Stack.Screen name="ProfileView" component={ProfileView} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
-            <Stack.Screen name="Settings" component={Settings} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
 
-            <Stack.Screen name="PostCreate" component={PostCreate} options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
-            <Stack.Screen name="EventCreate" component={EventCreate } options={{ animationEnabled: true, gestureEnabled: true, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS }} />
-        </Stack.Navigator>
-    </SafeAreaView>
-  )
+    const gestureOptions = {
+        animationEnabled: Platform.OS === 'ios' ? true : false,
+        gestureEnabled: Platform.OS === 'ios' ? true : false,
+        cardStyleInterpolator: Platform.OS === 'ios' ? CardStyleInterpolators.forHorizontalIOS : CardStyleInterpolators.forBottomSheetAndroid
+    }
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <Stack.Navigator initialRouteName="Recent" screenOptions={{
+                    headerShown: false
+                }} >
+                <Stack.Screen name="Recent" component={Landing} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+                <Stack.Screen name="Search" component={Search} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+                <Stack.Screen name="Add" component={Add} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+                <Stack.Screen name="Profile" component={Profile} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
+                
+                <Stack.Screen name="PostView" component={PostView} options={{ gestureOptions }} />
+                <Stack.Screen name="EventView" component={EventView} options={{ gestureOptions }} />
+                <Stack.Screen name="ProfileView" component={ProfileView} options={{ gestureOptions }} />
+                <Stack.Screen name="Settings" component={Settings} options={{ gestureOptions }} />
+
+                <Stack.Screen name="PostCreate" component={PostCreate} options={{ gestureOptions }} />
+                <Stack.Screen name="EventCreate" component={EventCreate } options={{ gestureOptions }} />
+            </Stack.Navigator>
+        </SafeAreaView>
+    )
 }
 
 const styles = StyleSheet.create({

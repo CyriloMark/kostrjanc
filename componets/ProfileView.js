@@ -160,32 +160,82 @@ export default function ProfileView({ navigation, route }) {
                     set(ref(db, "users/" + uid), {
                         ...a,
                         following: following
-                    }).catch((error) => console.log("error s", error.code))
+                    })
+                        .catch((error) => console.log("error s", error.code))
                 }
 
-            }).catch((error) => console.log("error g", error.code))
+            })
+            .catch((error) => console.log("error g", error.code))
             .finally(() => {
 
                 get(child(ref(db), "users/" + userID))
-                .then((result) => {
+                    .then((result) => {
 
-                    if (result.exists()) {
-                        let a = result.val();
+                        if (result.exists()) {
+                            let a = result.val();
 
-                        let follower = [];
-                        if (result.hasChild('follower')) follower = a['follower'];
-                        else follower = [];
-                        follower.push(uid);
+                            let follower = [];
+                            if (result.hasChild('follower')) follower = a['follower'];
+                            else follower = [];
+                            follower.push(uid);
 
-                        set(ref(db, "users/" + userID), {
-                            ...a,
-                            follower: follower
-                        }).catch((error) => console.log("error s", error.code))
-                    }
+                            set(ref(db, "users/" + userID), {
+                                ...a,
+                                follower: follower
+                            })
+                                .catch((error) => console.log("error s", error.code))
+                        }
 
-                }).catch((error) => console.log("error g", error.code))
+                    })
+                    .catch((error) => console.log("error g", error.code))
+                    .finally(() => setFollowing(true));
+            })
+    }
 
-                .finally(() => setFollowing(true));
+    const unfollow = () => {
+        const db = getDatabase();
+        const uid = getAuth().currentUser.uid;
+
+        get(child(ref(db), "users/" + uid))
+            .then((result) => {
+
+                if (result.exists()) {
+                    let a = result.val();
+
+                    let following = a['following'];
+                    console.log(following);
+                    following.splice(following.indexOf(userID), 1);
+
+                    set(ref(db, "users/" + uid), {
+                        ...a,
+                        following: following
+                    })
+                        .catch((error) => console.log("error s", error.code))
+                }
+
+            })
+            .catch((error) => console.log("error g 3", error.code))
+            .finally(() => {
+
+                get(child(ref(db), "users/" + userID))
+                    .then((result) => {
+
+                        if (result.exists()) {
+                            let a = result.val();
+
+                            let follower = a['follower'];
+                            follower.splice(follower.indexOf(uid), 1);
+
+                            set(ref(db, "users/" + userID), {
+                                ...a,
+                                follower: follower
+                            }).catch((error) => console.log("error s", error.code))
+                        }
+
+                    })
+                    .catch((error) => console.log("error g 2", error.code))
+
+                    .finally(() => setFollowing(false));
             })
     }
 
@@ -243,11 +293,16 @@ export default function ProfileView({ navigation, route }) {
 
                     {/* Follow */}
                 {
-                    !(!(getAuth().currentUser.uid === userID) && !following) ?
-                        null :
-                        <Pressable style={ styles.followBtn } onPress={ follow }>
-                            <Text style={ styles.followText }>Sćěhować</Text>
-                        </Pressable>
+                    getAuth().currentUser.uid !== userID ?
+                            !following ?
+                                <Pressable style={[ styles.followBtn, { backgroundColor: "#B06E6A" } ]} onPress={ follow }>
+                                    <Text style={[ styles.followText, { color: "#143C63" } ]}>Sćěhować</Text>
+                                </Pressable> : 
+                                <Pressable style={[ styles.followBtn, { backgroundColor: "#143C63", } ]} onPress={ unfollow }>
+                                    <Text style={[ styles.followText, { color: "#5884B0" } ]}>Wjac nic sćehować</Text>
+                                </Pressable>
+                        : null
+                        
                 }
 
                     {/* Profile Bio */}
@@ -337,7 +392,8 @@ const styles = StyleSheet.create({
     followBtn: {
         width: "60%",
         padding: 25,
-        backgroundColor: "#B06E6A",
+        marginVertical: 10,
+        
         borderRadius: 25,
 
         alignSelf: "center",
@@ -347,7 +403,6 @@ const styles = StyleSheet.create({
     followText: {
         fontFamily: "Inconsolata_Black",
         fontSize: 25,
-        color: "#143C63"
     },
 
     profileBioContainer: {

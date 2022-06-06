@@ -9,6 +9,7 @@ import MapView, { Marker } from 'react-native-maps';
 
 import CommentsModal from './statics/CommentsModal';
 import ReportModal from './statics/ReportModal';
+import UserListModal from './statics/UserListModal';
 
 import SVG_Recent from '../assets/svg/Recent';
 import SVG_Share from '../assets/svg/Share';
@@ -50,6 +51,9 @@ export default function EventView({ navigation, route }) {
 
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [reportVisible, setReportVisible] = useState(false);
+
+    const [checksVisible, setChecksVisible] = useState(false);
+    const [checksUserList, setChecksUserList] = useState([]);
 
     const [user, setUser] = useState(USER_PLACEHOLDER);
     const [event, setEvent] = useState(EVENT_PLACEHOLDER);
@@ -156,11 +160,35 @@ export default function EventView({ navigation, route }) {
         });
     }
 
+    const getChecksUserList = () => {
+        const db = ref(getDatabase());
+
+        let list = [];
+        for(let i = 0; i < event.checks.length; i++) {
+            get(child(db, "users/" + event.checks[i]))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const a = snapshot.val();
+                        list.push({
+                            name: a['name'],
+                            pbUri: a['pbUri']
+                        });
+                    }
+                })
+                .catch((error) => console.log("error get", error.code))
+                .finally(() => {
+                    if (i === event.checks.length - 1) setChecksUserList(list);
+                })
+        }
+    }
+
     return (
         <View style={ styles.container }>
 
             <CommentsModal type={1} title={event.title} visible={commentsVisible} close={ () => setCommentsVisible(false) } commentsList={event.comments} />
             <ReportModal type={1} visible={reportVisible} close={ () => setReportVisible(false) } id={eventID}  />
+
+            <UserListModal close={ () => setChecksVisible(false) } visible={checksVisible} title={"Tute ludźo su tež pódla"} userList={checksUserList} />
 
             <BackHeader style={[ styles.backHeader, styles.shadow ]} title="Event" onPress={ () => navigation.goBack() } />
 
@@ -192,9 +220,9 @@ export default function EventView({ navigation, route }) {
                         <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
                     </Pressable>
                         {/* Share */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
+                    {/* <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
                         <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                    </Pressable>
+                    </Pressable> */}
                         {/* Report */}
                     <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setReportVisible(true) } >
                         <SVG_Warn style={ styles.postInteractionsItemText } fill="#B06E6A" />
@@ -207,6 +235,12 @@ export default function EventView({ navigation, route }) {
                     <Text style={ styles.titleText }>{convertTimestampIntoString(event.starting)}</Text>
                     <Text style={ styles.descriptionText }>{event.description}</Text>
                 </View>
+
+                    {/* Checks */}
+                <Pressable style={ styles.userListContainer  } onPress={ () => { setChecksVisible(true); getChecksUserList(); } }>
+                    <Text style={ styles.userListText }>
+                        <Text style={{fontFamily: "Inconsolata_Black"}}>{event.checks.length }</Text> su tež pódla</Text>
+                </Pressable>
 
                     {/* Join */}
                 <Pressable style={[ styles.joinBtnContainer, { backgroundColor: !(event.checks.includes(uid)) ? "#B06E6A" : "#9FB012" } ]} onPress={ checkEvent }>
@@ -323,6 +357,26 @@ const styles = StyleSheet.create({
     postInteractionsItemText: {
         flex: 1,
         width: "100%"
+    },
+
+    userListContainer: {
+        width: "90%",
+        backgroundColor: "#143C63",
+        borderRadius: 25,
+
+        position: "relative",
+        marginTop: 25,
+        alignSelf: "center",
+        
+        paddingHorizontal: 25,
+        paddingVertical: 10,
+
+        elevation: 10,
+    },
+    userListText: {
+        fontFamily: "Inconsolata_Regular",
+        fontSize: 25,
+        color: "#5884B0"
     },
 
     joinBtnContainer: {

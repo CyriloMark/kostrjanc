@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react'
 
 import { Alert, View, KeyboardAvoidingView, ScrollView, StyleSheet, Keyboard, Pressable, Text, Image, TextInput } from 'react-native'
 
-import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions } from 'expo-image-picker';
+import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions, UIImagePickerPresentationStyle } from 'expo-image-picker';
 
 import { getAuth } from 'firebase/auth';
 import { child, get, getDatabase, ref, set } from "firebase/database";
-import { getDownloadURL, getStorage, uploadBytes } from "firebase/storage";
-import * as Storage from "firebase/storage"; 
+import { getDownloadURL, getStorage, uploadBytes, ref as storageRef } from "firebase/storage";
 
 import BackHeader from './BackHeader';
 
@@ -32,8 +31,9 @@ export default function PostCreate({ navigation }) {
             mediaTypes: MediaTypeOptions.Images,
             allowsEditing: true,
             quality: .5,
-            aspect: [1, 1],
+            aspect: [9, 10],
             allowsMultipleSelection: false,
+            presentationStyle: UIImagePickerPresentationStyle.PageSheet
         });
         if (pickerResult.cancelled) return;
 
@@ -41,8 +41,11 @@ export default function PostCreate({ navigation }) {
     }
 
     const publish = async () => {
-        if (!(imageUri != null && postData.title.length !== 0 && postData.description.length !== 0)) return;
+        if (!(imageUri != null && postData.title.toString().length !== 0 && postData.description.toString().length !== 0)) return;
         btnPressed = true;
+
+        const id = Date.now();
+        const storage = getStorage();
 
         const blob = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -57,11 +60,12 @@ export default function PostCreate({ navigation }) {
             xhr.send(null); 
         });
 
-        const id = Date.now();
-        uploadBytes(Storage.ref(getStorage(), 'posts_pics/' + id), blob, userUploadMetadata)
-            .then((snapshot) => {
-                getDownloadURL(Storage.ref(getStorage(), 'posts_pics/' + id))
-                    .then((url) => {
+        const itemRef = storageRef(storage, "posts_pics/" + id);
+        uploadBytes(itemRef, blob, userUploadMetadata)
+            .then(() => {
+
+                getDownloadURL(itemRef)
+                    .then(url => {
 
                         set(ref(getDatabase(), 'posts/' + id), {
                             id: id,
@@ -99,13 +103,7 @@ export default function PostCreate({ navigation }) {
                             .catch(() => btnPressed = false)
 
                     })
-                    .catch(() => btnPressed = false);
 
-                
-            })
-            .catch((error) => {
-                console.log("error 2", error.code);
-                btnPressed = false;
             })
     }
 

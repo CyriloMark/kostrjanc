@@ -9,6 +9,7 @@ import Navbar from '../statics/Navbar';
 
 import EventCard from '../statics/EventCard';
 import PostCard from '../statics/PostCard';
+import BannerCard from '../statics/BannerCard';
 
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -19,6 +20,7 @@ export default function Landing({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    getNewBanners();
     getNewPosts();
     getNewEvents();
     wait(2000).then(() => setRefreshing(false));
@@ -26,6 +28,25 @@ export default function Landing({ navigation }) {
 
   const [posts, setPosts] = useState(null);
   const [events, setEvents] = useState(null);
+  const [banners, setBanners] = useState(null);
+
+  const getNewBanners = () => {
+    get(child(ref(getDatabase()), 'banners'))
+      .then((snapshot) => {
+        if (!snapshot.exists()) return;
+
+        let ba = [];
+        snapshot.forEach((data) => {
+          const key = data.key;
+          console.log("id banner nicht löschen!!!", key);
+          ba.push(key);
+        });
+
+        setBanners(ba);
+        console.log(banners, "BANNER");
+      })
+      .catch((error) => console.log("banners", error.code));
+  }
 
   const getNewPosts = () => {
     get(child(ref(getDatabase()), 'posts'))
@@ -58,12 +79,13 @@ export default function Landing({ navigation }) {
         });
 
         setEvents(ev);
-        console.log(posts, "EVENTS");
+        console.log(events, "EVENTS");
       })
       .catch((error) => console.log("events", error.code));
   }
 
   useEffect(() => {
+    getNewBanners();
     getNewPosts();
     getNewEvents();
   }, [])
@@ -71,7 +93,7 @@ export default function Landing({ navigation }) {
   return (
     <View style={ styles.container } >
 
-      <AppHeader style={ styles.header } settingsPress={ () => navigation.navigate('Settings') } />
+      <AppHeader style={ styles.header } settingsPress={ () => navigation.navigate('Settings') } showSettings />
 
       <Navbar style={ styles.navbar } active={0}
         onPressRecent={ () => { navigation.navigate("Recent") }}
@@ -87,6 +109,12 @@ export default function Landing({ navigation }) {
           />
         } >
 
+        {
+          banners !== null ?
+          banners.map((data, key) =>
+            <BannerCard key={key} style={styles.card} bannerID={data} />
+          ) : null
+        }
         {
           posts !== null ?
           posts.map((data, key) =>
@@ -123,7 +151,6 @@ const styles = StyleSheet.create({
   },
 
   header: {
-
     position: "absolute",
     height: "10%",
     width: "100%",

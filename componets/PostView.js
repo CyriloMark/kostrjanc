@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Image, Alert } from 'react-native';
 
 import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, onValue, get, child } from "firebase/database";
+import { getDatabase, ref, onValue, get, child, set } from "firebase/database";
 
 import { Share as Share_Post } from './statics/PostShare';
 
@@ -94,6 +94,26 @@ export default function PostView({ navigation, route }) {
             })
     }
 
+    const deletePost = () => {
+        const db = getDatabase();
+        const storage = db;
+
+        set(ref(db, "posts/" + postID), null)
+            .then(() => {
+
+                get(child(ref(db), "users/" + creator))
+                    .then((snapshot) => {
+                        const data = snapshot.val();
+                        let a = data['posts'];
+                        a.splice(a.indexOf(postID), 1);
+                        set(ref(db, "users/" + creator), {
+                            ...data,
+                            posts: a
+                        }).finally(() => navigation.goBack())
+                    })
+            })
+    }
+
     useEffect(() => {
         if (post === POST_PLACEHOLDER) loadData();
     }, []);
@@ -147,11 +167,12 @@ export default function PostView({ navigation, route }) {
                     <Text style={ styles.descriptionText }>{post.description}</Text>
                 </View>
 
-                    {/* Delete */}
                 {
-                    getAuth().currentUser.uid === creator ?    
-                        <DeleteButton style={ styles.deleteBtn } /> :
-                        null
+                    false  ?
+                        getAuth().currentUser.uid === creator ?    
+                            <DeleteButton style={ styles.deleteBtn } onPress={ deletePost } /> :
+                            null
+                    : null
                 }
 
             </ScrollView>

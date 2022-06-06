@@ -89,8 +89,11 @@ const styles = StyleSheet.create({
     },
 
     header: {
-        width: "100%",
         height: "10%",
+        width: "100%",
+        top: 10,
+
+        alignSelf: "center",
     },
 
     body: {

@@ -15,13 +15,22 @@ export const PostType = {
 
 export default function PostPreview(props) {
 
+    const getChecks = () => {
+        if (props.item.checks) {
+            return props.item.checks.includes(getAuth().currentUser.uid);
+        }
+        else return false;
+    }
+
+    let checked = getChecks();
+
     return (
         <View style={[ props.style, { overflow: "visible", zIndex: 2 } ]}>
             <Pressable style={ styles.postItemContainer } onPress={ props.press } >
                 {
                     props.item.type === 0
-                    ? <Preview_Post imgUri={props.item.imgUri} postShowText={props.postShowText} title={props.item.title} style={ styles.boxStyle } />
-                    : <Preview_Event title={props.item.title} geoCords={props.item.geoCords} checked={props.item.checks.includes(getAuth().currentUser.uid)} style={ styles.boxStyle } />
+                        ? <Preview_Post imgUri={props.item.imgUri} postShowText={props.postShowText} title={props.item.title} style={ styles.boxStyle } />
+                        : <Preview_Event title={props.item.title} geoCords={props.item.geoCords} checked={checked} style={ styles.boxStyle } />
                 }
             </Pressable>
         </View>

@@ -4,6 +4,7 @@ import { View, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Loading() {
+
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.bodyContainer}>
@@ -29,7 +30,8 @@ const styles = StyleSheet.create({
     color: "#143C63",
     fontFamily: "Inconsolata_Black",
     fontSize: 50,
-    marginVertical: 10
+    marginVertical: 10,
+    textAlign: "center"
   },
   subHeading: {
     color: "#143C63",

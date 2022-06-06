@@ -14,7 +14,7 @@ export async function Share (url, title) {
     if (Platform.OS === 'web') return;
 
     try {
-        const { uri } = await createDownloadResumable(url, cacheDirectory + "share-" + title + ".jpg", {}).downloadAsync();
+        const { uri } = await createDownloadResumable(url, cacheDirectory + "share-" + title.replace(/\s/g, '_') + ".jpg", {}).downloadAsync();
         shareAsync(uri, {
             dialogTitle: 'Ty dźěliš wobraz wot posta "' + title + '"',
         })

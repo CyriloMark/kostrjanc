@@ -1,16 +1,140 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import { View, StyleSheet, ScrollView, Text, Pressable } from 'react-native';
+import { Alert, View, StyleSheet, ScrollView, Text, Pressable } from 'react-native';
 
 import BackHeader from './statics/BackHeader';
+
+import { getAuth, signOut, deleteUser } from 'firebase/auth'
+import { getDatabase, set, ref, child, get } from 'firebase/database';
+import { getStorage, ref as storageRef , deleteObject } from "firebase/storage";
+
+
+import { setString } from 'expo-clipboard';
 
 import { openURL } from 'expo-linking'
 
 import SVG_Return from '../assets/svg/Return';
+import SVG_Telefon from '../assets/svg/Telefon';
 
 export default function Settings({ navigation }) {
 
-    
+    const [userID, setUserID] = useState(getAuth().currentUser.uid);
+
+    const copyIDToClipboard = () => {
+        setString(userID);
+        Alert.alert("Twoja id je so kopěrowała!", "id: " + userID, [
+            {
+                text: "Ok",
+                style: "default",
+            }
+        ]);
+    }
+
+    const logoutAccount = () => {
+        Alert.alert("Wotzjewić?", "Chceš ty so woprawdźe z twojeho konta wotzjewić?", [
+            {
+                text: "Ně",
+                style: "destructive",
+            },
+            {
+                text: "Haj",
+                style: "default",
+                onPress: () => {
+                    signOut(getAuth())
+                        .catch(() => console.log("error logout", error.code))
+                }
+            }
+        ]);
+    }
+
+    const deleteAccount = () => {
+        Alert.alert("Konto wotstronić?", "Chceš ty woprawdźe twój konto wotstronić?", [
+            {
+                text: "Ně",
+                style: "destructive",
+            },
+            {
+                text: "Haj",
+                style: "default",
+                onPress: () => {
+                    Alert.alert("Sy sej woprawdźe wěsty, twój konto je za přeco fuk!", "", [
+                        {
+                            text: "Ně",
+                            style: "destructive",
+                        },
+                        {
+                            text: "Haj",
+                            style: "default",
+                            onPress: () => {
+                                const db = getDatabase();
+                                const storage = getStorage();
+
+                                get(child(ref(db), "users/" + userID))
+                                    .then((snapshot) => {
+                                        const data = snapshot.val();
+
+                                        if (snapshot.hasChild('follower')) {
+                                            const followerList = data['follower'];
+                                            for (let i = 0; i < followerList.length; i++) {
+                                                get(child(ref(db), "users/" + followerList[i]))
+                                                    .then((snapshotFollower) => {
+                                                        const followerData = snapshotFollower.val();
+                                                        let a = followerData['following'];
+                                                        a.splice(a.indexOf(userID), 1);
+                                                        set(ref(db, "users/" + followerList[i]), {
+                                                            ...followerData,
+                                                            following: a
+                                                        })
+                                                    })
+                                            }
+                                        }
+
+                                        if (snapshot.hasChild('following')) {
+                                            const followingList = data['following'];
+                                            for (let i = 0; i < followingList.length; i++) {
+                                                get(child(ref(db), "users/" + followingList[i]))
+                                                    .then((snapshotFollowing) => {
+                                                        const followingData = snapshotFollowing.val();
+                                                        let a = followingData['follower'];
+                                                        a.splice(a.indexOf(userID), 1);
+                                                        set(ref(db, "users/" + followingList[i]), {
+                                                            ...followingData,
+                                                            follower: a
+                                                        })
+                                                    })
+                                            }
+                                        }
+
+                                        if (snapshot.hasChild('posts')) {
+                                            const postsList = data['posts'];
+                                            for (let i = 0; i < postsList.length; i++) {
+                                                set(ref(db, "posts/" + postsList[i]), null);
+                                                deleteObject(storageRef(storage, "posts_pics/" + postsList[i]));
+                                            }
+                                        }
+                                        if (snapshot.hasChild('events')) {
+                                            const eventsList = data['events'];
+                                            for (let i = 0; i < eventsList.length; i++) {
+                                                set(ref(db, "events/" + eventsList[i]), null);
+                                            }
+                                        }
+
+                                        deleteObject(storageRef(storage, "profile_pics/" + userID));
+
+                                    })
+                                    .finally(() => {
+                                        set(ref(db, "users/" + userID), null)
+                                            .finally(() => {
+                                                deleteUser(getAuth().currentUser);
+                                            })
+                                    });
+                            }
+                        }
+                    ])
+                }
+            }
+        ]);
+    }
 
     return (
         <View style={ styles.container }>
@@ -20,18 +144,40 @@ export default function Settings({ navigation }) {
             <ScrollView style={{ width: "100%", marginTop: "25%", overflow: "hidden" }} contentContainerStyle={{ width: "100%", paddingBottom: "10%", }}
                 showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} >
 
-                    {/* Title */}
+                    {/* AUTH - Title */}
+                <Text style={ styles.title }>Konto</Text>
+                <Text style={ styles.text }>Twoja id: <Text onPress={ copyIDToClipboard } style={{ fontFamily: "Inconsolata_Black" }}>{userID}</Text></Text>
+
+                <InteractionButton style={ styles.linkButton } title={"Chceš so z twojeho konta wotzjewić?"} press={ logoutAccount } />
+                <InteractionButton style={ styles.linkButton } title={"Chceš twój konto wotstronić?"} press={ deleteAccount } />
+
+                    {/* VERIFY - Title */}
+                <Text style={ styles.title }>Werifikacija</Text>
+
+                <Text style={ styles.text }>Zo móžeš twój konto werifikować, dyrbiš slědowace kriterie spjelnić:</Text>
+                <Text style={[ styles.text, { fontSize: 15 } ]}>
+                    &#8226;staroba wot 18 lět{"\n"}
+                    &#8226;maš wosebity poćah ke kostrjanc abo spejliš wosebity status w towaršnosći{"\n"}
+                    &#8226;wužiješ kostrjanc regularnje a wobkedźbuješ regule za wužiwanje{"\n"}
+                    &#8226;dźeržiš so na moralne normy a akceptuješ prawa a regule w a zwonka kostrjanc{"\n"}
+                    &#8226;akceptuješ w a zwonka kostrjanc kóždeho sobučłowjeka
+                </Text>
+                <Text style={ styles.text }>Jeli trěbne dypki spjeliš, požadaj so jednorje přez...</Text>
+                <LinkButton style={ styles.linkButton } title={"...online formular"} link="http://verify.kostrjanc.de/" />
+                <CallButton style={ styles.linkButton } title={"...abo ty zazłoniš direktnje"} link={"tel://01794361854"} />
+
+                    {/* LINKS - Title */}
                 <Text style={ styles.title }>Pomocne linki</Text>
 
                 <LinkButton style={ styles.linkButton } title={"Wopytaj tola raz kostrjanc.de, našu stronu w interneće!"} link="https://kostrjanc.de" />
-                <LinkButton style={ styles.linkButton } title={"Maš prašenja?\nPotom wopytaj kostrjanc.de a woprašej so nas!"} link="https://help.kostrjanc.de" />
-                <LinkButton style={ styles.linkButton } title={"Sy zmylk namakał, potom přizjeł so prošu pola nas!"} link="https://bugreport.kostrjanc.de" />
-                <LinkButton style={ styles.linkButton } title={"Chceš na kostrjanc wabić?\nPřizjeł so pod linkom!"} link="https://buisness.kostrjanc.de" />
+                <LinkButton style={ styles.linkButton } title={"Maš prašenja?\nPotom wopytaj kostrjanc.de a woprašej so nas!"} link="https://kostrjanc.de/pomoc" />
+                <LinkButton style={ styles.linkButton } title={"Sy zmylk namakał, potom přizjeł so prošu pola nas!"} link="https://kostrjanc.de/bugreport" />
+                <LinkButton style={ styles.linkButton } title={"Chceš na kostrjanc wabić?\nPřizjeł so pod linkom!"} link="https://kostrjanc.de/buissnes" />
                 <LinkButton style={ styles.linkButton } title={"Sy admin abo moderator?\nPotom wužiwaj dashboard we syći!"} link="http://dashboard.kostrjanc.de/" />
 
 
                 <View style={ styles.impressumContainer }>
-                        {/* Title */}
+                        {/* IMPRESUM - Title */}
                     <Text style={ styles.title }>Impresum</Text>
 
                     <Text style={[ styles.text, { fontFamily: "Inconsolata_Black" } ]}>Podaća po §5 TMG</Text>
@@ -40,8 +186,8 @@ export default function Settings({ navigation }) {
                         Łusč 1e {"\n"}
                         02699 Bóšicy {"\n"}{"\n"}
                         Korla Baier {"\n"}
-                        Musterweg {"\n"}
-                        12345 Musterstadt 
+                        Srjedźny puć 12 {"\n"}
+                        01920 Pančicy Kukow 
                         </Text>
                     <Text style={ styles.text }>
                         <Text style={{ fontFamily: "Inconsolata_Black" }}>Předsedźerjo: {"\n"}</Text>
@@ -52,7 +198,7 @@ export default function Settings({ navigation }) {
                         <Text style={{ fontFamily: "Inconsolata_Black" }}>Kontakt: {"\n"}</Text>
                         Telefon: 110 {"\n"}
                         Fax: hab keins ruf mich an {"\n"}
-                        E-Mail: max@muster.de
+                        E-Mail: info@kostrjanc.de
                     </Text>
                     <Text style={ styles.text }>
                         <Text style={{ fontFamily: "Inconsolata_Black" }}>Dohladowarstwo: {"\n"}</Text>
@@ -96,7 +242,7 @@ export default function Settings({ navigation }) {
                             etwa durch Spam-Mails, vor."
                         </Text>
                     </Text>
-                    <Text style={ styles.text }>
+                    {/* <Text style={ styles.text }>
                         <Text style={{ fontFamily: "Inconsolata_Black" }}>Google Analytics: {"\n"}</Text>
                         <Text style={{ fontSize: 15 }}>
                             "Diese Website benutzt Google Analytics, einen Webanalysedienst der Google Inc. ('Google'). Google Analytics verwendet sog. 'Cookies',
@@ -112,7 +258,7 @@ export default function Settings({ navigation }) {
                             Durch die Nutzung dieser Website erklären Sie sich mit der Bearbeitung der über Sie erhobenen Daten durch Google
                             in der zuvor beschriebenen Art und Weise und zu dem zuvor benannten Zweck einverstanden."
                         </Text>
-                    </Text>
+                    </Text> */}
                     
 
                 </View>
@@ -123,7 +269,7 @@ export default function Settings({ navigation }) {
     )
 }
 
-const LinkButton = (props) => {
+export const LinkButton = (props) => {
 
     const openLink = (link) => {
         openURL(link);
@@ -134,12 +280,44 @@ const LinkButton = (props) => {
             <Pressable style={ styles_link.linkContainer } onPress={ () => openLink(props.link) } >
                 <Text style={ styles_link.titleText }>{props.title}</Text>
                 <Pressable style={ styles_link.linkBtn } onPress={ () => openLink(props.link) } >
-                    <SVG_Return style={ styles_link.linkBtnIcon } fill={"#5884B0"} />
+                    <SVG_Return style={ [styles_link.linkBtnIcon, { transform: [{ rotate: "180deg" }] } ]} fill={"#5884B0"} />
                 </Pressable>
             </Pressable>
         </View>
     )
-} 
+}
+
+export const CallButton = (props) => {
+
+    const openLink = (link) => {
+        openURL(link);
+    }
+
+    return (
+        <View style={ props.style }>
+            <Pressable style={ styles_link.linkContainer } onPress={ () => openLink(props.link) } >
+                <Text style={ styles_link.titleText }>{props.title}</Text>
+                <Pressable style={ styles_link.linkBtn } onPress={ () => openLink(props.link) } >
+                    <SVG_Telefon style={ styles_link.linkBtnIcon } fill={"#5884B0"} />
+                </Pressable>
+            </Pressable>
+        </View>
+    )
+}
+
+const InteractionButton = (props) => {
+
+    return (
+        <View style={ props.style }>
+            <Pressable style={ styles_link.linkContainer } onPress={ props.press } >
+                <Text style={ styles_link.titleText }>{props.title}</Text>
+                <Pressable style={ styles_link.linkBtn } onPress={ () => openLink(props.link) } >
+                    <SVG_Return style={ [styles_link.linkBtnIcon, { transform: [{ rotate: "180deg" }] } ]} fill={"#5884B0"} />
+                </Pressable>
+            </Pressable>
+        </View>
+    )
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -212,7 +390,7 @@ const styles_link = {
     linkBtnIcon: {
         width: "100%",
         aspectRatio: 1,
-        transform: [{ rotate: "180deg" }]
+        
     },
     titleText: {
         flex: .9,
