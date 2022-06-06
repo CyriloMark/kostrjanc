@@ -23,7 +23,8 @@ export default function ReportModal(props) {
             id: reportData.id,
             reason: reportData.reason
         }).finally(() => {
-            props.close()
+            reporting = false;
+            props.close();
         })
         .catch((error) => console.log("error", error.code))
     }

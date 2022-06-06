@@ -136,6 +136,10 @@ export default function Settings({ navigation }) {
         ]);
     }
 
+    const getAccountData = () => {
+
+    }
+
     return (
         <View style={ styles.container }>
 
@@ -150,6 +154,7 @@ export default function Settings({ navigation }) {
 
                 <InteractionButton style={ styles.linkButton } title={"Chceš so z twojeho konta wotzjewić?"} press={ logoutAccount } />
                 <InteractionButton style={ styles.linkButton } title={"Chceš twój konto wotstronić?"} press={ deleteAccount } />
+                <InteractionButton style={ styles.linkButton } title={"Kontowe informacije sej pósłać dać?"} press={ getAccountData } />
 
                     {/* VERIFY - Title */}
                 <Text style={ styles.title }>Werifikacija</Text>
