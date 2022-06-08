@@ -66,63 +66,63 @@ export default function ProfileView({ navigation, route }) {
 
         let postEventDatas = [];
 
-        onValue(ref(db, 'users/' + userID), snapshot => {
-            const data = snapshot.val();
+        get(child(ref(db), "users/" + userID))
+            .then(snapshot => {
+                const data = snapshot.val();
 
-            let userData = {
-                ...data,
-                follower: snapshot.hasChild('follower') ? data['follower'] : [],
-                following: snapshot.hasChild('following') ? data['following'] : []
-            };
+                let userData = {
+                    ...data,
+                    follower: snapshot.hasChild('follower') ? data['follower'] : [],
+                    following: snapshot.hasChild('following') ? data['following'] : []
+                };
 
-            const hasPosts = snapshot.hasChild('posts');
-            const hasEvents = snapshot.hasChild('events');
+                const hasPosts = snapshot.hasChild('posts');
+                const hasEvents = snapshot.hasChild('events');
 
-            if (!hasPosts && !hasEvents) setUser(userData);
+                if (!hasPosts && !hasEvents) setUser(userData);
 
-            if (hasPosts) {
-                const posts = data['posts'];
-                
-                userData = {
-                    ...userData,
-                    posts: posts
-                }
-                if (!hasEvents) setUser(userData);
-
-                for(let i = 0; i < posts.length; i++) {
-                    get(child(ref(db), "posts/" + posts[i]))
-                        .then((post) => {
-                            const postData = post.val();
+                if (hasPosts) {
+                    const posts = data['posts'];
+                    
+                    userData = {
+                        ...userData,
+                        posts: posts
+                    }
+                    if (!hasEvents) setUser(userData);
     
-                            postEventDatas.push(postData);
-                            if (i === posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
-                        })
-                        .catch((error) => console.log("error posts", error.code));
+                    for(let i = 0; i < posts.length; i++) {
+                        get(child(ref(db), "posts/" + posts[i]))
+                            .then((post) => {
+                                const postData = post.val();
+        
+                                postEventDatas.push(postData);
+                                if (i === posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
+                            })
+                            .catch((error) => console.log("error posts", error.code));
+                    }
                 }
-            }
-            
-            if (hasEvents){
-                const events = data['events'];
                 
-                userData = {
-                    ...userData,
-                    events: events
-                }
-                setUser(userData);
-
-                for(let i = 0; i < events.length; i++) {
-                    get(child(ref(db), "events/" + events[i]))
-                        .then((event) => {
-                            const eventData = event.val();
+                if (hasEvents){
+                    const events = data['events'];
+                    
+                    userData = {
+                        ...userData,
+                        events: events
+                    }
+                    setUser(userData);
     
-                            postEventDatas.push(eventData);
-                            if (i === events.length - 1) sortArrayByDate(postEventDatas);
-                        })
-                        .catch((error) => console.log("error events", error.code));
+                    for(let i = 0; i < events.length; i++) {
+                        get(child(ref(db), "events/" + events[i]))
+                            .then((event) => {
+                                const eventData = event.val();
+        
+                                postEventDatas.push(eventData);
+                                if (i === events.length - 1) sortArrayByDate(postEventDatas);
+                            })
+                            .catch((error) => console.log("error events", error.code));
+                    }
                 }
-            }
-
-        });
+            })
     }
 
     const sortArrayByDate = (data) => {
@@ -203,7 +203,6 @@ export default function ProfileView({ navigation, route }) {
                     let a = result.val();
 
                     let following = a['following'];
-                    console.log(following);
                     following.splice(following.indexOf(userID), 1);
 
                     set(ref(db, "users/" + uid), {

@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
 
 
         fontFamily: "Inconsolata_Regular",
-        fontSize: 15,
+        fontSize: 20,
         color: "#5884B0",
         
         borderRadius: 15,

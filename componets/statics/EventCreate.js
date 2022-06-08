@@ -16,6 +16,7 @@ const initialRegion = {
     longitudeDelta: 0.0421,
 }
 
+let btnPressed;
 export default function EventCreate({ navigation }) {
 
     const [pin, setPin] = useState(initialRegion);
@@ -36,8 +37,11 @@ export default function EventCreate({ navigation }) {
     }
 
     const publish = async () => {
+        if (btnPressed) false;
         if (!(eventData.title.length !== 0 && eventData.description.length !== 0)) return;
         if (eventData.starting === "undefined") return;
+        btnPressed = true;
+
 
         const id = Date.now();
         set(ref(getDatabase(), 'events/' + id), {
@@ -76,6 +80,10 @@ export default function EventCreate({ navigation }) {
             })
             .catch((error) => console.log("error userudata", error.code))
     }
+
+    useEffect(() => {
+        btnPressed = false;
+    }, []);
 
     return (
         <View style={ styles.container } >

@@ -7,6 +7,8 @@ import SearchHeader from '../statics/SearchHeader';
 
 import UserCard from '../statics/UserHeader';
 
+import { lerp } from './Landing';
+
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
 }
@@ -17,11 +19,13 @@ export default function Search({ navigation }) {
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         fetchUsers(input);
+        getRandomUser();
         wait(2000).then(() => setRefreshing(false));
     }, []);
     
     const [input, setInput] = useState("");
     const [searchResult, setSearchResult] = useState([]);
+    const [randomUser, setRandomUser] = useState(null);
 
     const fetchUsers = (text) => {
         if (text.length <= 0) {
@@ -58,6 +62,31 @@ export default function Search({ navigation }) {
                 })
     }
 
+    const getRandomUser = () => {
+        fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users.json")
+            .then(response => response.json()
+            )
+                .then(users => {
+                    const randomUserID = Object.keys(users)[Math.round(lerp(0, Object.keys(users).length, Math.random()))];
+                    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + randomUserID + ".json")
+                        .then(response => response.json()
+                        )
+                            .then(user => {
+                                setRandomUser({
+                                    name: user.name,
+                                    pbUri: user.pbUri,
+                                    id: randomUserID
+                                })
+                            }
+                        )
+                }
+            )
+    }
+
+    useEffect(() => {
+        getRandomUser();
+    }, [])
+
     return (
         <View style={ styles.container } >
             <KeyboardAvoidingView behavior='height' enabled={ Platform.OS != 'ios' } style={{ height: "100%" }}>
@@ -86,7 +115,13 @@ export default function Search({ navigation }) {
                         searchResult.length !== 0 ?
                         searchResult.map((user, key) =>
                             <UserCard key={key} user={user} style={ styles.card } userID={user.id} onPress={ () => navigation.navigate('ProfileView', { userID: user.id }) } />
-                        ) : <Text style={ styles.hint }>Pytaj za něčim!</Text>
+                        ) : randomUser ?
+                            <View style={ styles.randomUserContainer }>
+                                <Text style={[ styles.hint, { marginVertical: 50 } ]}>Pytaj za něčim!</Text>
+                                <View style={ styles.crossLine } />
+                                <Text style={[ styles.hint, { marginVertical: 10 } ]}>Pohladaj raz pola...</Text>
+                                <UserCard style={ styles.card } user={randomUser} userID={randomUser.id} onPress={ () => navigation.navigate('ProfileView', { userID: randomUser.id }) } />
+                            </View> : <Text style={ styles.hint }>Pytaj za něčim!</Text>
                     }
 
                 </ScrollView>
@@ -159,12 +194,22 @@ const styles = StyleSheet.create({
     
         elevation: 10,
     },
-
+    
+    randomUserContainer: {
+        width: "100%",
+    },
     hint: {
         fontFamily: "Inconsolata_Black",
         fontSize: 25,
         color: "#143C63",
         textAlign: "center",
-        marginVertical: 25
+    },
+    crossLine: {
+        width: "100%",
+        marginVertical: 10,
+        backgroundColor: "#143C63",
+        paddingVertical: 2,
+        borderRadius: 10
     }
+
 })

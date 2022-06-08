@@ -41,6 +41,7 @@ export default function PostCreate({ navigation }) {
     }
 
     const publish = async () => {
+        if (btnPressed) return;
         if (!(imageUri != null && postData.title.toString().length !== 0 && postData.description.toString().length !== 0)) return;
         btnPressed = true;
 
@@ -106,6 +107,10 @@ export default function PostCreate({ navigation }) {
 
             })
     }
+
+    useEffect(() => {
+        btnPressed = false;
+    }, []);
 
     return (
         <View style={ styles.container } >

@@ -53,7 +53,6 @@ export default function PostCard(props) {
 
                     const data = snapshot.val();
 
-                    console.log("yes");
                     setUser({
                         name: data['name'],
                         description: data['description'],
@@ -63,7 +62,6 @@ export default function PostCard(props) {
                     });
                 }
                 else {
-                    console.log("no");
                     setUser(USER_PLACEHOLDER);
                 }
             })

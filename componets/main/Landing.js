@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react'
 
-import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
+import { View, StyleSheet, ScrollView, RefreshControl, Text } from "react-native";
 
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, child, get, set } from "firebase/database";
@@ -12,9 +12,10 @@ import EventCard from '../statics/EventCard';
 import PostCard from '../statics/PostCard';
 import BannerCard from '../statics/BannerCard';
 
-let postEvents = [];
 let showingPosts = [];
 let showingEvents = [];
+
+let userSpecificContent = [];
 
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -26,10 +27,8 @@ export default function Landing({ navigation }) {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
 
-    postEvents = [];
     getNewBanners();
     getNewPosts();
-    getNewEvents();
 
     wait(2000).then(() => setRefreshing(false));
   }, []);
@@ -50,9 +49,6 @@ export default function Landing({ navigation }) {
           if (child.val()["ending"] > currentDate && child.val()["starting"] < currentDate) {
             ba.push(child.key);
           }
-          else if (child.val()["ending"] < currentDate) {
-            set(ref(db, "banners/" + child.key), null)
-          }
         });
         setBanners(ba);
       })
@@ -62,61 +58,9 @@ export default function Landing({ navigation }) {
   const getNewPosts = () => {
     const db = getDatabase();
     
-    showingPosts = [];
-
-    let following = [];
-    let follower = [];
-
-    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/following.json")
-      .then(
-        response => response.json()
-      )
-        .then(f => f ? following = f : following = [])
-        .finally(() => {
-
-          fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/follower.json")
-            .then(
-              response => response.json()
-            )
-              .then(f => f ? follower = f : follower = [])
-              .finally(() => {
-                
-                const combined = following;
-                combined.concat(follower);
-
-                let postIds = [];
-
-                for (let i = 0; i < combined.length; i++) {
-                  get(child(ref(db), 'users/' + combined[i] + "/posts"))
-                    .then(pSnap => {
-                      if (!pSnap.exists()) return;
-                      let pList = pSnap.val();
-                      
-                      pList.forEach(p => postIds.push(p));
-                    })
-                    .finally(() => {
-                      if (i == combined.length - 1) {
-
-                        if (postIds.length <= 20) {
-                          const amtLeft = 20 - postIds.length;
-                          getPostExceptOf(postIds, amtLeft);
-                        } else {
-                          let finalPosts = sortArrayByDate(postIds).splice(19, postIds.length - 20);
-                          showingPosts.push(finalPosts);
-                          finalPosts.forEach(p => postEvents.push(p));;
-                          setPostEventList(postEvents);
-                        }
-                        
-                      }
-                  })
-                }
-              })
-        })
-  }
-
-  const getNewEvents = () => {
-    const db = getDatabase();
+    userSpecificContent = [];
     
+    showingPosts = [];
     showingEvents = [];
 
     let following = [];
@@ -135,6 +79,63 @@ export default function Landing({ navigation }) {
             )
               .then(f => f ? follower = f : follower = [])
               .finally(() => {
+
+                if (following.length === 0 && follower.length === 0) {
+                  getNewEvents();
+                  return;
+                }
+                
+                const combined = following;
+                combined.concat(follower);
+
+                let postIds = [];
+
+                for (let i = 0; i < combined.length; i++) {
+                  get(child(ref(db), 'users/' + combined[i] + "/posts"))
+                    .then(pSnap => {
+                      if (!pSnap.exists()) return;
+                      let pList = pSnap.val();
+                      
+                      pList.forEach(p => postIds.push(p));
+                    })
+                    .finally(() => {
+                      if (i == combined.length - 1) {
+                        postIds.forEach(p => {
+                          userSpecificContent.push(p);
+                          showingPosts.push(p);
+                        });
+                        getNewEvents();
+                      }
+                  })
+                }
+              })
+        })
+  }
+
+  const getNewEvents = () => {
+    const db = getDatabase();
+
+    let following = [];
+    let follower = [];
+
+    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/following.json")
+      .then(
+        response => response.json()
+      )
+        .then(f => f ? following = f : following = [])
+        .finally(() => {
+
+          fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + getAuth().currentUser.uid + "/follower.json")
+            .then(
+              response => response.json()
+            )
+              .then(f => f ? follower = f : follower = [])
+              .finally(() => {
+
+                if (following.length === 0 && follower.length === 0) {
+                  getUserUnspecificPosts(20, []);
+                  return;
+                }
                 
                 const combined = following;
                 combined.concat(follower);
@@ -142,26 +143,22 @@ export default function Landing({ navigation }) {
                 let eventIds = [];
 
                 for (let i = 0; i < combined.length; i++) {
-                  get(child(ref(db), 'users/' + combined[i] + "/posts"))
+                  get(child(ref(db), 'users/' + combined[i] + "/events"))
                     .then(eSnap => {
+                      
                       if (!eSnap.exists()) return;
                       let eList = eSnap.val();
                       
-                      eList.forEach(p => eList.push(p));
+                      eList.forEach(e => eventIds.push(e));
                     })
                     .finally(() => {
-                      if (i == combined.length - 1) {
+                      if (i === combined.length - 1) {
+                        eventIds.forEach(e => {
+                          userSpecificContent.push(e);
+                          showingEvents.push(e);
+                        });
 
-                        if (eventIds.length <= 5) {
-                          const amtLeft = 5 - eventIds.length;
-                          getEventsExceptOf(eventIds, amtLeft);
-                        } else {
-                          const finalEvents = sortArrayByDate(eventIds).splice(4, eventIds.length - 5);
-                          showingEvents.push(finalEvents);
-                          finalEvents.forEach(e => postEvents.push(e));
-                          setPostEventList(postEvents);
-                        }
-                        
+                        getUserUnspecificPosts(20 - showingPosts.length, userSpecificContent.sort(function(a, b) { return b - a }));
                       }
                   })
                 }
@@ -172,69 +169,79 @@ export default function Landing({ navigation }) {
   useEffect(() => {
     getNewBanners();
     getNewPosts();
-    getNewEvents();
   }, [])
 
-  let getPostExceptOf = (except, amt) => {
+  let getUserUnspecificPosts = (amt, input) => {
     fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/posts.json")
       .then(
         response => response.json()
       ).then(posts => {
 
         let allPosts = Object.values(posts);
-        const filteredPosts = allPosts.filter(p => !except.includes(p["id"])) 
+        const filteredPosts = allPosts.filter(p => !showingPosts.includes(p["id"]));
 
-        if (filteredPosts.length === 0) {
-          const finalPosts = sortArrayByDate(except);
-          showingPosts.push(finalPosts);
+        let output = [];
+
+        if (filteredPosts.length <= amt) {
           
-          finalPosts.forEach(p => postEvents.push(p));
-          setPostEventList(postEvents);
-        } else if (filteredPosts.length <= amt) {
           let ids = [];
           filteredPosts.forEach(p => ids.push(p["id"]));
-
-          const finalPosts = sortArrayByDate(except).concat(ids);
-          showingPosts.push(finalPosts);
-
-          finalPosts.forEach(p => postEvents.push(p));
-          setPostEventList(postEvents);
+          ids.forEach(p => output.push(p));
+          
         } else if (filteredPosts.length > amt) {
 
+          let ids = [];
+          let a = filteredPosts;
+          for(let i = 0; i < amt; i++) {
+            let r = Math.round(lerp(0, filteredPosts.length - i, Math.random()));
+            ids.push(a[r].id);
+            a.splice(r, 1);
+          }
+          ids.forEach(p => output.push(p));
+
         }
+
+        output.forEach(p => showingPosts.push(p));
+        getUserUnspecificEvents(5 - showingEvents.length, output, input);
 
       })
   }
 
-  let getEventsExceptOf = (except, amt) => {
+  let getUserUnspecificEvents = (amt, postsInput, safeContent) => {
+
     fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/events.json")
-      .then(
-        response => response.json()
-      ).then(events => {
+    .then(
+      response => response.json()
+    ).then(events => {
 
-        let allEvents = Object.values(events);
-        const filteredEvents = allEvents.filter(e => !except.includes(e["id"])) 
+      let allEvents = Object.values(events);
+      const filteredEvents = allEvents.filter(e => !showingEvents.includes(e["id"]))
 
-        if (filteredEvents.length === 0) {
-          const finalEvents = sortArrayByDate(except);
-          showingEvents.push(finalEvents);
-          
-          finalEvents.forEach(e => postEvents.push(e));
-          setPostEventList(postEvents);
-        } else if (filteredEvents.length <= amt) {
-          let ids = [];
-          filteredEvents.forEach(p => ids.push(p["id"]));
+      let output = [];
 
-          const finalEvents = sortArrayByDate(except).concat(ids);
-          showingEvents.push(finalEvents);
-          
-          finalEvents.forEach(e => postEvents.push(e));
-          setPostEventList(postEvents);
-        } else if (filteredEvents.length > amt) {
+      if (filteredEvents.length <= amt) {
 
+        let ids = [];
+        filteredEvents.forEach(e => ids.push(e["id"]));
+        ids.forEach(e => output.push(e));
+
+      } else if (filteredEvents.length > amt) {
+        
+        let ids = [];
+        let a = filteredEvents;
+        for(let i = 0; i < amt; i++) {
+          let r = Math.round(lerp(0, filteredEvents.length - i, Math.random()));
+          ids.push(a[r].id);
+          a.splice(r, 1);
         }
+        ids.forEach(e => output.push(e));        
+      }
 
-      })
+      output.forEach(e => showingEvents.push(e));
+      const finalList = safeContent.concat(postsInput.concat(output).sort(function(a, b) { return b - a }));
+      setPostEventList(finalList);
+
+    })
   }
 
   return (
@@ -254,56 +261,42 @@ export default function Landing({ navigation }) {
           refreshing={refreshing}
           onRefresh={onRefresh}
           />
-        } >
+        } onScroll={({nativeEvent}) => {
+          if (isCloseToBottom(nativeEvent)) {
+            //wenn ans Ende gescrollt wurde
+            getUserUnspecificPosts(2, postEventList);
+
+          }}} scrollEventThrottle={400} >
 
         {
-          banners !== null ?
+          banners ?
           banners.map((data, key) =>
             <BannerCard key={key} style={styles.card} bannerID={data} />
           ) : null
         }
 
         {
-          postEventList ?
-          postEventList.map((data, key) => {
-            showingPosts.includes(data) ?
-              console.log("hs", data, key) : console.log("kne", data, key);
-              // <PostCard key={key} style={styles.card} postID={data} onPress={ () => navigation.navigate('PostView', { postID: data }) } /> :
-              // <EventCard key={key} style={styles.card} eventID={data} onPress={ () => navigation.navigate('EventView', { eventID: data }) } />
-          }) : null
+          postEventList && showingPosts.length + showingEvents.length === postEventList.length ?
+            postEventList.map((data, key) => 
+              showingPosts.includes(data) ?
+                <PostCard key={key} style={styles.card} postID={data} onPress={ () => navigation.navigate('PostView', { postID: data }) } /> :
+                <EventCard key={key} style={styles.card} eventID={data} onPress={ () => navigation.navigate('EventView', { eventID: data }) } />
+            ) : null
         }
-{/*         
-        {
-          console.log("pe", postEvents)
-        }
-        {
-          console.log("pel", postEventList)
-        }*/}
-        {
-          console.log("sp",showingPosts)
-        } 
-
+        
+      
       </ScrollView>
     </View>
   )
 }
 
-export function sortArrayByDate (data) {
-  let dates = data;
-        
-  for(let i = data.length - 1; i >= 0; i--) {
-      for (let j = 1; j <= i; j++) {
-          if (dates[j - 1].created > dates[j].created) {
-              let temp = dates[j - 1];
-              dates[j - 1] = dates[j];
-              dates[j] = temp;
-          }
-      }
-  }
-  dates.reverse();
+export const lerp = (min, max, ratio) => min * (1 - ratio) + max * ratio;
 
-  return dates;
-}
+const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+  const paddingToBottom = 20;
+  return layoutMeasurement.height + contentOffset.y >=
+    contentSize.height - paddingToBottom;
+};
 
 const styles = StyleSheet.create({
   container: {
