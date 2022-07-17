@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react'
 
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 
-import { getDatabase, ref, onValue, get, child } from "firebase/database";
+import { getDatabase, ref, get, child } from "firebase/database";
 
-import SVG_Recent from '../../assets/svg/Recent';
-import SVG_Share from '../../assets/svg/Share';
+import SVG_Basket from '../../assets/svg/Basket';
 
 const USER_PLACEHOLDER = {
     name: "",
@@ -15,7 +14,8 @@ const POST_PLACEHOLDER = {
     title: "",
     description: "",
     imgUri: "https://www.colorhexa.com/587db0.png",
-    created: "27.3.2022 21:20"
+    created: "27.3.2022 21:20",
+    isBanned: false
 }
 
 export default function PostCard(props) {
@@ -29,20 +29,34 @@ export default function PostCard(props) {
 
     const loadData = () => {
         const db = getDatabase();
-        onValue(ref(db, 'posts/' + props.postID), snapshot => {
-            const data = snapshot.val();
-            
-            setCreator(data['creator']);
 
-            setPost({
-                id: data['id'],
-                creator: data['creator'],
-                title: data['title'],
-                description: data['description'],
-                imgUri: data['imgUri'],
-                created: data['created'],
-            });
-        });
+        get(child(ref(db), 'posts/' + props.postID))
+            .then(snapshot => {
+                const data = snapshot.val();
+
+                setCreator(data['creator']);
+
+                if (snapshot.hasChild('isBanned')) {
+                    if (data['isBanned']) {
+                        setPost({
+                            ...POST_PLACEHOLDER,
+                            isBanned: true
+                        });
+                        return;
+                    }
+                }
+
+                setPost({
+                    id: data['id'],
+                    creator: data['creator'],
+                    title: data['title'],
+                    description: data['description'],
+                    imgUri: data['imgUri'],
+                    created: data['created'],
+                    isBanned: false
+                });
+            })
+            .catch(error => console.log("error", error.code));
     }
 
     const loadUser = () => {
@@ -78,9 +92,10 @@ export default function PostCard(props) {
 
     return (
         <View style={[props.style, { borderRadius: 15, overflow: "hidden" } ]}>
-            <Pressable style={ styles.postContainer } onLongPress={ () => setNavVisibility(!navVisibility) } onPress={ props.onPress } >
+            <Pressable style={ styles.postContainer } onLongPress={ () => setNavVisibility(!navVisibility) } onPress={ !post.isBanned ? props.onPress : null } >
 
                 <Image source={{ uri: post.imgUri }} style={ styles.postBGImg } resizeMode="cover" />
+                <SVG_Basket style={[ styles.postDelIcon, { opacity: post.isBanned ? 1 : 0 } ]} fill="#143C63" />
 
                     {/* User Nav */}
                 <View style={[ styles.postNavContainer, { opacity: navVisibility ? 1 : 0} ]}>
@@ -89,23 +104,10 @@ export default function PostCard(props) {
                     <View style={ styles.postHeader }>
                             {/* Icon */}
                         <View style={ styles.headerIconContainer }>
-                            <Image source={{ uri: user.pbUri }} style={ styles.headerIcon } resizeMode="cover" />
+                            <Image source={{ uri: !post.isBanned ? user.pbUri : USER_PLACEHOLDER.pbUri  }} style={ styles.headerIcon } resizeMode="cover" />
                         </View>
-                        <Text style={ styles.headerTitleText }>{user.name}</Text>
+                        <Text style={ styles.headerTitleText }>{ !post.isBanned ? user.name : "" }</Text>
                     </View>
-
-                    {/* <View style={ styles.postInteractions }>
-
-                            Comment
-                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
-                            <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                        </Pressable>
-                        
-                            Share
-                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
-                            <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                        </Pressable>
-                    </View> */}
 
                 </View>
 
@@ -119,12 +121,20 @@ const styles = StyleSheet.create({
         width: "100%",
         zIndex: 3,
         borderRadius: 15,
+        alignItems: "center",
+        justifyContent: "center"
     },
 
     postBGImg: {
         width: "100%",
         aspectRatio: 3/4,
-        alignSelf: "center"
+        alignSelf: "center",
+    },
+    postDelIcon: {
+        position: "absolute",
+        width: "50%",
+        height: "50%",
+        zIndex: 99,
     },
 
     postNavContainer: {

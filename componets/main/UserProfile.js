@@ -7,6 +7,7 @@ import { getAuth } from 'firebase/auth';
 import * as Storage from "firebase/storage";
 
 import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions } from 'expo-image-picker';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import { ageOptions, SelectableBtn } from '../auth/AuthUserRegister';
 
@@ -99,6 +100,9 @@ export default function UserProfile({ navigation }) {
                     following: snapshot.hasChild('following') ? data['following'] : []
                 };
 
+                getFollowerUserList(snapshot.hasChild('follower') ? data['follower'] : []);
+                getFollowingUserList(snapshot.hasChild('following') ? data['following'] : []);
+
                 setLOCAL_USER(userData);
 
                 const hasPosts = snapshot.hasChild('posts');
@@ -108,8 +112,8 @@ export default function UserProfile({ navigation }) {
                     for(let i = 0; i < userData.posts.length; i++) {
                         get(child(ref(db), "posts/" + userData.posts[i]))
                             .then((post) => {
-                                const postData = post.val();        
-                                postEventDatas.push(postData);
+                                const postData = post.val();      
+                                if (!postData.isBanned) postEventDatas.push(postData);
                                 if (i === userData.posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
                             })
                             .catch((error) => console.log("error posts", error.code));
@@ -121,7 +125,7 @@ export default function UserProfile({ navigation }) {
                         get(child(ref(db), "events/" + userData.events[i]))
                             .then((event) => {
                                 const eventData = event.val();
-                                postEventDatas.push(eventData);
+                                if (!eventData.isBanned) postEventDatas.push(eventData);
                                 if (i === userData.events.length - 1) sortArrayByDate(postEventDatas);
                             })
                             .catch((error) => console.log("error events", error.code));
@@ -130,24 +134,6 @@ export default function UserProfile({ navigation }) {
 
             })
             .catch((error) => console.log("error user", error.code))
-        
-
-        // onValue(ref(db, 'users/' + getAuth().currentUser.uid), snapshot => {
-        //     const data = snapshot.val();
-
-        //     let userData = {
-        //         ...data,
-        //         follower: snapshot.hasChild('follower') ? data['follower'] : [],
-        //         following: snapshot.hasChild('following') ? data['following'] : []
-        //     };
-
-        //     const hasPosts = snapshot.hasChild('posts');
-        //     const hasEvents = snapshot.hasChild('events');
-
-        //     setLOCAL_USER(userData);
-        //     getPostsAndEvents(hasPosts, hasEvents);
-
-        // });
     }
 
     const getPostsAndEvents = (hasPosts, hasEvents) => {
@@ -303,50 +289,84 @@ export default function UserProfile({ navigation }) {
         });
         if (pickerResult.cancelled) return;
 
+        const croppedPicker = await manipulateAsync(
+            pickerResult.uri,
+            [{
+                resize: {
+                    width: 256,
+                    height: 256
+                }
+            }],
+            {
+                compress: .5,
+                format: SaveFormat.JPEG
+            }
+        )
+
         pbChanged = true;
-        setPbImageUri(pickerResult.uri);
+        setPbImageUri(croppedPicker.uri);
     }
 
-    const getFollowerUserList = () => {
+    const getFollowerUserList = (users) => {
         const db = ref(getDatabase());
 
         let list = [];
-        for(let i = 0; i < LOCAL_USER.follower.length; i++) {
-            get(child(db, "users/" + LOCAL_USER.follower[i]))
+        for(let i = 0; i < users.length; i++) {
+            get(child(db, "users/" + users[i]))
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const a = snapshot.val();
-                        list.push({
-                            name: a['name'],
-                            pbUri: a['pbUri']
-                        });
+                        
+                        if (snapshot.hasChild("isBanned")) {
+                            if (!a['isBanned']) {
+                                list.push({
+                                    name: a['name'],
+                                    pbUri: a['pbUri']
+                                });
+                            }
+                        } else {
+                            list.push({
+                                name: a['name'],
+                                pbUri: a['pbUri']
+                            });
+                        }
                     }
                 })
                 .catch((error) => console.log("error get", error.code))
                 .finally(() => {
-                    if (i === LOCAL_USER.follower.length - 1) setFollowerUserList(list);
+                    if (i === users.length - 1) setFollowerUserList(list);
                 })
         }
     }
 
-    const getFollowingUserList = () => {
+    const getFollowingUserList = (users) => {
         const db = ref(getDatabase());
 
         let list = [];
-        for(let i = 0; i < LOCAL_USER.following.length; i++) {
-            get(child(db, "users/" + LOCAL_USER.following[i]))
+        for(let i = 0; i < users.length; i++) {
+            get(child(db, "users/" + users[i]))
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const a = snapshot.val();
-                        list.push({
-                            name: a['name'],
-                            pbUri: a['pbUri']
-                        });
+                        
+                        if (snapshot.hasChild("isBanned")) {
+                            if (!a['isBanned']) {
+                                list.push({
+                                    name: a['name'],
+                                    pbUri: a['pbUri']
+                                });
+                            }
+                        } else {
+                            list.push({
+                                name: a['name'],
+                                pbUri: a['pbUri']
+                            });
+                        }
                     }
                 })
                 .catch((error) => console.log("error get", error.code))
                 .finally(() => {
-                    if (i === LOCAL_USER.following.length - 1) setFollowingUserList(list);
+                    if (i === users.length - 1) setFollowingUserList(list);
                 })
         }
     }
@@ -465,6 +485,9 @@ export default function UserProfile({ navigation }) {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
+                        tintColor="#143C63"
+                        title=''
+                        colors={["#143C63"]}
                     /> }>
 
                     {/* Profile Header */}
@@ -497,13 +520,13 @@ export default function UserProfile({ navigation }) {
                 }
 
                     {/* Follower */}
-                <Pressable style={ styles.profileFollowContainerTop  } onPress={ () => { setFollowerVisible(true); getFollowerUserList(); } }>
+                <Pressable style={ styles.profileFollowContainerTop  } onPress={ () => { setFollowerVisible(true); } }>
                     <Text style={ styles.profileBioText }>
-                        <Text style={{fontFamily: "Inconsolata_Black"}}>{LOCAL_USER.follower.length }</Text> ludźo ći sćěhuja</Text>
+                        <Text style={{fontFamily: "Inconsolata_Black"}}>{followerUserList.length }</Text> ludźo ći sćěhuja</Text>
                 </Pressable>
                     {/* Following */}
-                <Pressable style={ styles.profileFollowContainerBottom } onPress={ () => { setFollowingVisible(true); getFollowingUserList(); } }>
-                    <Text style={ styles.profileBioText }>Ty sćehuješ <Text style={{fontFamily: "Inconsolata_Black"}}>{LOCAL_USER.following.length }</Text> ludźom</Text>
+                <Pressable style={ styles.profileFollowContainerBottom } onPress={ () => { setFollowingVisible(true); } }>
+                    <Text style={ styles.profileBioText }>Ty sćehuješ <Text style={{fontFamily: "Inconsolata_Black"}}>{followingUserList .length }</Text> ludźom</Text>
                 </Pressable>
 
                     {/* Post List */}

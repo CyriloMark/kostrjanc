@@ -8,7 +8,7 @@ export default function AppHeader(props) {
     return (
         <View style={ props.style }>
                 {/* Header */}
-            <View style={ styles.headerContainer }>
+            <Pressable style={ styles.headerContainer } onPress={ props.press }>
                     
                     {/* Icon */}
                 <View style={ styles.headerIconContainer }>
@@ -22,7 +22,7 @@ export default function AppHeader(props) {
                     <SVG_Settings style={ styles.headerIcon } fill="#5884B0" />
                 </Pressable> : null
 }
-            </View>
+            </Pressable>
         </View>
     )
 }

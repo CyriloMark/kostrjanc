@@ -2,9 +2,11 @@ import React, { useCallback, useState, useEffect } from 'react'
 
 import { View, StyleSheet, Text, ScrollView, RefreshControl, KeyboardAvoidingView, Keyboard, Platform } from "react-native";
 
+import { getDatabase, ref, child, get, set } from "firebase/database";
+import { getAuth } from 'firebase/auth';
+
 import Navbar from '../statics/Navbar';
 import SearchHeader from '../statics/SearchHeader';
-
 import UserCard from '../statics/UserHeader';
 
 import { lerp } from './Landing';
@@ -33,54 +35,52 @@ export default function Search({ navigation }) {
             return;
         }
 
-        fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users.json")
-            .then(
-                response => response.json()
-            )
-                .then(responseData => {
-                    setSearchResult([]);
+        const db = getDatabase();
+        get(child(ref(db), "users"))
+            .then(snapshot => {
+                setSearchResult([]);
 
-                    let searchQuery = text.toLowerCase();
+                const data = snapshot.val();
 
-                    for (const key in responseData) {
-                        let user = responseData[key].name.toLowerCase();
+                let searchQuery = text.toLowerCase();
 
-                        if (user.slice(0, searchQuery.length).indexOf(searchQuery) !== -1) {
+                for (const key in data) {
+                    let user = data[key].name.toLowerCase();
 
-                            if (searchResult.length <= 10) {
-                                setSearchResult(prevResult => {
-                                    return [...prevResult, {
-                                        name: responseData[key].name,
-                                        pbUri: responseData[key].pbUri,
-                                        id: key
-                                    }]
-                                })
-                            }
+                    if (user.slice(0, searchQuery.length).indexOf(searchQuery) !== -1) {
 
+                        if (searchResult.length <= 10) {
+                            setSearchResult(prevResult => {
+                                return [...prevResult, {
+                                    name: data[key].name,
+                                    pbUri: data[key].pbUri,
+                                    id: key
+                                }]
+                            })
                         }
+
                     }
-                })
+                }
+            })
+            .catch(error => console.log("error", error.code))
     }
 
     const getRandomUser = () => {
-        fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users.json")
-            .then(response => response.json()
-            )
-                .then(users => {
-                    const randomUserID = Object.keys(users)[Math.round(lerp(0, Object.keys(users).length, Math.random()))];
-                    fetch("https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/users/" + randomUserID + ".json")
-                        .then(response => response.json()
-                        )
-                            .then(user => {
-                                setRandomUser({
-                                    name: user.name,
-                                    pbUri: user.pbUri,
-                                    id: randomUserID
-                                })
-                            }
-                        )
-                }
-            )
+
+        const db = getDatabase();
+        get(child(ref(db), "users"))
+            .then(snapshot => {
+                const users = snapshot.val();
+                const filteredPairList = Object.entries(users).filter(i => !i[1].isBanned).filter(i => !(i[0] === getAuth().currentUser.uid));
+
+                const randomUser = filteredPairList[Math.round(lerp(0, filteredPairList.length - 1, Math.random()))];
+                setRandomUser({
+                    id: randomUser[0],
+                    name: randomUser[1].name,
+                    pbUri: randomUser[1].pbUri,
+                })
+            })
+            .catch(error => console.log("error", error.code))
     }
 
     useEffect(() => {
@@ -108,6 +108,9 @@ export default function Search({ navigation }) {
                         <RefreshControl
                             refreshing={refreshing}
                             onRefresh={onRefresh}
+                            tintColor="#143C63"
+                            title=''
+                            colors={["#143C63"]}
                     />
                 }>
 

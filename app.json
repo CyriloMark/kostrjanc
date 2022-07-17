@@ -2,13 +2,14 @@
   "expo": {
     "name": "kostrjanc",
     "slug": "kostrjanc",
+    "owner": "kostrjanc",
     "version": "0.4.2b",
     "orientation": "portrait",
     "icon": "./assets/app-system-icons/icon.png",
     "splash": {
       "image": "./assets/app-system-icons/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#5884B0"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,12 +18,13 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lauske.kostrjanc"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-system-icons/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#5884B0"
       }
     },
     "web": {
@@ -35,7 +37,7 @@
         "expo-notifications",
         {
           "icon": "./assets/app-system-icons/icon.png",
-          "color": "#ffffff"
+          "color": "#5884B0"
         }
       ]
     ]

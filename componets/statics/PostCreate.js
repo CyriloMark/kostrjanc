@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { Alert, View, KeyboardAvoidingView, ScrollView, StyleSheet, Keyboard, Pressable, Text, Image, TextInput } from 'react-native'
 
 import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions, UIImagePickerPresentationStyle } from 'expo-image-picker';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import { getAuth } from 'firebase/auth';
 import { child, get, getDatabase, ref, set } from "firebase/database";
@@ -37,7 +38,21 @@ export default function PostCreate({ navigation }) {
         });
         if (pickerResult.cancelled) return;
 
-        setImageUri(pickerResult.uri);
+        const croppedPicker = await manipulateAsync(
+            pickerResult.uri,
+            [{
+                resize: {
+                    width: 900,
+                    height: 1000
+                }
+            }],
+            {
+                compress: .5,
+                format: SaveFormat.JPEG
+            }
+        )
+
+        setImageUri(croppedPicker.uri);
     }
 
     const publish = async () => {

@@ -8,6 +8,7 @@ import { getDownloadURL, getStorage, uploadBytes } from "firebase/storage";
 import * as Storage from "firebase/storage";
 
 import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions } from 'expo-image-picker';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import SVG_Post from '../../assets/svg/Post';
 
@@ -92,9 +93,23 @@ export default function AuthUserRegister({ navigation, route }) {
         });
         if (pickerResult.cancelled) return;
 
+        const croppedPicker = await manipulateAsync(
+            pickerResult.uri,
+            [{
+                resize: {
+                    width: 256,
+                    height: 256
+                }
+            }],
+            {
+                compress: .5,
+                format: SaveFormat.JPEG
+            }
+        )
+
         setUserData({
             ...userData,
-            pbUri: pickerResult.uri
+            pbUri: croppedPicker.uri
         });
         setPbImageUri(pickerResult.uri);
     }

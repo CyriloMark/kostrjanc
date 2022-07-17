@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { View, StyleSheet, Text, ScrollView, RefreshControl, Image, Pressable } from "react-native";
+import { View, StyleSheet, Text, ScrollView, RefreshControl, Image, Pressable, Alert } from "react-native";
 
-import { getDatabase, ref, child, get, onValue, set } from "firebase/database";
+import { getDatabase, ref, child, get, set } from "firebase/database";
 import { getAuth } from 'firebase/auth';
 
 import BackHeader from './statics/BackHeader';
@@ -10,6 +10,7 @@ import PostPreview from './statics/PostPreview';
 
 import SVG_Admin from '../assets/svg/Admin';
 import SVG_Moderator from '../assets/svg/Moderator';
+import SVG_Ban from '../assets/svg/Ban'
 
 const USER_PLACEHOLDER = {
     name: "",
@@ -60,6 +61,8 @@ export default function ProfileView({ navigation, route }) {
 
     const {userID} = route.params;
 
+    const [userIsAdmin, setUserIsAdmin] = useState(false);
+
     const loadUser = () => {
 
         const db = getDatabase();
@@ -68,7 +71,25 @@ export default function ProfileView({ navigation, route }) {
 
         get(child(ref(db), "users/" + userID))
             .then(snapshot => {
+
+                if (!snapshot.exists()) {
+                    setUser({
+                        ...USER_PLACEHOLDER,
+                        isBanned: true
+                    })
+                }
+
                 const data = snapshot.val();
+
+                if (snapshot.hasChild('isBanned')) {
+                    if (data['isBanned']) {
+                        setUser({
+                            ...USER_PLACEHOLDER,
+                            isBanned: true
+                        });
+                        return;
+                    }
+                }
 
                 let userData = {
                     ...data,
@@ -94,8 +115,7 @@ export default function ProfileView({ navigation, route }) {
                         get(child(ref(db), "posts/" + posts[i]))
                             .then((post) => {
                                 const postData = post.val();
-        
-                                postEventDatas.push(postData);
+                                if (!postData.isBanned) postEventDatas.push(postData);
                                 if (i === posts.length - 1 && !hasEvents) sortArrayByDate(postEventDatas);
                             })
                             .catch((error) => console.log("error posts", error.code));
@@ -115,8 +135,7 @@ export default function ProfileView({ navigation, route }) {
                         get(child(ref(db), "events/" + events[i]))
                             .then((event) => {
                                 const eventData = event.val();
-        
-                                postEventDatas.push(eventData);
+                                if (!eventData.isBanned) postEventDatas.push(eventData);
                                 if (i === events.length - 1) sortArrayByDate(postEventDatas);
                             })
                             .catch((error) => console.log("error events", error.code));
@@ -142,6 +161,7 @@ export default function ProfileView({ navigation, route }) {
     }
 
     const follow = () => {
+        if (user.isBanned) return;
 
         const db = getDatabase();
         const uid = getAuth().currentUser.uid;
@@ -193,6 +213,8 @@ export default function ProfileView({ navigation, route }) {
     }
 
     const unfollow = () => {
+        if (user.isBanned) return;
+
         const db = getDatabase();
         const uid = getAuth().currentUser.uid;
 
@@ -246,12 +268,65 @@ export default function ProfileView({ navigation, route }) {
                     const data = result.val();
                     setFollowing(data.includes(userID));
                 } else setFollowing(false);
+            }).finally(() => {
+                if (!(getAuth().currentUser.uid === userID)) {
+                    get(child(ref(getDatabase()), "users/" + getAuth().currentUser.uid + "/isAdmin"))
+                        .then(snapshot => {
+                            if (!snapshot.exists()) return;
+                            const isA = snapshot.val();
+                            setUserIsAdmin(isA);
+                        })
+                }
             })
     })
 
     useEffect(() => {
         if (user === USER_PLACEHOLDER) loadUser();
     }, []);
+
+    const banUser = () => {
+
+        Alert.alert("Chceš tutoho wužiwarja banować?", "Chceš woprawdźe wužiwarja banować? Wšitke posty a ewenty wužiwarja su potom tež banowane.", [
+            {
+                text: "Ně",
+                style: "destructive",
+            },
+            {
+                text: "Haj",
+                style: "default",
+                onPress: () => {
+
+                    const db = getDatabase();
+
+                    const pList = user.posts ? user.posts : [];
+                    const eList = user.events ? user.events : [];
+
+                    console.log(pList, eList);
+
+                    get(child(ref(db), "users/" + getAuth().currentUser.uid + "/isAdmin"))
+                        .then(snapshot => {
+                            if (!snapshot.exists()) return;
+                            const isAdmin = snapshot.val();
+                            if (!isAdmin) return;
+
+                            set(ref(db, "users/" + userID), {
+                                ...user,
+                                isBanned: true
+                            }).finally(() => {
+                                pList.forEach(p => {
+                                    set(ref(db, "posts/" + p + "/isBanned"), true)
+                                })
+                                eList.forEach(e => {
+                                    set(ref(db, "events/" + e + "/isBanned"), true)
+                                })
+                            })
+                        })
+                        .catch(error => console.log("error", error.code))
+
+                    }
+            }
+        ])
+    }
 
     return(
         <View style={ styles.container } >
@@ -263,6 +338,9 @@ export default function ProfileView({ navigation, route }) {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
+                        tintColor="#143C63"
+                        title=''
+                        colors={["#143C63"]}
                     /> }>
 
 
@@ -292,7 +370,7 @@ export default function ProfileView({ navigation, route }) {
 
                     {/* Follow */}
                 {
-                    getAuth().currentUser.uid !== userID ?
+                    getAuth().currentUser.uid !== userID && !user.isBanned ?
                             !following ?
                                 <Pressable style={[ styles.followBtn, { backgroundColor: "#B06E6A" } ]} onPress={ follow }>
                                     <Text style={[ styles.followText, { color: "#143C63" } ]}>Sćěhować</Text>
@@ -323,6 +401,13 @@ export default function ProfileView({ navigation, route }) {
                         </View>
                     ) }
                 </View>
+
+                {
+                    userIsAdmin ?
+                    <Pressable style={ styles.banContainer } onPress={banUser} >
+                        <SVG_Ban style={ styles.banIcon } fill="#B06E6A" />
+                    </Pressable> : null
+                }
 
             </ScrollView>
 
@@ -443,5 +528,17 @@ const styles = StyleSheet.create({
         flex: 1,
         aspectRatio: .9,
         margin: 10,
+    },
+
+    banContainer: {
+        width: "20%",
+        aspectRatio: 1,
+        marginVertical: 25,
+        elevation: 10,
+        alignSelf: "center",
+    },
+    banIcon: {
+        width: "100%",
+        height: "100%"
     }
 })

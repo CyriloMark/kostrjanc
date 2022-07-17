@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 
-import { getDatabase, ref, onValue, get, child } from "firebase/database";
+import { getDatabase, ref, get, child } from "firebase/database";
 
 const BANNER_PLACEHOLDER = {
     title: "",
@@ -17,10 +17,12 @@ export default function BannerCard(props) {
 
     const loadData = () => {
         const db = getDatabase();
-        onValue(ref(db, 'banners/' + props.bannerID), snapshot => {
-            const data = snapshot.val();
-            setBanner({...data});
-        });
+        get(child(ref(db), 'banners/' + props.bannerID))
+            .then(snapshot => {
+                const data = snapshot.val();
+                setBanner({...data});
+            })
+            .catch(error => console.log("error", error.code));
     }
 
     useEffect(() => {

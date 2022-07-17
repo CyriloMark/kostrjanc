@@ -10,6 +10,8 @@ import { Share as Share_Post } from './statics/PostShare';
 import SVG_Recent from '../assets/svg/Recent';
 import SVG_Share from '../assets/svg/Share';
 import SVG_Warn from '../assets/svg/Warn';
+import SVG_Basket from '../assets/svg/Basket';
+import SVG_Ban from '../assets/svg/Ban'
 
 import BackHeader from './statics/BackHeader';
 import UserHeader from './statics/UserHeader';
@@ -20,7 +22,8 @@ import ReportModal from './statics/ReportModal';
 
 const USER_PLACEHOLDER = {
     name: "",
-    pbUri: "https://www.colorhexa.com/587db0.png"
+    pbUri: "https://www.colorhexa.com/587db0.png",
+    isAdmin: false
 }
 const POST_PLACEHOLDER = {
     title: "",
@@ -28,13 +31,15 @@ const POST_PLACEHOLDER = {
     description: "",
     imgUri: "https://www.colorhexa.com/587db0.png",
     created: "27.3.2022 21:20",
-    comments: []
+    comments: [],
+    isBanned: false
 }
 
 const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
 }
 
+let isAdmin = false;
 export default function PostView({ navigation, route }) {
 
     const [refreshing, setRefreshing] = useState(false);
@@ -52,13 +57,31 @@ export default function PostView({ navigation, route }) {
     const [user, setUser] = useState(USER_PLACEHOLDER);
     const [post, setPost] = useState(POST_PLACEHOLDER)
     const {postID} = route.params;
+    const [userIsAdmin, setUserIsAdmin] = useState(false);
 
     const loadData = () => {
         const db = getDatabase();
         onValue(ref(db, 'posts/' + postID), snapshot => {
+            if (!snapshot.exists()) {
+                setPost({
+                    ...POST_PLACEHOLDER,
+                    isBanned: true
+                });
+                return;
+            }
             const data = snapshot.val();
             
             setCreator(data['creator']);
+
+            if (snapshot.hasChild('isBanned')) {
+                if (data['isBanned']) {
+                    setPost({
+                        ...POST_PLACEHOLDER,
+                        isBanned: true
+                    });
+                    return;
+                }
+            }
 
             setPost({
                 id: data['id'],
@@ -68,6 +91,7 @@ export default function PostView({ navigation, route }) {
                 imgUri: data['imgUri'],
                 created: data['created'],
                 comments: snapshot.hasChild('comments') ? data['comments'] : [],
+                isBanned: false
             });
         });
     }
@@ -85,12 +109,20 @@ export default function PostView({ navigation, route }) {
                         description: data['description'],
                         pbUri: data['pbUri'],
                         gender: data['gender'],
-                        ageGroup: data['ageGroup']
+                        ageGroup: data['ageGroup'],
+                        isAdmin: snapshot.hasChild('isAdmin') ? data['isAdmin'] : false
                     });
                 }
                 else {
                     setUser(USER_PLACEHOLDER);
                 }
+            }).finally(() => {
+                get(child(db, "users/" + getAuth().currentUser.uid + "/isAdmin"))
+                    .then(snapshot => {
+                        if (!snapshot.exists()) return;
+                        const isA = snapshot.val();
+                        setUserIsAdmin(isA);
+                    })
             })
     }
 
@@ -123,6 +155,35 @@ export default function PostView({ navigation, route }) {
         loadUser();
     }, [creator]);
 
+    const banPost = () => {
+
+        Alert.alert("Chceš tutón post banować?", "Chceš woprawdźe post banować? Post je banowany, wužiwar nic.", [
+            {
+                text: "Ně",
+                style: "destructive",
+            },
+            {
+                text: "Haj",
+                style: "default",
+                onPress: () => {
+                    const db = getDatabase();
+                    get(child(ref(db), "users/" + getAuth().currentUser.uid + "/isAdmin"))
+                        .then(snapshot => {
+                            if (!snapshot.exists()) return;
+                            const isAdmin = snapshot.val();
+                            if (!isAdmin) return;
+
+                            set(ref(db, "posts/" + post.id), {
+                                ...post,
+                                isBanned: true
+                            });
+                        })
+                        .catch(error => console.log("error", error.code))
+                    }
+            }
+        ])
+    }
+
     return (
         <View style={ styles.container }>
         
@@ -136,30 +197,52 @@ export default function PostView({ navigation, route }) {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
+                        tintColor="#143C63"
+                        title=''
+                        colors={["#143C63"]}
                     /> }>
 
-                <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} userID={creator} />
+                {
+                    !post.isBanned ?
+                        <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} userID={creator} /> :
+                        <UserHeader onPress={ () => {} } user={USER_PLACEHOLDER} userID={getAuth().currentUser.uid} />
+                }
+
+                
 
                     {/* Post */}
                 <View style={[ styles.postContainer, styles.shadow ]} >
+                    <SVG_Basket style={[ styles.pbImageIcon, { opacity: post.isBanned ? 1 : 0 } ]} fill="#143C63" />
                     <Image source={{ uri: post.imgUri }} style={ styles.img } resizeMode="cover" />
                 </View>
 
-                    {/* Interations */}
-                <View style={[ styles.interactionsContainer, styles.shadow ]}>
-                        {/* Comment */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setCommentsVisible(true) } >
-                        <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                    </Pressable>
-                        {/* Share */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () =>  Share_Post(post.imgUri, post.title) } >
-                        <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                    </Pressable>
-                        {/* Report */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setReportVisible(true) } >
-                        <SVG_Warn style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                    </Pressable>
-                </View>
+                {
+                    !post.isBanned ?
+                    
+                    <View style={[ styles.interactionsContainer, styles.shadow ]}>
+                            {/* Comment */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setCommentsVisible(true) } >
+                            <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable>
+                            {/* Share */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () =>  Share_Post(post.imgUri, post.title) } >
+                            <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable>
+                            {/* Report */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setReportVisible(true) } >
+                            <SVG_Warn style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable>
+                            {/* Admin Ban */}
+                        {
+                            userIsAdmin ?
+                            <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ banPost } >
+                                <SVG_Ban style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                            </Pressable> : null
+                        }
+                    </View>
+
+                    : null
+                } 
 
                     {/* Describtion */}
                 <View style={ styles.descriptionContainer }>
@@ -221,12 +304,20 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         marginTop: 10,
         position: "relative",
-        overflow: "hidden"
+        overflow: "hidden",
+        justifyContent: "center",
+        alignItems: "center",
     },
     img: {
         width: "100%",
         aspectRatio: 3/4,
         alignSelf: "center"
+    },
+    pbImageIcon: {
+        position: "absolute",
+        width: "50%",
+        height: "50%",
+        zIndex: 99,
     },
 
     interactionsContainer: {

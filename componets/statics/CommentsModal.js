@@ -65,27 +65,30 @@ export default function CommentsModal(props) {
                     <Pressable style={ styles.modalDragHandle } onPress={ props.close } />
                 </Pressable>
 
-                <ScrollView ref={mainScroll} style={ styles.modalScrollView } scrollEnabled={true} bounces={true} >
+                <View style={ styles.modalBodyContainer }>
+                    <ScrollView ref={mainScroll} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={true}
+                        showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} keyboardDismissMode='on-drag' >
 
-                    <Text style={styles.title}>Komentary na {props.type === 0 ? "post" : "ewent"} "{props.title}"</Text>
+                        <Text style={styles.title}>Komentary na {props.type === 0 ? "post" : "ewent"} "{props.title}"</Text>
 
-                    <View style={[ styles.inputContainer, styles.shadow ]}>
-                        <TextInput style={styles.input} placeholder="Zapodaj twoje měnjenje..." placeholderTextColor={"#5884B0"}
-                            multiline={true} numberOfLines={1} keyboardAppearance='dark' autoComplete={ false } textContentType="none" textAlignVertical='center'
-                            keyboardType='default' autoCapitalize='sentences' maxLength={128} editable
-                            selectionColor={"#B06E6A"} value={input} onChangeText={ (value) => setInput(value) } />
-                        <Pressable style={styles.submit} onPress={ publish }>
-                            <SVG_Return style={ styles.icon } fill={"#143C63"} />
-                        </Pressable>
-                    </View>
+                        <View style={[ styles.inputContainer, styles.shadow ]}>
+                            <TextInput style={styles.input} placeholder="Zapodaj twoje měnjenje..." placeholderTextColor={"#5884B0"}
+                                multiline={true} numberOfLines={1} keyboardAppearance='dark' autoComplete={ false } textContentType="none" textAlignVertical='center'
+                                keyboardType='default' autoCapitalize='sentences' maxLength={128} editable
+                                selectionColor={"#B06E6A"} value={input} onChangeText={ (value) => setInput(value) } />
+                            <Pressable style={styles.submit} onPress={ publish }>
+                                <SVG_Return style={ styles.icon } fill={"#143C63"} />
+                            </Pressable>
+                        </View>
 
-                    {
-                        commentsList.map((comment, key) => 
-                            <Comment key={key} comment={comment} style={styles.commentItem} />
-                        )
-                    }
+                        {
+                            commentsList.map((comment, key) => 
+                                <Comment key={key} comment={comment} style={styles.commentItem} />
+                            )
+                        }
 
-                </ScrollView>
+                    </ScrollView>
+                </View>
 
             </KeyboardAvoidingView>
         </Modal>
@@ -194,11 +197,13 @@ const styles = StyleSheet.create({
         backgroundColor: "#143C63"
     },
 
+    modalBodyContainer: {
+        width: "100%",
+        flex: .95,
+        paddingHorizontal: 10
+    },
     modalScrollViewContainer: {
         width: "100%",
-        height: "90%",
-        backgroundColor: "red",
-        overflow: "hidden",
     },
 
     title: {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Pressable, Text, Alert } from 'react-native';
 
 import { getDatabase, ref, onValue, get, child, remove, set } from "firebase/database";
 import { getAuth } from 'firebase/auth';
@@ -14,6 +14,8 @@ import UserListModal from './statics/UserListModal';
 import SVG_Recent from '../assets/svg/Recent';
 import SVG_Share from '../assets/svg/Share';
 import SVG_Warn from '../assets/svg/Warn';
+import SVG_Basket from '../assets/svg/Basket';
+import SVG_Ban from '../assets/svg/Ban'
 
 import BackHeader from './statics/BackHeader';
 import UserHeader from './statics/UserHeader';
@@ -24,12 +26,19 @@ const USER_PLACEHOLDER = {
     pbUri: "https://www.colorhexa.com/587db0.png"
 }
 const EVENT_PLACEHOLDER = {
-    title: "hey",
-    description: "test",
-    created: "27.3.2022 21:20",
+    title: "",
+    description: "",
+    created: "",
     checks: [],
     starting: 0,
-    comments: []
+    comments: [],
+    isBanned: false,
+    geoCords: {
+        latitude: 90,
+        latitudeDelta: 90,
+        longitude: -36,
+        longitudeDelta: 124
+    }
 }
 
 const wait = (timeout) => {
@@ -58,20 +67,39 @@ export default function EventView({ navigation, route }) {
     const [user, setUser] = useState(USER_PLACEHOLDER);
     const [event, setEvent] = useState(EVENT_PLACEHOLDER);
     const [pin, setPin] = useState(null);
+    const [userIsAdmin, setUserIsAdmin] = useState(false);
     
     const {eventID} = route.params;
 
     const loadData = () => {
         const db = getDatabase();
         onValue(ref(db, 'events/' + eventID), snapshot => {
+            if (!snapshot.exists()) {
+                setEvent({
+                    ...EVENT_PLACEHOLDER,
+                    isBanned: true
+                });
+                return;
+            }
             const data = snapshot.val();
             
             setCreator(data['creator']);
+
+            if (snapshot.hasChild('isBanned')) {
+                if (data['isBanned']) {
+                    setEvent({
+                        ...EVENT_PLACEHOLDER,
+                        isBanned: true
+                    });
+                    return;
+                }
+            }
 
             setEvent({
                 ...data,
                 checks: snapshot.hasChild('checks') ? data['checks'] : [],
                 comments: snapshot.hasChild('comments') ? data['comments'] : [],
+                isBanned: false
             });
             setPin(data['geoCords']);
         });
@@ -91,12 +119,19 @@ export default function EventView({ navigation, route }) {
                         description: data['description'],
                         pbUri: data['pbUri'],
                         gender: data['gender'],
-                        ageGroup: data['ageGroup']
+                        ageGroup: data['ageGroup'],
                     });
                 }
                 else {
                     setUser(USER_PLACEHOLDER);
                 }
+            }).finally(() => {
+                get(child(db, "users/" + getAuth().currentUser.uid + "/isAdmin"))
+                    .then(snapshot => {
+                        if (!snapshot.exists()) return;
+                        const isA = snapshot.val();
+                        setUserIsAdmin(isA);
+                    })
             })
     }
 
@@ -138,6 +173,8 @@ export default function EventView({ navigation, route }) {
     }
 
     const checkEvent = () => {
+        if (event.isBanned) return;
+
         let a = event.checks;
 
         if (a.includes(uid)) {
@@ -161,6 +198,9 @@ export default function EventView({ navigation, route }) {
     }
 
     const getChecksUserList = () => {
+        if (event.isBanned) return;
+        setChecksVisible(true);
+
         const db = ref(getDatabase());
 
         let list = [];
@@ -182,6 +222,35 @@ export default function EventView({ navigation, route }) {
         }
     }
 
+    const banEvent = () => {
+
+        Alert.alert("Chceš tutón ewent banować?", "Chceš woprawdźe ewent banować? Ewent je banowany, wužiwar nic.", [
+            {
+                text: "Ně",
+                style: "destructive",
+            },
+            {
+                text: "Haj",
+                style: "default",
+                onPress: () => {
+                    const db = getDatabase();
+                    get(child(ref(db), "users/" + getAuth().currentUser.uid + "/isAdmin"))
+                        .then(snapshot => {
+                            if (!snapshot.exists()) return;
+                            const isAdmin = snapshot.val();
+                            if (!isAdmin) return;
+
+                            set(ref(db, "events/" + event.id), {
+                                ...event,
+                                isBanned: true
+                            });
+                        })
+                        .catch(error => console.log("error", error.code))
+                    }
+            }
+        ])
+    }
+
     return (
         <View style={ styles.container }>
 
@@ -197,37 +266,61 @@ export default function EventView({ navigation, route }) {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
+                        tintColor="#143C63"
+                        title=''
+                        colors={["#143C63"]}
                     /> }>
 
-                <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} userID={creator} />
+                {
+                    !event.isBanned ?
+                        <UserHeader onPress={ () => navigation.navigate('ProfileView', { userID: creator }) } user={user} userID={creator} /> :
+                        <UserHeader onPress={ () => {} } user={USER_PLACEHOLDER} userID={getAuth().currentUser.uid} />
+                }
 
                     {/* MapView */}
                 <View style={ styles.mapViewContainer }>
+                    <SVG_Basket style={[ styles.pbImageIcon, { opacity: event.isBanned ? 1 : 0 } ]} fill="#5884B0" />
                     {
                         pin != null ?
                         <MapView style={styles.map}
                             accessible={false} focusable={false}
                             initialRegion={ event.geoCords } >
-                            <Marker title={event.title} coordinate={event.geoCords} />
+                            {
+                                !event.isBanned ?
+                                    <Marker title={event.title} coordinate={event.geoCords} /> : null
+                            }
                         </MapView> : null
                     }
                 </View>
 
-                    {/* Interations */}
-                <View style={[ styles.interactionsContainer, styles.shadow ]}>
-                        {/* Comment */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setCommentsVisible(true) } >
-                        <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                    </Pressable>
-                        {/* Share */}
-                    {/* <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
-                        <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                    </Pressable> */}
-                        {/* Report */}
-                    <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setReportVisible(true) } >
-                        <SVG_Warn style={ styles.postInteractionsItemText } fill="#B06E6A" />
-                    </Pressable>
-                </View>
+                {
+                    !event.isBanned ?
+
+                    <View style={[ styles.interactionsContainer, styles.shadow ]}>
+                            {/* Comment */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setCommentsVisible(true) } >
+                            <SVG_Recent style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable>
+                            {/* Share */}
+                        {/* <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} >
+                            <SVG_Share style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable> */}
+                            {/* Report */}
+                        <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ () => setReportVisible(true) } >
+                            <SVG_Warn style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                        </Pressable>
+
+                            {/* Admin Ban */}
+                        {
+                            userIsAdmin ?
+                            <Pressable style={[ styles.postInteractionsItem, { backgroundColor: "#143C63" } ]} onPress={ banEvent } >
+                                <SVG_Ban style={ styles.postInteractionsItemText } fill="#B06E6A" />
+                            </Pressable> : null
+                        }
+                    </View>
+
+                    : null
+                }
 
                     {/* Describtion */}
                 <View style={ styles.descriptionContainer }>
@@ -237,7 +330,7 @@ export default function EventView({ navigation, route }) {
                 </View>
 
                     {/* Checks */}
-                <Pressable style={ styles.userListContainer  } onPress={ () => { setChecksVisible(true); getChecksUserList(); } }>
+                <Pressable style={ styles.userListContainer  } onPress={ () => { getChecksUserList(); } }>
                     <Text style={ styles.userListText }>
                         <Text style={{fontFamily: "Inconsolata_Black"}}>{event.checks.length }</Text> su tež pódla</Text>
                 </Pressable>
@@ -245,7 +338,7 @@ export default function EventView({ navigation, route }) {
                     {/* Join */}
                 <Pressable style={[ styles.joinBtnContainer, { backgroundColor: !(event.checks.includes(uid)) ? "#B06E6A" : "#9FB012" } ]} onPress={ checkEvent }>
                     <Text style={ [styles.joinText, { color: (!true) ? "#143C63" : "#143C63" } ]} >
-                        { !(event.checks.includes(uid)) ? "Sym tež tu" : "Njejsym ty"}
+                        { !(event.checks.includes(uid)) ? "Sym tež tu" : "Njejsym tu"}
                     </Text>
                 </Pressable>
 
@@ -295,12 +388,21 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         marginTop: 10,
         position: "relative",
-        overflow: "hidden"
+        overflow: "hidden",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    pbImageIcon: {
+        position: "absolute",
+        width: "50%",
+        height: "50%",
+        zIndex: 99,
     },
     map: {
         width: "100%",
         aspectRatio: 1,
-        alignSelf: "center"
+        alignSelf: "center",
+        zIndex: 3
     },
 
     descriptionContainer: {

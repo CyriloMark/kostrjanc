@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import { StyleSheet, Platform, KeyboardAvoidingView, Modal, Pressable, ScrollView, Text} from 'react-native';
+import { StyleSheet, Platform, KeyboardAvoidingView, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 
 import UserHeader from '../statics/UserHeader';
 import { getAuth } from 'firebase/auth';
@@ -24,17 +24,20 @@ export default function UserListModal(props) {
                     <Pressable style={ styles.modalDragHandle } onPress={ props.close } />
                 </Pressable>
 
-                <ScrollView ref={mainScroll} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={false} >
+                <View style={ styles.modalBodyContainer }>
+                    <ScrollView ref={mainScroll} style={ styles.modalScrollViewContainer } scrollEnabled={true} bounces={true}
+                        showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} keyboardDismissMode='on-drag' >
 
-                    <Text style={styles.title}>{props.title}</Text>
+                        <Text style={styles.title}>{props.title}</Text>
 
-                    {
-                        userList.map((user, key) =>
-                            <UserHeader key={key} user={user} style={styles.card} userID={getAuth().currentUser.uid} />
-                        )
-                    }
+                        {
+                            userList.map((user, key) =>
+                                <UserHeader key={key} user={user} style={styles.card} userID={getAuth().currentUser.uid} />
+                            )
+                        }
 
-                </ScrollView>
+                    </ScrollView>
+                </View>
 
             </KeyboardAvoidingView>
         </Modal>
@@ -70,9 +73,13 @@ const styles = StyleSheet.create({
         backgroundColor: "#143C63"
     },
 
+    modalBodyContainer: {
+        width: "100%",
+        flex: .95,
+        paddingHorizontal: 10
+    },
     modalScrollViewContainer: {
         width: "100%",
-        paddingVertical: 25,
     },
 
     title: {

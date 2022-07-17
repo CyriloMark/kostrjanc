@@ -148,6 +148,8 @@ export default function Settings({ navigation }) {
             <ScrollView style={{ width: "100%", marginTop: "25%", overflow: "hidden" }} contentContainerStyle={{ width: "100%", paddingBottom: "10%", }}
                 showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} >
 
+                <WarnButton style={ styles.linkButton } title={"Sy zmylk namakał?"} sub={"Přizjeł tutón nam prošu!"} />
+
                     {/* AUTH - Title */}
                 <Text style={ styles.title }>Konto</Text>
                 <Text style={ styles.text }>Twoja id: <Text onPress={ copyIDToClipboard } style={{ fontFamily: "Inconsolata_Black" }}>{userID}</Text></Text>
@@ -175,10 +177,10 @@ export default function Settings({ navigation }) {
                 <Text style={ styles.title }>Pomocne linki</Text>
 
                 <LinkButton style={ styles.linkButton } title={"Wopytaj tola raz kostrjanc.de, našu stronu w interneće!"} link="https://kostrjanc.de" />
-                <LinkButton style={ styles.linkButton } title={"Maš prašenja?\nPotom wopytaj kostrjanc.de a woprašej so nas!"} link="https://kostrjanc.de/pomoc" />
-                <LinkButton style={ styles.linkButton } title={"Sy zmylk namakał, potom přizjeł so prošu pola nas!"} link="https://kostrjanc.de/bugreport" />
-                <LinkButton style={ styles.linkButton } title={"Chceš na kostrjanc wabić?\nPřizjeł so pod linkom!"} link="https://kostrjanc.de/buissnes" />
-                <LinkButton style={ styles.linkButton } title={"Sy admin abo moderator?\nPotom wužiwaj dashboard we syći!"} link="http://dashboard.kostrjanc.de/" />
+                <LinkButton style={ styles.linkButton } title={"Maš prašenja?\nPotom wopytaj kostrjanc.de a woprašej so nas!"} link="https://kostrjanc.de/pomoc/index.html?return=index" />
+                <LinkButton style={ styles.linkButton } title={"Sy zmylk namakał, potom přizjeł so prošu pola nas!"} link="https://kostrjanc.de/pomoc/bugs.html?return=index" />
+                <LinkButton style={ styles.linkButton } title={"Chceš na kostrjanc wabić?\nPřizjeł so pod linkom!"} link="https://kostrjanc.de/pomoc/wabenje.html?return=index" />
+                <LinkButton style={ styles.linkButton } title={"Sy admin abo moderator?\nPotom wužiwaj dashboard we syći!"} link="https://dashboard.kostrjanc.de/" />
 
 
                 <View style={ styles.impressumContainer }>
@@ -195,19 +197,15 @@ export default function Settings({ navigation }) {
                         01920 Pančicy Kukow 
                         </Text>
                     <Text style={ styles.text }>
-                        <Text style={{ fontFamily: "Inconsolata_Black" }}>Předsedźerjo: {"\n"}</Text>
+                        <Text style={{ fontFamily: "Inconsolata_Black" }}>Ideja a přesadźenje: {"\n"}</Text>
                         Mark, Cyril; {"\n"}
                         Baier, Korla
                     </Text>
                     <Text style={ styles.text }>
                         <Text style={{ fontFamily: "Inconsolata_Black" }}>Kontakt: {"\n"}</Text>
-                        Telefon: 110 {"\n"}
-                        Fax: hab keins ruf mich an {"\n"}
+                        Telefon: +49 179 4361854 {"\n"}
                         E-Mail: info@kostrjanc.de
-                    </Text>
-                    <Text style={ styles.text }>
-                        <Text style={{ fontFamily: "Inconsolata_Black" }}>Dohladowarstwo: {"\n"}</Text>
-                        Dohladowarstwo Budyšin
+                        Internet: kostrjanc.de
                     </Text>
                     <Text style={ styles.text }>
                         <Text style={{ fontFamily: "Inconsolata_Black" }}>Rukowanja za wobsah: {"\n"}</Text>
@@ -268,6 +266,13 @@ export default function Settings({ navigation }) {
 
                 </View>
 
+                <View style={ styles.footerContainer } >
+                    <Text style={ styles.footerText }>wersija {require('../app.json').expo.version}</Text>
+                    <Text style={ styles.footerText }>Produced by Mark, Cyril; Baier, Korla</Text>
+                    <Text style={ styles.footerText }>© 2022 most rights reserved</Text>
+                </View>
+
+
             </ScrollView>
 
         </View>
@@ -316,8 +321,25 @@ const InteractionButton = (props) => {
         <View style={ props.style }>
             <Pressable style={ styles_link.linkContainer } onPress={ props.press } >
                 <Text style={ styles_link.titleText }>{props.title}</Text>
-                <Pressable style={ styles_link.linkBtn } onPress={ () => openLink(props.link) } >
+                <Pressable style={ styles_link.linkBtn } onPress={ () => openLink(props.press) } >
                     <SVG_Return style={ [styles_link.linkBtnIcon, { transform: [{ rotate: "180deg" }] } ]} fill={"#5884B0"} />
+                </Pressable>
+            </Pressable>
+        </View>
+    )
+}
+
+const WarnButton = (props) => {
+
+    return (
+        <View style={ props.style }>
+            <Pressable style={ styles_warn.warnContainer } onPress={ props.press } >
+                <View style={ styles_warn.warnTextContainer }>
+                    <Text style={ styles_warn.warnTitleText }>{props.title}</Text>
+                    <Text style={ styles_warn.warnSubText }>{props.sub}</Text>
+                </View>
+                <Pressable style={ styles_warn.warnBtn } onPress={ () => openLink(props.press) } >
+                    <SVG_Return style={ [styles_warn.warnBtnIcon, { transform: [{ rotate: "180deg" }] } ]} fill={"#143C63"} />
                 </Pressable>
             </Pressable>
         </View>
@@ -372,11 +394,23 @@ const styles = StyleSheet.create({
 
     impressumContainer: {
         width: "100%",
-    }
+    },
+
+    footerContainer: {
+        width: "100%",
+        marginVertical: 10,
+        paddingHorizontal: 25,
+        alignItems: "flex-end"
+    },
+    footerText: {
+        color: "#143C63",
+        fontFamily: "Inconsolata_Light",
+        fontSize: 15
+    },
 });
 
 
-const styles_link = {
+const styles_link = StyleSheet.create({
     linkContainer: {
         width: "100%",
         paddingVertical: 10,
@@ -404,4 +438,42 @@ const styles_link = {
         fontFamily: "Inconsolata_Regular",
         fontSize: 25,
     },
-}
+});
+
+const styles_warn = StyleSheet.create({
+    warnContainer: {
+        width: "100%",
+        padding: 25,
+        
+        borderRadius: 15,
+        backgroundColor: "#B06E6A",
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    warnBtn: {
+        flex: .1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    warnBtnIcon: {
+        width: "100%",
+        aspectRatio: 1,
+        
+    },
+    warnTextContainer: {
+        flex: .9,
+    },
+    warnTitleText: {
+        color: "#143C63",
+        textAlign: "left",
+        fontFamily: "Inconsolata_Black",
+        fontSize: 50,
+        marginBottom: 10
+    },
+    warnSubText: {
+        color: "#143C63",
+        textAlign: "left",
+        fontFamily: "Inconsolata_Regular",
+        fontSize: 25,
+    }
+});

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-import { StatusBar } from "react-native";
+import { StatusBar, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useFonts } from "expo-font";
@@ -11,6 +11,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getDatabase, ref, onValue } from "firebase/database";
 
 import BannView from "./componets/BannView";
+import UpdateVersionView from "./componets/UpdateVersionView";
 
 const app = initializeApp({
   apiKey: "AIzaSyAKOoHKDJSBvVUbKMG0F5uYLnuwgSINYk0",
@@ -35,6 +36,7 @@ export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   const [banned, setBanned] = useState(false);
+  const [recentVer, setRecentVer] = useState(true);
 
   const [fontsLoaded, fontsError] = useFonts({
     Inconsolata_Light: require("./assets/fonts/Inconsolata-ExtraLight.ttf"),
@@ -45,6 +47,8 @@ export default function App() {
   useEffect(() => {
     
     const auth = getAuth();
+    const db = getDatabase();
+
     onAuthStateChanged(auth, (user) => {
         if (user) {
             setLoggedIn(true);
@@ -56,17 +60,24 @@ export default function App() {
     });
 
     if (getAuth().currentUser !== null) {
-      const db = getDatabase();
       onValue(ref(db, "users/" + getAuth().currentUser.uid + "/isBanned"), (snapshot) => {
         const data = snapshot.val();
         setBanned(data);
       });
     }
 
+    onValue(ref(db, "version"), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        if (data === require('./app.json').expo.version) setRecentVer(true);
+        else setRecentVer(false);
+      }
+    });
+
   });
 
   if (!fontsLoaded) {
-    return (<></>); 
+    return (<View style={{ width: "100%", flex: 1, backgroundColor: "#5884B0" }} />); 
   }
 
   if (!loaded) {
@@ -75,18 +86,19 @@ export default function App() {
 
   if (!loggedIn) {
     return (
-      <NavigationContainer>
+      <NavigationContainer >
         <AuthManager />
       </NavigationContainer>
     )
   }
 
+  if (!recentVer) return <UpdateVersionView />
   if (banned) return <BannView />
 
   return (
     <NavigationContainer>
       <StatusBar animated barStyle="light-content" hidden={false} networkActivityIndicatorVisible />
-      <SafeAreaProvider style={{ flex: 1 }}>
+      <SafeAreaProvider style={{ width: "100%", flex: 1, backgroundColor: "#5884B0" }}>
         <ViewportManager />
       </SafeAreaProvider>
     </NavigationContainer>
