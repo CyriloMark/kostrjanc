@@ -20,7 +20,8 @@ const app = initializeApp({
   projectId: "kostrjanc",
   storageBucket: "kostrjanc.appspot.com",
   messagingSenderId: "919686819174",
-  appId: "1:919686819174:web:e5d7f4dd63f8ca62c6aca7"
+  appId: "1:919686819174:web:e5d7f4dd63f8ca62c6aca7",
+  measurementId: "G-Z5ZWQ53FS8"
 });
 
 import Loading from "./componets/Loading";

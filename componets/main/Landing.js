@@ -8,9 +8,10 @@ import { getDatabase, ref, child, get, set } from "firebase/database";
 import AppHeader from '../statics/AppHeader';
 import Navbar from '../statics/Navbar';
 
-import EventCard from '../statics/EventCard';
-import PostCard from '../statics/PostCard';
 import BannerCard from '../statics/BannerCard';
+import PostCard from '../statics/PostCard';
+import EventCard from '../statics/EventCard';
+import AdCard from '../statics/AdCard';
 
 let showingPosts = [];
 let showingEvents = [];
@@ -67,6 +68,7 @@ export default function Landing({ navigation }) {
     const db = getDatabase();
     
     userSpecificContent = [];
+    showingContentSize = 0;
     
     showingPosts = [];
     showingEvents = [];
@@ -242,13 +244,19 @@ export default function Landing({ navigation }) {
           }
           ids.forEach(e => output.push(e));
         }
-  
-        if (postsInput.concat(output).length === 0) noMorePostsAvaidable = true;
-  
-        output.forEach(e => showingEvents.push(e));
-        const finalList = safeContent.concat(postsInput.concat(output).sort(function(a, b) { return b - a }));
 
-        getFillingAds(finalList, showingContentSize);
+        if (postsInput.concat(output).length === 0) {
+          noMorePostsAvaidable = true;
+
+          output.forEach(e => showingEvents.push(e));
+          const finalList = safeContent.concat(postsInput.concat(output).sort(function(a, b) { return b - a }));
+          setPostEventList(finalList);
+        } else {
+          output.forEach(e => showingEvents.push(e));
+          const finalList = safeContent.concat(postsInput.concat(output).sort(function(a, b) { return b - a }));
+
+          getFillingAds(finalList, showingContentSize);
+        }
       })
       .catch(error => console.log("error", error.code))
   }
@@ -256,17 +264,21 @@ export default function Landing({ navigation }) {
   let getFillingAds = (peList, prevContentSize) => {
     let contentDiff = peList.length - prevContentSize;
     showingContentSize = peList.length;
-    
-    console.log("contentDiff", contentDiff);
 
-    
+    if (contentDiff === 0) {
+      setPostEventList(peList);
+      return;
+    }
 
-    // fetch("http://vps343020.ovh.net:8080/get_ad")
-    //   .then(resp => resp.json().then(ad => {
+    let finalList = [].concat(peList);
 
-    //   }))
+    for (let i = 0; i < AMT_ads; i++) {
+      const slot = Math.round(lerp(prevContentSize, peList.length, Math.random()));
+      finalList.splice(slot, 0, "_ad");
+    }
 
-    setPostEventList(peList);
+    setPostEventList(finalList);
+
   }
 
   let onHeaderPress = () => {
@@ -298,7 +310,7 @@ export default function Landing({ navigation }) {
         } onScroll={({nativeEvent}) => {
           if (isCloseToBottom(nativeEvent)) {
             //wenn ans Ende gescrollt wurde
-            if (!refreshing) getUserUnspecificPosts(2, postEventList);
+            if (!refreshing) getUserUnspecificPosts(AMT_posts, postEventList);
           }}} scrollEventThrottle={400} >
 
         {
@@ -309,11 +321,14 @@ export default function Landing({ navigation }) {
         }
 
         {
-          postEventList && showingPosts.length + showingEvents.length === postEventList.length ?
-            postEventList.map((data, key) => 
-              showingPosts.includes(data) ?
-                <PostCard key={key} style={styles.card} postID={data} onPress={ () => navigation.navigate('PostView', { postID: data }) } /> :
-                <EventCard key={key} style={styles.card} eventID={data} onPress={ () => navigation.navigate('EventView', { eventID: data }) } />
+          postEventList/* && showingPosts.length + showingEvents.length === postEventList.length*/ ?
+            postEventList.map((data, key) =>
+              data === "_ad" ?
+                <AdCard key={key} style={styles.card} /> :
+                  showingPosts.includes(data) ?
+                    <PostCard key={key} style={styles.card} postID={data} onPress={ () => navigation.navigate('PostView', { postID: data }) } /> :
+                      showingEvents.includes(data) ?
+                        <EventCard key={key} style={styles.card} eventID={data} onPress={ () => navigation.navigate('EventView', { eventID: data }) } /> : null
             ) : null
         }
 

@@ -31,7 +31,8 @@ export default function ViewportManager() {
     return (
         <SafeAreaView style={styles.container}>
             <Stack.Navigator initialRouteName="Recent" screenOptions={{
-                    headerShown: false
+                    headerShown: false,
+                    presentation: 'card'
                 }} >
                 <Stack.Screen name="Recent" component={Landing} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />
                 <Stack.Screen name="Search" component={Search} options={{ animationEnabled: false, gestureEnabled: false, cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }} />

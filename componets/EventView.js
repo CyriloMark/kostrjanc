@@ -166,7 +166,6 @@ export default function EventView({ navigation, route }) {
                 })
             })
             .finally(() => {
-                console.log("sjwskjw");
                 navigation.navigate('Recent');
             })
             .catch((error) => console.log("error", error.code))

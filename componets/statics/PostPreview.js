@@ -44,7 +44,7 @@ export function Preview_Post (props) {
 
                 <Image blurRadius={0} source={{ uri: props.imgUri }} style={ styles.previewPostBGImg } resizeMode="cover" />
 
-                <SVG_Post style={ styles.typePin } fill="#fff" />
+                <SVG_Post style={ styles.typePin } fill="#5884B0" />
 
                 <View style={ styles.previewPostContent }>
                     <Text style={[ styles.previewPostTitle, { opacity: !props.postShowText ? 0 : 1 } ]}>
@@ -67,7 +67,7 @@ export function Preview_Event (props) {
                     initialRegion={ props.geoCords }
                 />
 
-                <SVG_Event style={ styles.typePin } fill="#fff" />
+                <SVG_Event style={ styles.typePin } fill="#143C63" />
 
                 <View style={ styles.previewEventContent }>
                     <Text style={ styles.previewEventTitle }>
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         width: "80%",
         fontFamily: "Inconsolata_Black",
         fontSize: 25,
-        color: "rgba(255, 255, 255, .5)",
+        color: "#5884B0",
     },
 
     previewEventContainer: {
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
 
         fontFamily: "Inconsolata_Black",
         fontSize: 25,
-        color: "rgba(0, 0, 0, 1)"
+        color: "#143C63"
     },
     previewEventPin: {
         position: "absolute",

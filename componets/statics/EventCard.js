@@ -188,11 +188,13 @@ const styles = StyleSheet.create({
         fontFamily: "Inconsolata_Black",
         fontSize: 50,
         marginVertical: 10,
+        color: "#143C63"
     },
     eventCardInfoBio: {
         width: "80%",
         fontFamily: "Inconsolata_Regular",
         fontSize: 15,
+        color: "#143C63"
     },
     eventCardInterationsContainer: {
         width: "100%",

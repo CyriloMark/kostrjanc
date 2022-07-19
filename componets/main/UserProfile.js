@@ -537,8 +537,8 @@ export default function UserProfile({ navigation }) {
                                 <PostPreview postShowText={false} key={itemKey} item={item} style={ styles.postPreview }
                                     press={ () => {
                                         item.type === 0 ?
-                                            navigation.navigate('PostView', { postID: item.id }) :
-                                            navigation.navigate('EventView', { eventID: item.id })
+                                            navigation.push('PostView', { postID: item.id }) :
+                                            navigation.push('EventView', { eventID: item.id })
                                     } } />
                             ) }
                         </View>

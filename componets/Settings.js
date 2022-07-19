@@ -8,7 +8,6 @@ import { getAuth, signOut, deleteUser } from 'firebase/auth'
 import { getDatabase, set, ref, child, get } from 'firebase/database';
 import { getStorage, ref as storageRef , deleteObject } from "firebase/storage";
 
-
 import { setString } from 'expo-clipboard';
 
 import { openURL } from 'expo-linking'
@@ -137,7 +136,6 @@ export default function Settings({ navigation }) {
     }
 
     const getAccountData = () => {
-
     }
 
     return (
