@@ -3,13 +3,13 @@
     "name": "kostrjanc",
     "slug": "kostrjanc",
     "owner": "kostrjanc",
-    "version": "0.4.2b",
+    "version": "0.6.0b",
     "orientation": "portrait",
     "icon": "./assets/app-system-icons/icon.png",
     "splash": {
       "image": "./assets/app-system-icons/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#5884B0"
+      "backgroundColor": "#000000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -24,7 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-system-icons/adaptive-icon.png",
-        "backgroundColor": "#5884B0"
+        "backgroundColor": "#000000"
       }
     },
     "web": {

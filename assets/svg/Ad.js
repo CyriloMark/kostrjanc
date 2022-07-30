@@ -1,5 +1,4 @@
-import Svg, { Path
- } from "react-native-svg"
+import Svg, { Path } from "react-native-svg"
 
 export default function Ad(props) {
 
@@ -10,12 +9,10 @@ export default function Ad(props) {
     ];
 
     return (
-        <Svg viewBox="0 0 500 300">
-            {
-                adPath.map((d, key) => 
-                    <Path key={key} d={d} fill={props.fill} />
-                )
-            }
+        <Svg style={ props.style } viewBox="0 0 500 300">
+            <Path d={adPath[0]} fill={props.fill} />
+            <Path d={adPath[1]} fill={props.fill} />
+            <Path d={adPath[2]} fill={props.fill} />
         </Svg>
     )
 }
