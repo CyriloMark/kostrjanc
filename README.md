@@ -1,11 +1,35 @@
 # kostrjanc
+kostrjanc - 1. Serbski Social Media
 
-© 2022 - Kostrjanc - All rights reserved Produced by Mark, Cyril; Baier, Korla
+## Content
+1. [General] #general
+2. [Technologies] #technologies
+3. [Installation] #installation
+4. [Collaboration] #collaboration
 
-1. Sorbian Social Media Application
+### General
+"kostrjanc" je prěni serbski socialny medium, kotryž so jako aplikacija poskići.
+"kostrjanc" zmóžni jednore zwjazanje Serbow přez internet.
 
-Tools: RN/expo, JavaScript
-All assets in './assets' folder
-Initial index file: './App.js'
+"kostrjanc" ist das Erste Sorbische Sozial Media, die als App zur Verfügung steht.
+"kostrjanc" ermöglicht die einfache Kommunikation von Sorben durch das Internet.
 
-For questions and similar - info@kostrjanc.de
+"kostrjanc" is the first Sorbian social media avaidable as an app.
+"kostrjanc" enables Sorbians to communicate easily throuw the internet.
+
+### Technologies
+-- nodejs
+-- react / react-native
+-- JavaScript / Typescript
+-- firebase
+
+### Installation
+INIT: ./src/app.jsx
+$ git clone https://github.com/CyriloMark/kostrjanc
+$ cd ../kostrjanc/
+$ npm install
+$ npm start
+
+### Collaboration
+-- Mark, Cyril
+-- Baier, Korla
