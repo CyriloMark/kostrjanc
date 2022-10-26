@@ -7,6 +7,8 @@ import { getDatabase, ref, set } from "firebase/database";
 import { getDownloadURL, getStorage, uploadBytes } from "firebase/storage";
 import * as Storage from "firebase/storage";
 
+import RulesAgbModal from '../comp_static_screens/RulesAgbModal';
+
 import { getErrorMsg } from './AuthLanding';
 
 import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions } from 'expo-image-picker';
@@ -59,11 +61,14 @@ export default function AuthUserRegister({ navigation, route }) {
     
     const [errorText, setErrorText] = useState("");
 
+    const [agbVisible, setAgbVisible] = useState(false);
+
     const [userData, setUserData] = useState({
-        gender: 0,
         description: "",
+        gender: 0,
         ageGroup: 0,
-        pbUri: 'https://picsum.photos/500/500'
+        pbUri: 'https://picsum.photos/500/500',
+        agbChecked: false
     });
     const [pbImageUri, setPbImageUri] = useState(null);
 
@@ -104,9 +109,10 @@ export default function AuthUserRegister({ navigation, route }) {
     }
 
     const register = async () => {
-        
-        if (registerData.password !== registerData.confirmPassword) return;
-        if (!registerData.password.match(savePasswordRegex)) return;
+        if (!userData.agbChecked) {
+            setErrorText("Njejsy hišće naše regule sej přečitał a akceptował.")
+            return;
+        }
 
         const blob = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -160,6 +166,9 @@ export default function AuthUserRegister({ navigation, route }) {
 
     return (
         <View style={ styles.container } >
+
+            <RulesAgbModal visible={agbVisible} close={ () => setAgbVisible(false) } />
+
             <ScrollView style={ styles.contentContainer } contentContainerStyle={ styles.contentInnerContainer } showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false} bounces >
 
@@ -249,6 +258,18 @@ export default function AuthUserRegister({ navigation, route }) {
                                 description: value,
                             }) } />
                     </View>
+                </View>
+
+                <View style={{ flexDirection: "row", alignItems: "center" }} >
+                    <Pressable style={ styles.sectionBtn } onPress={ () => setAgbVisible(prev => !prev) } >
+                        <Text style={styles.sectionBtnText}>Powšitkowne wobchodne wuměnjenja a regule za wužiwanje kostrjanc</Text>
+                    </Pressable>
+
+                    <Pressable style={styles.toggleBtnContainer} onPress={ () => setUserData({ ...userData, agbChecked: !userData.agbChecked }) } >
+                        <Pressable style={[ styles.toggleBtn, { backgroundColor: !userData.agbChecked ? "transparent" : "#143C63" } ]}
+                            onPress={ () => setUserData({ ...userData, agbChecked: !userData.agbChecked }) } />
+                    </Pressable>
+
                 </View>
 
                     {/* Submit */}
@@ -467,6 +488,7 @@ const styles = StyleSheet.create({
 
         paddingHorizontal: 25,
         paddingVertical: 25,
+        marginTop: 25,
         marginBottom: 10,
 
         alignItems: "center",
@@ -486,6 +508,33 @@ const styles = StyleSheet.create({
         marginVertical: 25,
         width: "80%",
         alignSelf: "center"
+    },
+
+    sectionBtn: {
+        flex: .9,
+        padding: 10,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: "#143C63",
+    },
+    sectionBtnText: {
+        fontFamily: "Barlow_Regular",
+        fontSize: 20,
+        color: "#5884B0",
+    },
+    toggleBtnContainer: {
+        padding: 5,
+        flex: .1,
+        marginLeft: 5,
+        aspectRatio: 1,
+
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: "#143C63",
+    },
+    toggleBtn: {
+        width: "100%",
+        height: "100%",
     }
 
 })

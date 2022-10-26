@@ -111,7 +111,7 @@ export default function EventCreate({ navigation }) {
     }
 
     const publish = async () => {
-        if (btnPressed) false;
+        if (btnPressed) return;
         if (!submittalbe) return;
         if (eventData.starting === "undefined") return;
         btnPressed = true;

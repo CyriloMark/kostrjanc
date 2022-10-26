@@ -59,7 +59,6 @@ export default function AuthLanding({ navigation }) {
     const savePasswordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
 
     const loginScrollViewRef = useRef();
-    const registerScrollViewRef = useRef();
 
     const [errorText, setErrorText] = useState("");
 
