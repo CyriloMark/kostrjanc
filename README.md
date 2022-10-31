@@ -14,8 +14,8 @@ kostrjanc - 1. Serbski Social Media
 "kostrjanc" ist das Erste Sorbische Sozial Media, die als App zur Verfügung steht.
 "kostrjanc" ermöglicht die einfache Kommunikation von Sorben durch das Internet.
 
-"kostrjanc" is the first Sorbian social media avaidable as an app.
-"kostrjanc" enables Sorbians to communicate easily throuw the internet.
+"kostrjanc" is the first Sorbian social media avaidable as an application.
+"kostrjanc" enables Sorbians to communicate easily through the internet.
 
 ### Technologies
 -- nodejs
