@@ -23,6 +23,7 @@ import EventCreate from "../comp_variable_screens/EventCreate";
 const Stack = createStackNavigator();
 
 export default function ViewportManager() {
+  // Gestures Navigation
   const gestureOptions = {
     animationEnabled: Platform.OS === "ios" ? true : false,
     gestureEnabled: Platform.OS === "ios" ? true : false,
@@ -117,6 +118,6 @@ export default function ViewportManager() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#143C63",
+    backgroundColor: "#5884B0",
   },
 });

@@ -8,64 +8,80 @@ import AppHeader from "../comp_static_items/AppHeader";
 import { get, child, getDatabase, ref } from "firebase/database";
 
 export default function UpdateVersionView() {
-
   const [recentVersion, setRecentVersion] = useState();
 
+  // Get Current Version - Firebase
   useEffect(() => {
     get(child(ref(getDatabase()), "version"))
-      .then(ver => setRecentVersion(ver.val()))
-      .catch(error => console.log("error UpdateVersionView version", error.code))
+      .then((ver) => setRecentVersion(ver.val()))
+      .catch((error) =>
+        console.log("error UpdateVersionView version", error.code)
+      );
   }, []);
 
   return (
-    <SafeAreaView style={ styles.container } >
-
+    <SafeAreaView style={styles.container}>
       <AppHeader style={styles.header} />
 
-      <ScrollView style={ styles.contentContainer } contentContainerStyle={[ styles.contentInnerContainer, { marginVertical: -5 } ]} showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false} bounces={false}>
-
-        <View style={ styles.iconContainer }>
-          <Image source={require('../../assets/app-system-icons/icon.png')} style={ styles.icon } resizeMode="contain" />
+      <ScrollView
+        style={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentInnerContainer,
+          { marginVertical: -5 },
+        ]}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View style={styles.iconContainer}>
+          <Image
+            source={require("../../assets/app-system-icons/icon.png")}
+            style={styles.icon}
+            resizeMode="contain"
+          />
         </View>
 
-        <Text style={ styles.heading }>Twój kostrjanc njeje wjac na najnowšim stawje! Prošu instaluj sej najaktualnišu wersiju</Text>
-        <Text style={ styles.subHeading }>Twoja wersija {require('../../app.json').expo.version}</Text>
-        <Text style={ styles.subHeading }>Aktualna wersija {recentVersion}</Text>
-
+        <Text style={styles.heading}>
+          Twój kostrjanc njeje wjac na najnowšim stawje! Prošu instaluj sej
+          najaktualnišu wersiju
+        </Text>
+        <Text style={styles.subHeading}>
+          Twoja wersija {require("../../app.json").expo.version}
+        </Text>
+        <Text style={styles.subHeading}>Aktualna wersija {recentVersion}</Text>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#143C63",
+    backgroundColor: "#5884B0",
   },
 
   contentContainer: {
-      flex: .8,
-      width: "100%",
-      paddingVertical: 5,
-      borderRadius: 25,
+    flex: 0.8,
+    width: "100%",
+    paddingVertical: 5,
+    borderRadius: 25,
   },
   contentInnerContainer: {
-      paddingHorizontal: 10,
-      backgroundColor: "#000",
-      flex: 1,
+    paddingHorizontal: 10,
+    backgroundColor: "#000",
+    flex: 1,
 
-      justifyContent: "center",
-      alignItems: "center"
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   header: {
-      flex: .08,
-      width: "100%",
+    flex: 0.08,
+    width: "100%",
 
-      alignSelf: "center",
+    alignSelf: "center",
 
-      zIndex: 99
+    zIndex: 99,
   },
 
   iconContainer: {
@@ -78,7 +94,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: "100%",
-    height: "100%"
+    height: "100%",
   },
   heading: {
     width: "100%",
@@ -86,7 +102,7 @@ const styles = StyleSheet.create({
     fontFamily: "Barlow_Bold",
     fontSize: 25,
     marginVertical: 5,
-    textAlign: "center"
+    textAlign: "center",
   },
   subHeading: {
     width: "80%",
@@ -94,6 +110,6 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMono_Thin",
     fontSize: 15,
     marginVertical: 5,
-    textAlign: "center"
+    textAlign: "center",
   },
 });

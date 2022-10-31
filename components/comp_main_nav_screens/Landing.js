@@ -6,11 +6,10 @@ import {
   ScrollView,
   RefreshControl,
   Text,
-  Platform,
 } from "react-native";
 
 import { getAuth } from "firebase/auth";
-import { getDatabase, ref, child, get, set } from "firebase/database";
+import { getDatabase, ref, child, get } from "firebase/database";
 
 import AppHeader from "../comp_static_items/AppHeader";
 import Navbar from "../comp_static_items/Navbar";
@@ -19,7 +18,6 @@ import BannerCard from "../comp_variable_items/BannerCard";
 import PostCard from "../comp_variable_items/PostCard";
 import EventCard from "../comp_variable_items/EventCard";
 import AdCard from "../comp_variable_items/AdCard";
-import PinnedCard from "../comp_variable_items/PinnedCard";
 
 import MainSplitLine from "../comp_static_items/MainSplitLine";
 
@@ -56,6 +54,7 @@ export default function Landing({ navigation }) {
   const [postEventList, setPostEventList] = useState(null);
   const [banners, setBanners] = useState(null);
 
+  //#region Algorithm
   const getNewBanners = () => {
     const db = getDatabase();
     get(child(ref(db), "banners"))
@@ -201,6 +200,7 @@ export default function Landing({ navigation }) {
       );
   };
 
+  // Get Amount to Render at once -> AMT_posts, AMT_events, AMT_ads
   useEffect(() => {
     fetch(
       "https://kostrjanc-default-rtdb.europe-west1.firebasedatabase.app/AMT_post-event-ad.json"
@@ -315,6 +315,7 @@ export default function Landing({ navigation }) {
       .catch((error) => console.log("error getuserunevents", error.code));
   };
 
+  // Get Ads - no content - placeholder - key: _ad
   let getFillingAds = (peList, prevContentSize) => {
     let contentDiff = peList.length - prevContentSize;
     showingContentSize = peList.length;
@@ -334,7 +335,9 @@ export default function Landing({ navigation }) {
     }
     setPostEventList(finalList);
   };
+  //#endregion
 
+  // onHeaderPress -> reload
   let onHeaderPress = () => {
     mainScrollRef.current.scrollTo({ x: 0, y: 0, animated: true });
     // if (postEventList.length != 0) return;
@@ -376,6 +379,7 @@ export default function Landing({ navigation }) {
         }}
         scrollEventThrottle={400}
       >
+        {/* banners -> content render */}
         {banners
           ? banners.map((data, key) => (
               <BannerCard
@@ -386,6 +390,7 @@ export default function Landing({ navigation }) {
             ))
           : null}
 
+        {/* postEventList -> content render */}
         {postEventList
           ? postEventList.map((data, key) =>
               data === "_ad" ? (
@@ -434,6 +439,7 @@ export default function Landing({ navigation }) {
             )
           : null}
 
+        {/* No More Avaidable Content - Text (Hint) */}
         {noMorePostsAvaidable ? (
           <View style={styles.endContainer}>
             <Text style={styles.endText}>Ty sy cyły kostrjanc předźěłał!</Text>
@@ -461,8 +467,10 @@ export default function Landing({ navigation }) {
   );
 }
 
+// LERP FKT
 export const lerp = (min, max, ratio) => min * (1 - ratio) + max * ratio;
 
+// Scroll End Detection
 const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
   const paddingToBottom = 20;
   return (
@@ -474,7 +482,7 @@ const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#143C63",
+    backgroundColor: "#5884B0",
   },
 
   header: {
@@ -526,6 +534,6 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMono_Thin",
     fontSize: 15,
     textAlign: "center",
-    color: "#143C63",
+    color: "#5884B0",
   },
 });
