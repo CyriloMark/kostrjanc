@@ -30,6 +30,8 @@ let AMT_posts = 0;
 let AMT_events = 0;
 let AMT_ads = 0;
 
+const adsEnabled = false;
+
 const wait = (timeout) => {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 };
@@ -317,6 +319,11 @@ export default function Landing({ navigation }) {
 
   // Get Ads - no content - placeholder - key: _ad
   let getFillingAds = (peList, prevContentSize) => {
+    if (!adsEnabled) {
+      setPostEventList(peList);
+      return;
+    }
+
     let contentDiff = peList.length - prevContentSize;
     showingContentSize = peList.length;
 
