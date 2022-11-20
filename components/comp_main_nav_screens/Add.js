@@ -89,18 +89,18 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 0.08,
     width: "100%",
-    alignItems: "center",
+    paddingHorizontal: 10,
     justifyContent: "center",
   },
   title: {
     fontFamily: "Barlow_Bold",
-    fontSize: 25,
-    textAlign: "center",
+    fontSize: 20,
+    marginLeft: 10,
     color: "#000000",
   },
 
   contentContainer: {
-    flex: 0.9,
+    flex: 1,
     width: "100%",
     paddingVertical: 5,
     borderRadius: 25,
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
   },
 
   navbar: {
-    height: "6%",
-    width: "80%",
+    flex: 0.07,
+    width: "100%",
     alignSelf: "center",
     zIndex: 99,
   },

@@ -26,17 +26,18 @@ export default function AppHeader(props) {
 const styles = StyleSheet.create({
   headerContainer: {
     width: "100%",
-    height: "100%",
-    backgroundColor: "#5884B0",
-    paddingHorizontal: 10,
-    paddingVertical: 7,
+
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+
+    backgroundColor: "#5884B0",
   },
 
   settingsBtn: {
-    flex: 0.2,
     height: "100%",
+    flex: 0.2,
     alignItems: "center",
   },
   settingsBtnBG: {
@@ -59,7 +60,6 @@ const styles = StyleSheet.create({
   headerTitleText: {
     flex: 0.8,
     color: "#000000",
-    textAlign: "left",
     marginLeft: 10,
     fontFamily: "Barlow_Bold",
     fontSize: 20,

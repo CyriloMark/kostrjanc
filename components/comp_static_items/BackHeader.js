@@ -26,14 +26,14 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 7,
 
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#5884B0",
   },
   backBtn: {
-    marginVertical: 5,
+    height: "100%",
     flex: 0.2,
     alignItems: "center",
   },
@@ -53,11 +53,12 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 50,
   },
+
   titleText: {
     flex: 0.8,
     color: "#000000",
-    marginLeft: 10,
+    // marginLeft: 10,
     fontFamily: "Barlow_Bold",
-    fontSize: 25,
+    fontSize: 20,
   },
 });

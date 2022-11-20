@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
   },
 
   contentContainer: {
-    flex: 0.8,
+    flex: 1,
     width: "100%",
     paddingVertical: 5,
     borderRadius: 25,
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
   },
 
   backHeader: {
-    flex: 0.1,
+    flex: 0.08,
     width: "100%",
 
     alignSelf: "center",
@@ -948,7 +948,7 @@ const styles = StyleSheet.create({
   },
 
   interactionsContainer: {
-    height: "6%",
+    flex: 0.07,
     width: "100%",
     alignSelf: "center",
     zIndex: 99,

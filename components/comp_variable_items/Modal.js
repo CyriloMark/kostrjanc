@@ -56,11 +56,6 @@ const styles = StyleSheet.create({
     paddingBottom: 25,
 
     backgroundColor: "#000000",
-
-    borderWidth: 1,
-    borderColor: "#143C63",
-    borderRadius: 10,
-    borderBottomColor: "#000000",
   },
   layerA: {
     width: "100%",
@@ -81,16 +76,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#000000",
     paddingHorizontal: 25,
     paddingBottom: 25,
-
-    borderWidth: 1,
-    borderColor: "#143C63",
-    borderBottomColor: "#000000",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
   },
 
   closeLine: {
-    height: 40,
+    height: 30,
     width: "100%",
     alignSelf: "center",
     marginVertical: 10,

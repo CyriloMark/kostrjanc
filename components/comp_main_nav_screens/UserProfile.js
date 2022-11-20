@@ -574,6 +574,10 @@ export default function UserProfile({ navigation }) {
         }
       />
 
+      <View style={styles.header}>
+        <Text style={styles.headerText}>{LOCAL_USER.name}</Text>
+      </View>
+
       <ScrollView
         style={styles.contentContainer}
         contentContainerStyle={styles.contentInnerContainer}
@@ -709,14 +713,28 @@ const styles = StyleSheet.create({
   },
 
   navbar: {
-    height: "6%",
-    width: "80%",
+    flex: 0.07,
+    width: "100%",
     alignSelf: "center",
     zIndex: 99,
   },
 
+  header: {
+    flex: 0.08,
+    width: "100%",
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerText: {
+    color: "#000000",
+    fontFamily: "Barlow_Bold",
+    fontSize: 20,
+    marginLeft: 10,
+  },
+
   contentContainer: {
-    flex: 0.8,
+    flex: 1,
     width: "100%",
     paddingVertical: 5,
     borderRadius: 25,

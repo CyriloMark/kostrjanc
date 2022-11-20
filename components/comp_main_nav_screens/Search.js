@@ -201,14 +201,14 @@ const styles = StyleSheet.create({
   },
 
   navbar: {
-    height: "6%",
-    width: "80%",
+    flex: 0.07,
+    width: "100%",
     alignSelf: "center",
     zIndex: 99,
   },
 
   contentContainer: {
-    flex: 0.84,
+    flex: 1,
     width: "100%",
     paddingVertical: 5,
     borderRadius: 25,

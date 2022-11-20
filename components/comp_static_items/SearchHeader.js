@@ -17,7 +17,7 @@ export default function SearchHeader(props) {
           multiline={false}
           numberOfLines={1}
           placeholderTextColor={"#000000"}
-          selectionColor={"#5884B0"}
+          selectionColor={"#143C63"}
           keyboardType="default"
           keyboardAppearance="dark"
           value={props.input}
@@ -38,7 +38,6 @@ export default function SearchHeader(props) {
 const styles = StyleSheet.create({
   headerContainer: {
     width: "100%",
-    borderRadius: 25,
 
     flexDirection: "row",
     alignItems: "center",
@@ -73,12 +72,12 @@ const styles = StyleSheet.create({
   input: {
     flex: 0.8,
     height: "80%",
-    marginHorizontal: 10,
+    marginLeft: 10,
 
     fontFamily: "Barlow_Regular",
     fontSize: 20,
     color: "#000000",
 
-    borderRadius: 15,
+    // borderRadius: 15,
   },
 });

@@ -501,15 +501,15 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   navbar: {
-    height: "6%",
-    width: "80%",
+    flex: 0.07,
+    width: "100%",
     alignSelf: "center",
     zIndex: 99,
   },
 
   contentContainer: {
     width: "100%",
-    flex: 0.84,
+    flex: 1,
     paddingVertical: 5,
     borderRadius: 25,
   },

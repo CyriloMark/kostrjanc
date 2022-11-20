@@ -14,7 +14,7 @@ export default function Navbar(props) {
         <Pressable
           style={[
             styles.navbarItem,
-            { transform: [{ scale: props.active === 0 ? 1.1 : 1 }] },
+            // { transform: [{ scale: props.active === 0 ? 1.1 : 1 }] },
           ]}
           onPress={props.onPressRecent}
           hitSlop={10}
@@ -24,7 +24,7 @@ export default function Navbar(props) {
         <Pressable
           style={[
             styles.navbarItem,
-            { transform: [{ scale: props.active === 1 ? 1.1 : 1 }] },
+            // { transform: [{ scale: props.active === 1 ? 1.1 : 1 }] },
           ]}
           onPress={props.onPressSearch}
           hitSlop={10}
@@ -34,7 +34,7 @@ export default function Navbar(props) {
         <Pressable
           style={[
             styles.navbarItem,
-            { transform: [{ scale: props.active === 2 ? 1.1 : 1 }] },
+            // { transform: [{ scale: props.active === 2 ? 1.1 : 1 }] },
           ]}
           onPress={props.onPressAdd}
           hitSlop={10}
@@ -44,7 +44,7 @@ export default function Navbar(props) {
         <Pressable
           style={[
             styles.navbarItem,
-            { transform: [{ scale: props.active === 3 ? 1.1 : 1 }] },
+            // { transform: [{ scale: props.active === 3 ? 1.1 : 1 }] },
           ]}
           onPress={props.onPressProfile}
           hitSlop={10}
