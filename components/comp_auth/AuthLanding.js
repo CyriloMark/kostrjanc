@@ -165,7 +165,6 @@ export default function AuthLanding({ navigation }) {
                 keyboardAppearance="dark"
                 value={loginData.email}
                 autoCapitalize="none"
-                autoComplete="email"
                 textContentType="emailAddress"
                 editable
                 onChangeText={(value) =>
@@ -191,7 +190,6 @@ export default function AuthLanding({ navigation }) {
                 keyboardAppearance="dark"
                 value={loginData.password}
                 autoCapitalize="none"
-                autoComplete="password"
                 textContentType="password"
                 secureTextEntry
                 editable
@@ -242,7 +240,6 @@ export default function AuthLanding({ navigation }) {
                 keyboardAppearance="dark"
                 value={registerData.name}
                 autoCapitalize="none"
-                autoComplete="username"
                 textContentType="username"
                 editable
                 onChangeText={(value) =>
@@ -268,7 +265,6 @@ export default function AuthLanding({ navigation }) {
                 keyboardAppearance="dark"
                 value={registerData.email}
                 autoCapitalize="none"
-                autoComplete="email"
                 textContentType="emailAddress"
                 editable
                 onChangeText={(value) =>
@@ -294,7 +290,6 @@ export default function AuthLanding({ navigation }) {
                 keyboardAppearance="dark"
                 value={registerData.password}
                 autoCapitalize="none"
-                autoComplete="password"
                 textContentType="password"
                 secureTextEntry
                 editable
@@ -321,7 +316,6 @@ export default function AuthLanding({ navigation }) {
                 keyboardAppearance="dark"
                 value={registerData.confirmPassword}
                 autoCapitalize="none"
-                autoComplete="password"
                 textContentType="password"
                 secureTextEntry
                 editable
@@ -378,7 +372,6 @@ export default function AuthLanding({ navigation }) {
                 keyboardAppearance="dark"
                 value={loginData.email}
                 autoCapitalize="none"
-                autoComplete="email"
                 textContentType="emailAddress"
                 editable
                 onChangeText={(value) => setResetEmail(value)}

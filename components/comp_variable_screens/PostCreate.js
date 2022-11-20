@@ -225,7 +225,6 @@ export default function PostCreate({ navigation }) {
           keyboardAppearance="dark"
           value={postData.title}
           autoCapitalize="sentences"
-          autoComplete={false}
           textContentType="name"
           editable
           onChangeText={(value) => {
@@ -249,7 +248,6 @@ export default function PostCreate({ navigation }) {
           keyboardAppearance="dark"
           value={postData.description}
           autoCapitalize="sentences"
-          autoComplete={false}
           editable
           onChangeText={(value) => {
             setPostData({

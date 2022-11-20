@@ -94,7 +94,6 @@ export default function CommentsModal(props) {
               keyboardType="default"
               value={input}
               autoCapitalize="sentences"
-              autoComplete={false}
               textContentType="none"
               editable
               onChangeText={(value) => setInput(value)}

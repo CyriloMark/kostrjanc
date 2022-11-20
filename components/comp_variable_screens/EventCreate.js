@@ -470,7 +470,6 @@ export default function EventCreate({ navigation }) {
             keyboardAppearance="dark"
             value={eventData.title}
             autoCapitalize="sentences"
-            autoComplete={false}
             textContentType="name"
             editable
             onChangeText={(value) => {
@@ -494,7 +493,6 @@ export default function EventCreate({ navigation }) {
             keyboardAppearance="dark"
             value={eventData.description}
             autoCapitalize="sentences"
-            autoComplete={false}
             editable
             onChangeText={(value) => {
               setEventData({
@@ -517,7 +515,6 @@ export default function EventCreate({ navigation }) {
             keyboardType="numbers-and-punctuation"
             keyboardAppearance="dark"
             autoCapitalize="none"
-            autoComplete={false}
             editable
             onChangeText={(value) => {
               setEventData({
@@ -539,7 +536,6 @@ export default function EventCreate({ navigation }) {
             keyboardType="numbers-and-punctuation"
             keyboardAppearance="dark"
             autoCapitalize="none"
-            autoComplete={false}
             editable
             onChangeText={(value) => {
               setEventData({
@@ -599,7 +595,6 @@ export default function EventCreate({ navigation }) {
               keyboardAppearance="dark"
               value={additionalData.theme}
               autoCapitalize="words"
-              autoComplete={false}
               textContentType="none"
               editable
               onChangeText={(value) => {
@@ -622,7 +617,6 @@ export default function EventCreate({ navigation }) {
               keyboardType="decimal-pad"
               keyboardAppearance="dark"
               autoCapitalize="none"
-              autoComplete={false}
               textContentType="none"
               editable
               onChangeText={(value) => {
@@ -646,7 +640,6 @@ export default function EventCreate({ navigation }) {
               keyboardAppearance="dark"
               value={additionalData.website}
               autoCapitalize="none"
-              autoComplete={false}
               textContentType="URL"
               editable
               onChangeText={(value) => {
@@ -865,6 +858,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
+    minHeight: 25,
   },
 
   input: {

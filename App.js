@@ -73,7 +73,7 @@ export default function App() {
 
     // Android Bottom Nav Bar - Color
     if (Platform.OS === "android") {
-      setBackgroundColorAsync("#143C63");
+      setBackgroundColorAsync("#5884B0");
       setButtonStyleAsync("light");
     }
 

@@ -746,6 +746,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
+
+    minHeight: 25,
   },
   delIcon: {
     width: "50%",
