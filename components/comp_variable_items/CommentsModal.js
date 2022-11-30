@@ -39,7 +39,7 @@ export default function CommentsModal(props) {
 
     const inp = input;
     setInput("");
-    console.log(commentsList);
+
     let a = commentsList;
     a.unshift({
       creator: getAuth().currentUser.uid,
@@ -48,7 +48,18 @@ export default function CommentsModal(props) {
     });
     setCommentsList(a);
 
+    console.log(
+      (props.type === 0 ? "posts/" : "events/") + props.id + "/comments"
+    );
     const db = getDatabase();
+    set(
+      ref(
+        db,
+        (props.type === 0 ? "posts/" : "events/") + props.id + "/comments"
+      ),
+      commentsList
+    );
+    /*
     get(child(ref(db), props.type === 0 ? "posts/" : "events/" + props.id))
       .then((snapshot) => {
         if (snapshot.exists()) {
@@ -61,7 +72,7 @@ export default function CommentsModal(props) {
       })
       .catch((error) =>
         console.log("error getPosts or Events CommentsModal", error.code)
-      );
+      );*/
   };
 
   return (
