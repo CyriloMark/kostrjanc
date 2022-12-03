@@ -196,7 +196,7 @@ const styles_post = StyleSheet.create({
   postText: {
     width: "100%",
     fontFamily: "Barlow_Bold",
-    fontSize: 25,
+    fontSize: 20,
     color: "#000000",
   },
 });
@@ -231,7 +231,7 @@ const styles_event = StyleSheet.create({
   eventText: {
     width: "100%",
     fontFamily: "Barlow_Bold",
-    fontSize: 25,
+    fontSize: 20,
     color: "#5884B0",
   },
 });

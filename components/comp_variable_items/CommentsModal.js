@@ -48,9 +48,6 @@ export default function CommentsModal(props) {
     });
     setCommentsList(a);
 
-    console.log(
-      (props.type === 0 ? "posts/" : "events/") + props.id + "/comments"
-    );
     const db = getDatabase();
     set(
       ref(
