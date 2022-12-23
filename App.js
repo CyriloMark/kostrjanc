@@ -142,7 +142,9 @@ export default function App() {
   if (!loggedIn) {
     return (
       <NavigationContainer>
-        <AuthManager />
+        <SafeAreaProvider>
+          <AuthManager />
+        </SafeAreaProvider>
       </NavigationContainer>
     );
   }

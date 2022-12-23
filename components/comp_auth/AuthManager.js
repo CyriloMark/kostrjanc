@@ -30,6 +30,7 @@ export default function AuthManager() {
         initialRouteName="AuthLanding"
         screenOptions={{
           headerShown: false,
+          presentation: "card",
         }}
       >
         <Stack.Screen

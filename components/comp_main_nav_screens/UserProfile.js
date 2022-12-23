@@ -835,7 +835,8 @@ const styles = StyleSheet.create({
 
   editBtn: {
     width: "80%",
-    marginVertical: 25,
+    marginTop: 10,
+    marginBottom: 25,
     alignSelf: "center",
   },
 });
